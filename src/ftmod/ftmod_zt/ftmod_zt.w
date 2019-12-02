@@ -50,7 +50,7 @@
 #define GOTO_STATUS(label,st) status = st; goto label ;
 
 #define ftdm_copy_string(x,y,z) strncpy(x, y, z - 1) 
-#define ftdm_set_string(x,y) strncpy(x, y, sizeof(x)-1) 
+
 #define ftdm_strlen_zero(s) (!s || *s == '\0')
 #define ftdm_strlen_zero_buf(s) (*s == '\0')
 
@@ -182,17 +182,6 @@ struct ftdm_stream_handle {
 
 FT_DECLARE_NONSTD(ftdm_status_t) ftdm_console_stream_raw_write(ftdm_stream_handle_t *handle, uint8_t *data, ftdm_size_t datalen);
 FT_DECLARE_NONSTD(ftdm_status_t) ftdm_console_stream_write(ftdm_stream_handle_t *handle, const char *fmt, ...);
-
-#define FTDM_CMD_CHUNK_LEN 1024
-#define FTDM_STANDARD_STREAM(s) memset(&s, 0, sizeof(s)); s.data = ftdm_malloc(FTDM_CMD_CHUNK_LEN); \
-	assert(s.data);														\
-	memset(s.data, 0, FTDM_CMD_CHUNK_LEN);								\
-	s.end = s.data;														\
-	s.data_size = FTDM_CMD_CHUNK_LEN;									\
-	s.write_function = ftdm_console_stream_write;						\
-	s.raw_write_function = ftdm_console_stream_raw_write;				\
-	s.alloc_len = FTDM_CMD_CHUNK_LEN;									\
-	s.alloc_chunk = FTDM_CMD_CHUNK_LEN
 
 /*! brief create a new queue */
 #define ftdm_queue_create(queue, capacity) g_ftdm_queue_handler.create(queue, capacity)
@@ -958,7 +947,7 @@ static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain, int c
 
   switch (codec) {
   case FTDM_CODEC_ALAW:
-		for (j = 0; j < (sizeof(g->receive_gain) / sizeof(g->receive_gain[0])); j++) {
+		for (j = 0; j < (sizeof g->receive_gain / sizeof g->receive_gain[0]); j++) {
 			if (rxgain) {
 				k = (int) (((float) alaw_to_linear(j)) * linear_rxgain);
 				if (k > 32767) k = 32767;
@@ -978,7 +967,7 @@ static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain, int c
 		}
 		break;
 	case FTDM_CODEC_ULAW:
-		for (j = 0; j < (sizeof(g->receive_gain) / sizeof(g->receive_gain[0])); j++) {
+		for (j = 0; j < (sizeof g->receive_gain / sizeof g->receive_gain[0]); j++) {
 			if (rxgain) {
 				k = (int) (((float) ulaw_to_linear(j)) * linear_rxgain);
 				if (k > 32767) k = 32767;
@@ -1020,7 +1009,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
   zt_params_t ztp;
   zt_tone_mode_t mode = 0;
 
-  memset(&ztp, 0, sizeof(ztp));
+  memset(&ztp, 0, sizeof ztp);
 
   if (type == FTDM_CHAN_TYPE_CAS)
     ftdm_log(FTDM_LOG_DEBUG, "Configuring CAS channels with abcd == 0x%X\n", cas_bits);
@@ -1042,7 +1031,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 
       if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO) {
         struct zt_chanconfig cc;
-        memset(&cc, 0, sizeof(cc));
+        memset(&cc, 0, sizeof cc);
         cc.chan = cc.master = x;
 				
         switch(type) {
@@ -1157,9 +1146,9 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
       }
 
       if (ftdm_strlen_zero(name) == 0)
-	ftdm_copy_string(ftdmchan->chan_name, name, sizeof(ftdmchan->chan_name));
+	ftdm_copy_string(ftdmchan->chan_name, name, sizeof ftdmchan->chan_name);
       if (ftdm_strlen_zero(number) == 0)
-	ftdm_copy_string(ftdmchan->chan_number, number, sizeof(ftdmchan->chan_number));
+	ftdm_copy_string(ftdmchan->chan_number, number, sizeof ftdmchan->chan_number);
 
       configured++;
     }
@@ -1199,7 +1188,7 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span, const char *str, ftdm_
 	assert(mydata != NULL);
 
 
-	items = ftdm_separate_string(mydata, ',', item_list, (sizeof(item_list) / sizeof(item_list[0])));
+	items = ftdm_separate_string(mydata, ',', item_list, (sizeof item_list / sizeof item_list[0]));
 
 	for(i = 0; i < items; i++) {
 		ch = item_list[i];
@@ -1331,7 +1320,7 @@ static ftdm_status_t zt_open(ftdm_channel_t *ftdmchan)
   int blocksize = zt_globals.codec_ms * (ftdmchan->rate / 1000);
   int err;
   if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize))) {
-    snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", strerror(errno));
+    snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "%s", strerror(errno));
     return FTDM_FAIL;
   }
   else {
@@ -1342,7 +1331,7 @@ static ftdm_status_t zt_open(ftdm_channel_t *ftdmchan)
 		
   if (zt_globals.rxgain || zt_globals.txgain) {
     struct zt_gains gains;
-    memset(&gains, 0, sizeof(gains));
+    memset(&gains, 0, sizeof gains);
 
     gains.chan_no = ftdmchan->physical_chan_id;
     zt_build_gains(&gains, zt_globals.rxgain, zt_globals.txgain, ftdmchan->native_codec);
@@ -1391,7 +1380,7 @@ static ftdm_status_t zt_close(ftdm_channel_t *ftdmchan)
 	if (ftdmchan->type == FTDM_CHAN_TYPE_B) {
 		int value = 0;	/* disable audio mode */
 		if (ioctl(ftdmchan->sockfd, DAHDI_AUDIOMODE, &value)) {
-			snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", strerror(errno));
+			snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "%s", strerror(errno));
 			ftdm_log(FTDM_LOG_ERROR, "%s\n", ftdmchan->last_error);
 			return FTDM_FAIL;
 		}
@@ -1412,7 +1401,7 @@ static ftdm_status_t zt_command(ftdm_channel_t *ftdmchan, ftdm_command_t command
 	zt_params_t ztp;
 	int err = 0;
 
-	memset(&ztp, 0, sizeof(ztp));
+	memset(&ztp, 0, sizeof ztp);
 
 	switch(command) {
 	case FTDM_COMMAND_ENABLE_ECHOCANCEL:
@@ -1593,7 +1582,7 @@ static ftdm_status_t zt_command(ftdm_channel_t *ftdmchan, ftdm_command_t command
 	}
 
 	if (err && err != FTDM_NOTIMPL) {
-		snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", strerror(errno));
+		snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "%s", strerror(errno));
 		return FTDM_FAIL;
 	}
 
@@ -1610,14 +1599,14 @@ static ftdm_status_t zt_get_alarms(ftdm_channel_t *ftdmchan)
   struct zt_spaninfo info;
   zt_params_t params;
 
-  memset(&info, 0, sizeof(info));
+  memset(&info, 0, sizeof info);
   info.span_no = ftdmchan->physical_span_id;
 
-  memset(&params, 0, sizeof(params));
+  memset(&params, 0, sizeof params);
 
   if (ioctl(CONTROL_FD, DAHDI_SPANSTAT, &info)) {
-    snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "ioctl failed (%m)");
-    snprintf(ftdmchan->span->last_error, sizeof(ftdmchan->span->last_error), "ioctl failed (%m)");
+    snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "ioctl failed (%m)");
+    snprintf(ftdmchan->span->last_error, sizeof ftdmchan->span->last_error, "ioctl failed (%m)");
     return FTDM_FAIL;
   }
 
@@ -1625,8 +1614,8 @@ static ftdm_status_t zt_get_alarms(ftdm_channel_t *ftdmchan)
 
   if (info.alarms == FTDM_ALARM_NONE) { /* get channel alarms if span has no alarms */
     if (ioctl(ftdmchan->sockfd, DAHDI_GET_PARAMS, &params)) {
-      snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "ioctl failed (%m)");
-      snprintf(ftdmchan->span->last_error, sizeof(ftdmchan->span->last_error),
+      snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "ioctl failed (%m)");
+      snprintf(ftdmchan->span->last_error, sizeof ftdmchan->span->last_error,
         "ioctl failed (%m)");
       return FTDM_FAIL;
     }
@@ -1682,7 +1671,7 @@ static ftdm_status_t zt_wait(ftdm_channel_t *ftdmchan, ftdm_wait_flag_t *flags, 
 		inflags |= POLLPRI;
 
 pollagain: @/
-	memset(&pfds[0], 0, sizeof(pfds[0]));
+	memset(&pfds[0], 0, sizeof pfds[0]);
 	pfds[0].fd = ftdmchan->sockfd;
 	pfds[0].events = inflags;
 	result = poll(pfds, 1, to);
@@ -1702,7 +1691,7 @@ pollagain: @/
 		inflags = pfds[0].revents;
 
 	if (result < 0){
-		snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "Poll failed");
+		snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "Poll failed");
 		ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "Failed to poll DAHDI device: %s\n", strerror(errno));
 		return FTDM_FAIL;
 	}
@@ -1742,7 +1731,7 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
 	ftdm_unused_arg(poll_events);
 
 	for(i = 1; i <= span->chan_count; i++) {
-		memset(&pfds[j], 0, sizeof(pfds[j]));
+		memset(&pfds[j], 0, sizeof pfds[j]);
 		pfds[j].fd = span->channels[i]->sockfd;
 		pfds[j].events = POLLPRI;
 		j++;
@@ -1753,7 +1742,7 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
 	if (r == 0)
 		return FTDM_TIMEOUT;
 	else if (r < 0) {
-		snprintf(span->last_error, sizeof(span->last_error), "%s", strerror(errno));
+		snprintf(span->last_error, sizeof span->last_error, "%s", strerror(errno));
 		return FTDM_FAIL;
 	}
 
@@ -1782,7 +1771,7 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
 	}
 
 	if (!k)
-		snprintf(span->last_error, sizeof(span->last_error), "no matching descriptor");
+		snprintf(span->last_error, sizeof span->last_error, "no matching descriptor");
 
 	return k ? FTDM_SUCCESS : FTDM_FAIL;
 }
@@ -2134,8 +2123,8 @@ static ftdm_status_t zt_init(ftdm_io_interface_t **fio)
 {
   assert(fio != NULL);
   struct stat statbuf;
-  memset(&zt_interface, 0, sizeof(zt_interface));
-  memset(&zt_globals, 0, sizeof(zt_globals));
+  memset(&zt_interface, 0, sizeof zt_interface);
+  memset(&zt_globals, 0, sizeof zt_globals);
 
   if (stat("/dev/dahdi/ctl", &statbuf) != 0) {
     ftdm_log(FTDM_LOG_ERROR, "No DAHDI control device found in /dev/\n");
@@ -2177,7 +2166,7 @@ static ftdm_status_t zt_init(ftdm_io_interface_t **fio)
 static ftdm_status_t zt_destroy(void)
 {
   close(CONTROL_FD);
-  memset(&zt_interface, 0, sizeof(zt_interface));
+  memset(&zt_interface, 0, sizeof zt_interface);
   return FTDM_SUCCESS;
 }
 
