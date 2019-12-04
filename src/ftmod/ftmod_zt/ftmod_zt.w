@@ -992,9 +992,6 @@ Returns number of configured spans.
 \+ * \.{cas\_bits}& CAS bits\cr
 }
 
-Before using the card, it must be configured.
-To configure it, for each channel we must run \.{DAHDI\_CHANCONFIG} and \.{DAHDI\_ATTACH\_ECHOCAN}.
-
 This function is called from |zt_configure_span| which is called from
 function |load_config| in \.{ftdm\_io.c}.
 
@@ -1009,25 +1006,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 @^FIXME@>
 
   for (x = start; x < end; x++) {
-    struct zt_chanconfig cc;
-    memset(&cc, 0, sizeof cc);
-    cc.chan = x;
-    cc.sigtype = ZT_SIG_FXOKS; /* reversed */
-    if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
-      ftdm_log(FTDM_LOG_ERROR,
-        "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-      continue;
-    }
-
-    struct dahdi_attach_echocan ae;
-    memset(&ae, 0, sizeof ae);
-    ae.chan = x;
-    strcpy(ae.echocan, "oslec");
-    if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
-      ftdm_log(FTDM_LOG_ERROR,
-        "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-      continue;
-    }
+    @<Configure channel@>@;
 
     ftdm_channel_t *ftdmchan;
 
@@ -1112,6 +1091,27 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 
   return configured;
 }
+
+@ @<Configure channel@>=
+    struct zt_chanconfig cc;
+    memset(&cc, 0, sizeof cc);
+    cc.chan = x;
+    cc.sigtype = ZT_SIG_FXOKS; /* reversed */
+    if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
+      ftdm_log(FTDM_LOG_ERROR,
+        "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      continue;
+    }
+
+    struct dahdi_attach_echocan ae;
+    memset(&ae, 0, sizeof ae);
+    ae.chan = x;
+    strcpy(ae.echocan, "oslec");
+    if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
+      ftdm_log(FTDM_LOG_ERROR,
+        "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      continue;
+    }
 
 @ Initialises a freetdm DAHDI span from a configuration string.
 Returns success or failure.
