@@ -1073,20 +1073,18 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
       ftdmchan->physical_span_id = ztp.span_no;
       ftdmchan->physical_chan_id = ztp.chan_no;
 			
-      if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO) {
-        if (ztp.g711_type == ZT_G711_ALAW)
-	  ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ALAW;
-        else if (ztp.g711_type == ZT_G711_MULAW)
-	  ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
-        else {
-	  int type;
-	  if (ftdmchan->span->trunk_type == FTDM_TRUNK_E1)
-	    type = FTDM_CODEC_ALAW;
-          else
-	    type = FTDM_CODEC_ULAW;
+      if (ztp.g711_type == ZT_G711_ALAW)
+        ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ALAW;
+      else if (ztp.g711_type == ZT_G711_MULAW)
+	ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
+      else {
+	int type;
+	if (ftdmchan->span->trunk_type == FTDM_TRUNK_E1)
+	  type = FTDM_CODEC_ALAW;
+        else
+	  type = FTDM_CODEC_ULAW;
 
-	  ftdmchan->native_codec = ftdmchan->effective_codec = type;
-	}
+        ftdmchan->native_codec = ftdmchan->effective_codec = type;
       }
 
       ztp.wink_time = zt_globals.wink_ms;
