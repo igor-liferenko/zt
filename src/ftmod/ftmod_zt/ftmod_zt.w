@@ -989,7 +989,7 @@ static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain, int c
 	}
 }
 
-@ Initialises a range of Zaptel/DAHDI channels.
+@ Initialises a range of DAHDI channels.
 Returns number of configured spans.
 {\settabs\+\hskip100pt&\cr
 \+ * \.{span}& FreeTDM span\cr
@@ -1000,6 +1000,13 @@ Returns number of configured spans.
 \+ * \.{number}& FreeTDM span number\cr
 \+ * \.{cas\_bits}& CAS bits\cr
 }
+
+Span is assigned automatically (we use only one card).
+Before using the span, it must be configured.
+For each channel we must run \.{DAHDI\_CHANCONFIG} and \.{DAHDI\_ATTACH\_ECHOCAN}.
+
+This function is called from |zt_configure_span| which is called from
+function |load_config| in \.{ftdm\_io.c}.
 
 @c
 static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
