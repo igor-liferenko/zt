@@ -55,11 +55,6 @@
 #define ftdm_strlen_zero_buf(s) (*s == '\0')
 
 
-#define ftdm_channel_test_feature(obj, flag) ((obj)->features & flag)
-#define ftdm_channel_set_feature(obj, flag) (obj)->features = (ftdm_channel_feature_t)((obj)->features | flag)
-#define ftdm_channel_clear_feature(obj, flag) (obj)->features = (ftdm_channel_feature_t)((obj)->features & ( ~(flag) ))
-#define ftdm_channel_set_member_locked(obj, _m, _v) ftdm_mutex_lock(obj->mutex); obj->_m = _v; ftdm_mutex_unlock(obj->mutex)
-
 @ Test for the existance of a flag on an arbitary object.
 Returns true if the object has the flags defined.
 {\settabs\+\hskip100pt&\cr
@@ -112,20 +107,12 @@ Returns true if the object has the flags defined.
 */
 #define ftdm_clear_flag(obj, flag) (obj)->flags &= ~(flag)
 
-#define ftdm_clear_flag_locked(obj, flag) assert(obj->mutex != NULL); ftdm_mutex_lock(obj->mutex); (obj)->flags &= ~(flag); ftdm_mutex_unlock(obj->mutex);
+#define ftdm_clear_flag_locked(obj, flag) assert(obj->mutex != NULL); \
+  ftdm_mutex_lock(obj->mutex); (obj)->flags &= ~(flag); ftdm_mutex_unlock(obj->mutex);
 
 #define ftdm_clear_pflag(obj, flag) (obj)->pflags &= ~(flag)
 
-#define ftdm_clear_pflag_locked(obj, flag) assert(obj->mutex != NULL); ftdm_mutex_lock(obj->mutex); (obj)->pflags &= ~(flag); ftdm_mutex_unlock(obj->mutex);
-
 #define ftdm_clear_sflag(obj, flag) (obj)->sflags &= ~(flag)
-
-#define ftdm_clear_sflag_locked(obj, flag) assert(obj->mutex != NULL); ftdm_mutex_lock(obj->mutex); (obj)->sflags &= ~(flag); ftdm_mutex_unlock(obj->mutex);
-
-#ifdef _MSC_VER
-/* The while(0) below throws a conditional expression is constant warning */
-#pragma warning(disable:4127) 
-#endif
 
 /* this macro assumes obj is locked! */
 #define ftdm_wait_for_flag_cleared(obj, flag, time) 					\
@@ -140,8 +127,6 @@ Returns true if the object has the flags defined.
 			ftdm_log(FTDM_LOG_CRIT, "flag %"FTDM_UINT64_FMT" was never cleared\n", (uint64_t)flag);	\
 		}									\
 	} while(0);
-
-#define ftdm_is_dtmf(key)  ((key > 47 && key < 58) || (key > 64 && key < 69) || (key > 96 && key < 101) || key == 35 || key == 42 || key == 87 || key == 119)
 
 #define ftdm_print_stack(level) \
 	do { \
@@ -160,15 +145,6 @@ Returns true if the object has the flags defined.
 	} while (0);
 
 
-#define FTDM_SPAN_IS_BRI(x)	((x)->trunk_type == FTDM_TRUNK_BRI || (x)->trunk_type == FTDM_TRUNK_BRI_PTMP)
-/*!
-  \brief Copy flags from one arbitrary object to another
-  \command dest the object to copy the flags to
-  \command src the object to copy the flags from
-  \command flags the flags to copy
-*/
-#define ftdm_copy_flags(dest, src, flags) (dest)->flags &= ~(flags);	(dest)->flags |= ((src)->flags & (flags))
-
 struct ftdm_stream_handle {
 	ftdm_stream_handle_write_function_t write_function;
 	ftdm_stream_handle_raw_write_function_t raw_write_function;
@@ -179,9 +155,6 @@ struct ftdm_stream_handle {
 	ftdm_size_t alloc_len;
 	ftdm_size_t alloc_chunk;
 };
-
-FT_DECLARE_NONSTD(ftdm_status_t) ftdm_console_stream_raw_write(ftdm_stream_handle_t *handle, uint8_t *data, ftdm_size_t datalen);
-FT_DECLARE_NONSTD(ftdm_status_t) ftdm_console_stream_write(ftdm_stream_handle_t *handle, const char *fmt, ...);
 
 /*! brief create a new queue */
 #define ftdm_queue_create(queue, capacity) g_ftdm_queue_handler.create(queue, capacity)
@@ -194,9 +167,6 @@ FT_DECLARE_NONSTD(ftdm_status_t) ftdm_console_stream_write(ftdm_stream_handle_t 
 
 /*! wait ms milliseconds for a queue to have available objects, -1 to wait forever */
 #define ftdm_queue_wait(queue, ms) g_ftdm_queue_handler.wait(queue, ms)
-
-/*! get the internal interrupt object (to wait for elements to be added from the outside bypassing ftdm_queue_wait) */
-#define ftdm_queue_get_interrupt(queue, ms) g_ftdm_queue_handler.get_interrupt(queue, ms)
 
 /*! destroy the queue */ 
 #define ftdm_queue_destroy(queue) g_ftdm_queue_handler.destroy(queue)
@@ -278,8 +248,6 @@ typedef struct {
 	int wrapped;
 } ftdm_io_dump_t;
 
-/* number of interval cycles before timeout and close the debug dtmf file (5 seconds if interval is 20) */
-#define DTMF_DEBUG_TIMEOUT 250
 typedef struct {
 	uint8_t enabled;
 	uint8_t requested;
@@ -399,42 +367,52 @@ struct ftdm_span {
 	ftdm_analog_start_type_t start_type;
 	ftdm_signal_type_t signal_type;
 	uint32_t last_used_index;
-	/* Private signaling data. Do not touch unless you are a signaling module */
-	void *signal_data;
-	fio_signal_cb_t signal_cb;
-	ftdm_event_t event_header;
-	char last_error[256];
-	char tone_map[FTDM_TONEMAP_INVALID+1][FTDM_TONEMAP_LEN];
-	teletone_tone_map_t tone_detect_map[FTDM_TONEMAP_INVALID+1];
-	teletone_multi_tone_t tone_finder[FTDM_TONEMAP_INVALID+1];
-	ftdm_channel_t *channels[FTDM_MAX_CHANNELS_SPAN+1];
-	fio_channel_outgoing_call_t outgoing_call;
-	fio_channel_indicate_t indicate;
-	fio_channel_set_sig_status_t set_channel_sig_status;
-	fio_channel_get_sig_status_t get_channel_sig_status;
-	fio_span_set_sig_status_t set_span_sig_status;
-	fio_span_get_sig_status_t get_span_sig_status;
-	fio_channel_request_t channel_request;
-	ftdm_span_start_t start;
-	ftdm_span_stop_t stop;
-	ftdm_span_destroy_t destroy;
-	ftdm_channel_sig_read_t sig_read;
-	ftdm_channel_sig_write_t sig_write;
-	ftdm_channel_sig_dtmf_t sig_queue_dtmf;
-	ftdm_channel_sig_dtmf_t sig_send_dtmf;
-	uint32_t sig_release_guard_time_ms;
-	ftdm_channel_state_processor_t state_processor; /*!< This guy is called whenever state processing is required */
-	void *io_data; /*!< Private I/O data per span. Do not touch unless you are an I/O module */
-	char *type;
-	char *dtmf_hangup;
-	size_t dtmf_hangup_len;
-	ftdm_state_map_t *state_map;
-	ftdm_caller_data_t default_caller_data;
-	ftdm_queue_t *pendingchans; /*!< Channels pending of state processing */
-	ftdm_queue_t *pendingsignals; /*!< Signals pending from being delivered to the user */
-	struct ftdm_span *next;
+	@<Private signaling data@>@;
+  @<Private I/O data@>@;
 };
 
+@ Do not touch unless you are a signaling module.
+
+@<Private signaling data@>=
+        void *signal_data;
+        fio_signal_cb_t signal_cb;
+        ftdm_event_t event_header;
+        char last_error[256];
+        char tone_map[FTDM_TONEMAP_INVALID+1][FTDM_TONEMAP_LEN];
+        teletone_tone_map_t tone_detect_map[FTDM_TONEMAP_INVALID+1];
+        teletone_multi_tone_t tone_finder[FTDM_TONEMAP_INVALID+1];
+        ftdm_channel_t *channels[FTDM_MAX_CHANNELS_SPAN+1];
+        fio_channel_outgoing_call_t outgoing_call;
+        fio_channel_indicate_t indicate;
+        fio_channel_set_sig_status_t set_channel_sig_status;
+        fio_channel_get_sig_status_t get_channel_sig_status;
+        fio_span_set_sig_status_t set_span_sig_status;
+        fio_span_get_sig_status_t get_span_sig_status;
+        fio_channel_request_t channel_request;
+        ftdm_span_start_t start;
+        ftdm_span_stop_t stop;
+        ftdm_span_destroy_t destroy;
+        ftdm_channel_sig_read_t sig_read;
+        ftdm_channel_sig_write_t sig_write;
+        ftdm_channel_sig_dtmf_t sig_queue_dtmf;
+        ftdm_channel_sig_dtmf_t sig_send_dtmf;
+        uint32_t sig_release_guard_time_ms;
+        ftdm_channel_state_processor_t state_processor; /* this guy is called whenever state processing is required */
+
+@ Do not touch unless you are an I/O module.
+
+@<Private I/O data@>=
+        void *io_data;
+        char *type;
+        char *dtmf_hangup;
+        size_t dtmf_hangup_len;
+        ftdm_state_map_t *state_map;
+        ftdm_caller_data_t default_caller_data;
+        ftdm_queue_t *pendingchans; /* channels pending of state processing */
+        ftdm_queue_t *pendingsignals; /* signals pending from being delivered to the user */
+        struct ftdm_span *next;
+
+@ @c
 struct ftdm_group {
 	char *name;
 	uint32_t group_id;
@@ -1295,7 +1273,8 @@ static ftdm_status_t zt_configure(const char *category, const char *var, const c
 @c
 static ftdm_status_t zt_open(ftdm_channel_t *ftdmchan)
 {
-  ftdm_channel_set_feature(ftdmchan, FTDM_CHANNEL_FEATURE_INTERVAL);
+  ftdmchan->features =
+    (ftdm_channel_feature_t) (ftdmchan->features | FTDM_CHANNEL_FEATURE_INTERVAL);
 
   int blocksize = zt_globals.codec_ms * (ftdmchan->rate / 1000);
   int err;
