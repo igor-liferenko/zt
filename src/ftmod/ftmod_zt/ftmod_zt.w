@@ -1009,36 +1009,32 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 @^FIXME@>
 
   for (x = start; x < end; x++) {
-    ftdm_channel_t *ftdmchan;
-    ftdm_socket_t sockfd = ZT_INVALID_SOCKET;
-    int len;
+    struct zt_chanconfig cc;
+    memset(&cc, 0, sizeof cc);
+    cc.chan = x;
+    cc.sigtype = ZT_SIG_FXOKS; /* reversed */
+    if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
+      ftdm_log(FTDM_LOG_ERROR,
+        "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      continue;
+    }
 
+    struct dahdi_attach_echocan ae;
+    memset(&ae, 0, sizeof ae);
+    ae.chan = x;
+    strcpy(ae.echocan, "oslec");
+    if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
+      ftdm_log(FTDM_LOG_ERROR,
+        "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      continue;
+    }
+
+    ftdm_channel_t *ftdmchan;
+
+    ftdm_socket_t sockfd = ZT_INVALID_SOCKET;
     sockfd = open("/dev/dahdi/channel", O_RDWR);
     if (sockfd != ZT_INVALID_SOCKET &&
         ftdm_span_add_channel(span, sockfd, type, &ftdmchan) == FTDM_SUCCESS) {
-
-      struct zt_chanconfig cc;
-      memset(&cc, 0, sizeof cc);
-      cc.chan = x;
-      cc.sigtype = ZT_SIG_FXOKS;
-      if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
-        ftdm_log(FTDM_LOG_ERROR,
-          "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-        /* TODO: decide how to handle this error */
-@^TODO@>
-      }
-
-      struct dahdi_attach_echocan ae;
-      memset(&ae, 0, sizeof ae);
-      ae.chan = x;
-      strcpy(ae.echocan, "oslec");
-      if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
-        ftdm_log(FTDM_LOG_ERROR,
-          "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-        /* TODO: decide how to handle this error */
-@^TODO@>
-      }
-
       if (ioctl(sockfd, DAHDI_SPECIFY, &x) == -1) {
         ftdm_log(FTDM_LOG_ERROR,
           "DAHDI_SPECIFY failed: chan %d fd %d (%s)\n",
@@ -1047,8 +1043,8 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
         continue;
       }
 
-      len = zt_globals.codec_ms * 8;
-      if (ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) {
+      int len = zt_globals.codec_ms * 8;
+      if (ioctl(sockfd, DAHDI_SET_BLOCKSIZE, &len) == -1) {
         ftdm_log(FTDM_LOG_ERROR,
           "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
           ftdmchan->span_id, ftdmchan->chan_id, sockfd, strerror(errno));
@@ -1095,7 +1091,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
       ztp.wink_time = zt_globals.wink_ms;
       ztp.flash_time = zt_globals.flash_ms;
 
-      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) < 0) {
+      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
 	ftdm_log(FTDM_LOG_ERROR,
           "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
           ftdmchan->span_id, ftdmchan->chan_id, sockfd);
