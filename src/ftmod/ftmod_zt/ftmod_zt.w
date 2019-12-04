@@ -1022,55 +1022,55 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
     if (sockfd != ZT_INVALID_SOCKET &&
         ftdm_span_add_channel(span, sockfd, type, &ftdmchan) == FTDM_SUCCESS) {
 
-      if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO) {
-        struct zt_chanconfig cc;
-        memset(&cc, 0, sizeof cc);
-        cc.chan = cc.master = x;
+      struct zt_chanconfig cc;
+      memset(&cc, 0, sizeof cc);
+      cc.chan = cc.master = x;
 				
-        switch(type) {
-        case FTDM_CHAN_TYPE_FXS:
-          switch(span->start_type) {
-          case FTDM_ANALOG_START_KEWL:
-            cc.sigtype = ZT_SIG_FXOKS;
-            break;
-          case FTDM_ANALOG_START_LOOP:
-            cc.sigtype = ZT_SIG_FXOLS;
-            break;
-          case FTDM_ANALOG_START_GROUND:
-            cc.sigtype = ZT_SIG_FXOGS;
-            break;
-          default:
-            break;
-          }
+      switch(type) {
+      case FTDM_CHAN_TYPE_FXS:
+        switch(span->start_type) {
+        case FTDM_ANALOG_START_KEWL:
+          cc.sigtype = ZT_SIG_FXOKS;
           break;
-        case FTDM_CHAN_TYPE_FXO:
-          switch(span->start_type) {
-          case FTDM_ANALOG_START_KEWL:
-            cc.sigtype = ZT_SIG_FXSKS;
-            break;
-          case FTDM_ANALOG_START_LOOP:
-            cc.sigtype = ZT_SIG_FXSLS;
-            break;
-          case FTDM_ANALOG_START_GROUND:
-            cc.sigtype = ZT_SIG_FXSGS;
-            break;
-          default:
-            break;
-          }
+        case FTDM_ANALOG_START_LOOP:
+          cc.sigtype = ZT_SIG_FXOLS;
+          break;
+        case FTDM_ANALOG_START_GROUND:
+          cc.sigtype = ZT_SIG_FXOGS;
           break;
         default:
           break;
         }
+        break;
+      case FTDM_CHAN_TYPE_FXO:
+        switch(span->start_type) {
+        case FTDM_ANALOG_START_KEWL:
+          cc.sigtype = ZT_SIG_FXSKS;
+          break;
+        case FTDM_ANALOG_START_LOOP:
+          cc.sigtype = ZT_SIG_FXSLS;
+          break;
+        case FTDM_ANALOG_START_GROUND:
+          cc.sigtype = ZT_SIG_FXSGS;
+          break;
+        default:
+          break;
+         }
+        break;
+      default:
+        break;
+      }
 				
-        if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc))
-          ftdm_log(FTDM_LOG_WARNING,
-            "this ioctl fails in older zaptel but is harmless if you used ztcfg\n" @|
-            "[device /dev/dahdi/channel chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
+        ftdm_log(FTDM_LOG_ERROR,
+          "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+        /* TODO: decide how to handle this error */
+@^TODO@>
       }
 
       if (ioctl(sockfd, DAHDI_SPECIFY, &x)) {
         ftdm_log(FTDM_LOG_ERROR,
-          "failure configuring device /dev/dahdi/channel chan %d fd %d (%s)\n",
+          "DAHDI_SPECIFY failed: chan %d fd %d (%s)\n",
           x, sockfd, strerror(errno));
         close(sockfd);
         continue;
