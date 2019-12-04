@@ -908,6 +908,19 @@ typedef enum { /* Tone Detection */
 #define DAHDI_SETTXBITS _IOW (DAHDI_CODE, 43, int) /* set CAS bits */
 #define DAHDI_GETRXBITS _IOR (DAHDI_CODE, 43, int) /* get CAS bits */
 
+@ Attach the desired echo canceler module (or none) to a channel in an
+audio-supporting mode, so that when the channel needs an echo canceler
+that module will be used to supply one.
+
+@c
+struct dahdi_attach_echocan {
+        int     chan;           /* Channel we're applying this to */
+        char    echocan[16];    /* Name of echo canceler to attach to this channel
+                                   (leave empty to have no echocan attached */
+};
+#define DAHDI_ATTACH_ECHOCAN _IOW(DAHDI_CODE, 59, struct dahdi_attach_echocan)
+
+@ @c
 #define DAHDI_SETPOLARITY _IOW (DAHDI_CODE, 92, int) /* Polarity setting for FXO lines */
 
 #define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int) /* Enable tone detection --- implemented by low
@@ -1001,9 +1014,8 @@ Returns number of configured spans.
 \+ * \.{cas\_bits}& CAS bits\cr
 }
 
-Span is assigned automatically (we use only one card).
-Before using the span, it must be configured.
-For each channel we must run \.{DAHDI\_CHANCONFIG} and \.{DAHDI\_ATTACH\_ECHOCAN}.
+Before using the card, it must be configured.
+To configure it, for each channel we must run \.{DAHDI\_CHANCONFIG} and \.{DAHDI\_ATTACH\_ECHOCAN}.
 
 This function is called from |zt_configure_span| which is called from
 function |load_config| in \.{ftdm\_io.c}.
@@ -1033,7 +1045,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
       memset(&cc, 0, sizeof cc);
       cc.chan = x;
       cc.sigtype = ZT_SIG_FXOKS;
-				
       if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
         ftdm_log(FTDM_LOG_ERROR,
           "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
@@ -1041,7 +1052,18 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 @^TODO@>
       }
 
-      if (ioctl(sockfd, DAHDI_SPECIFY, &x)) {
+      struct dahdi_attach_echocan ae;
+      memset(&ae, 0, sizeof ae);
+      ae.chan = x;
+      strcpy(ae.echocan, "oslec");
+      if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
+        ftdm_log(FTDM_LOG_ERROR,
+          "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+        /* TODO: decide how to handle this error */
+@^TODO@>
+      }
+
+      if (ioctl(sockfd, DAHDI_SPECIFY, &x) == -1) {
         ftdm_log(FTDM_LOG_ERROR,
           "DAHDI_SPECIFY failed: chan %d fd %d (%s)\n",
           x, sockfd, strerror(errno));
@@ -1117,9 +1139,9 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 	ioctl(sockfd, DAHDI_TONEDETECT, &mode);
       }
 
-      if (ftdm_strlen_zero(name) == 0)
+      if (!ftdm_strlen_zero(name))
 	ftdm_copy_string(ftdmchan->chan_name, name, sizeof ftdmchan->chan_name);
-      if (ftdm_strlen_zero(number) == 0)
+      if (!ftdm_strlen_zero(number))
 	ftdm_copy_string(ftdmchan->chan_number, number, sizeof ftdmchan->chan_number);
 
       configured++;
