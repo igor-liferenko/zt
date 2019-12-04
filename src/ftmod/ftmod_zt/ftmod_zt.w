@@ -1026,13 +1026,11 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 {
   unsigned configured = 0, x;
   zt_params_t ztp;
-  zt_tone_mode_t mode = 0;
 
-  memset(&ztp, 0, sizeof ztp);
+  memset(&ztp, 0, sizeof ztp); /* FIXME: why is it not zeroed for each channel ? */
+@^FIXME@>
 
-  if (type == FTDM_CHAN_TYPE_CAS)
-    ftdm_log(FTDM_LOG_DEBUG, "Configuring CAS channels with abcd == 0x%X\n", cas_bits);
-  for(x = start; x < end; x++) {
+  for (x = start; x < end; x++) {
     ftdm_channel_t *ftdmchan;
     ftdm_socket_t sockfd = ZT_INVALID_SOCKET;
     int len;
@@ -1127,18 +1125,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 	continue;
       }
 
-      mode = ZT_TONEDETECT_ON | ZT_TONEDETECT_MUTE;
-      if (ioctl(sockfd, DAHDI_TONEDETECT, &mode))
-	ftdm_log(FTDM_LOG_DEBUG, "HW DTMF not available on FreeTDM device %d:%d fd:%d\n",
-          ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-      else {
-        ftdm_log(FTDM_LOG_DEBUG, "HW DTMF available on FreeTDM device %d:%d fd:%d\n",
-          ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-        ftdm_channel_set_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_DETECT);
-	mode = 0;
-	ioctl(sockfd, DAHDI_TONEDETECT, &mode);
-      }
-
       if (!ftdm_strlen_zero(name))
 	ftdm_copy_string(ftdmchan->chan_name, name, sizeof ftdmchan->chan_name);
       if (!ftdm_strlen_zero(number))
@@ -1153,7 +1139,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
   return configured;
 }
 
-@ Initialises a freetdm Zaptel/DAHDI span from a configuration string.
+@ Initialises a freetdm DAHDI span from a configuration string.
 Returns success or failure.
 {\settabs\+\hskip100pt&\cr
 \+ * \.{span}& FreeTDM span\cr
