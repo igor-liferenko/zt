@@ -1021,13 +1021,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
     sockfd = open("/dev/dahdi/channel", O_RDWR);
     if (sockfd != ZT_INVALID_SOCKET &&
         ftdm_span_add_channel(span, sockfd, type, &ftdmchan) == FTDM_SUCCESS) {
-      if (ioctl(sockfd, DAHDI_SPECIFY, &x)) {
-        ftdm_log(FTDM_LOG_ERROR,
-          "failure configuring device /dev/dahdi/channel chan %d fd %d (%s)\n",
-          x, sockfd, strerror(errno));
-        close(sockfd);
-        continue;
-      }
 
       if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO) {
         struct zt_chanconfig cc;
@@ -1073,6 +1066,14 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
           ftdm_log(FTDM_LOG_WARNING,
             "this ioctl fails in older zaptel but is harmless if you used ztcfg\n" @|
             "[device /dev/dahdi/channel chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
+      }
+
+      if (ioctl(sockfd, DAHDI_SPECIFY, &x)) {
+        ftdm_log(FTDM_LOG_ERROR,
+          "failure configuring device /dev/dahdi/channel chan %d fd %d (%s)\n",
+          x, sockfd, strerror(errno));
+        close(sockfd);
+        continue;
       }
 
       len = zt_globals.codec_ms * 8;
