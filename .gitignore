@@ -1,3 +1,6 @@
+*.dvi
+*.ps
+*.toc
 *.idx
 *.log
 *.scn
