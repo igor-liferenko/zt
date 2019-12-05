@@ -538,84 +538,6 @@ ftdm_status_t ftdm_span_trigger_signals(const ftdm_span_t *span);
 /*! \brief clear the tone detector state */
 void ftdm_channel_clear_detected_tones(ftdm_channel_t *ftdmchan);
 
-/*! \brief adjust echocanceller for beginning of call */
-void ftdm_set_echocancel_call_begin(ftdm_channel_t *chan);
-
-/*! \brief adjust echocanceller for end of call */
-void ftdm_set_echocancel_call_end(ftdm_channel_t *chan);
-
-/*! \brief save data from user */
-ftdm_status_t ftdm_channel_save_usrmsg(ftdm_channel_t *ftdmchan, ftdm_usrmsg_t *usrmsg);
-
-/*! \brief free usrmsg and variables/raw data attached to it */
-ftdm_status_t ftdm_usrmsg_free(ftdm_usrmsg_t **usrmsg);
-
-/*! \brief Get a custom variable from the user message
- *  \note The variable pointer returned is only valid while the before the event is processed and it'll be destroyed once the event is processed. */
-const char * ftdm_usrmsg_get_var(ftdm_usrmsg_t *usrmsg, const char *var_name);
-
-/*! \brief Get raw data from user message
- *  \param usrmsg The message structure containing the variables
- *  \param data	data will point to available data pointer if available
- *  \param datalen datalen will be set to length of data available
- *  \retval FTDM_SUCCESS data is available
- *  \retval FTDM_FAIL no data available
- *  \note data is only valid within the duration of the callback, to receive a data pointer that does not get
- *  \note destroyed when callback returns, see ftdm_sigmsg_get_raw_data_detached
- */
-ftdm_status_t ftdm_usrmsg_get_raw_data(ftdm_usrmsg_t *usrmsg, void **data, ftdm_size_t *datalen);
-
-/*! \brief free sigmsg and variables/raw data attached to it */
-ftdm_status_t ftdm_sigmsg_free(ftdm_sigmsg_t **sigmsg);
-
-/*! \brief Add a custom variable to the event
- *  \note This variables may be used by signaling modules to override signaling parameters
- *  \todo Document which signaling variables are available
- * */
-ftdm_status_t ftdm_sigmsg_add_var(ftdm_sigmsg_t *sigmsg, const char *var_name, const char *value);
-
-/*! \brief Remove a custom variable from the event
- *  \note The variable pointer returned is only valid while the before the event is processed and it'll be destroyed once the event is processed. */
-ftdm_status_t ftdm_sigmsg_remove_var(ftdm_sigmsg_t *sigmsg, const char *var_name);
-
-/*! \brief Attach raw data to sigmsg
- *  \param sigmsg The message structure containing the variables
- *  \param data pointer to data
- *  \param datalen datalen length of data
- *  \retval FTDM_SUCCESS success, data was successfully saved
- *  \retval FTDM_FAIL failed, event already had data attached to it.
- *  \note data must have been allocated using ftdm_calloc, FreeTDM will free data once the usrmsg is processed.
- */
-ftdm_status_t ftdm_sigmsg_set_raw_data(ftdm_sigmsg_t *sigmsg, void *data, ftdm_size_t datalen);
-
-/*! \brief Retrieve a span and channel data structure from a string in the format 'span_id:chan_id'*/
-ftdm_status_t ftdm_get_channel_from_string(const char *string_id, ftdm_span_t **out_span,
-  ftdm_channel_t **out_channel);
-
-/*!
-  \brief Assert condition
-*/
-#define ftdm_assert(assertion, msg) \
-	if (!(assertion)) { \
-		ftdm_log(FTDM_LOG_CRIT, "%s", msg); \
-		if (g_ftdm_crash_policy & FTDM_CRASH_ON_ASSERT) { \
-			ftdm_abort();  \
-		} \
-	}
-
-/*!
-  \brief Assert condition and return
-*/
-#define ftdm_assert_return(assertion, retval, msg) \
-	if (!(assertion)) { \
-		ftdm_log(FTDM_LOG_CRIT, "%s", msg); \
-		if (g_ftdm_crash_policy & FTDM_CRASH_ON_ASSERT) { \
-			ftdm_abort();  \
-		} else { \
-			return retval; \
-		} \
-	}
-
 /*!
   \brief Socket the given socket
   \command it the socket
@@ -625,37 +547,12 @@ ftdm_status_t ftdm_get_channel_from_string(const char *string_id, ftdm_span_t **
 #define ftdm_channel_lock(chan) ftdm_mutex_lock((chan)->mutex)
 #define ftdm_channel_unlock(chan) ftdm_mutex_unlock((chan)->mutex)
 
-#define ftdm_log_throttle(level, ...) \
-	time_current_throttle_log = ftdm_current_time_in_ms(); \
-	if (time_current_throttle_log - time_last_throttle_log > FTDM_THROTTLE_LOG_INTERVAL) {\
-		ftdm_log(level, __VA_ARGS__); \
-		time_last_throttle_log = time_current_throttle_log; \
-	} 
-
-#define ftdm_log_chan_ex(fchan, file, func, line, level, format, ...) ftdm_log(file, func, line, level, "[s%dc%d][%d:%d] " format, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
-
-#define ftdm_log_chan_ex_msg(fchan, file, func, line, level, msg) ftdm_log(file, func, line, level, "[s%dc%d][%d:%d] " msg, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id)
-
 #define ftdm_log_chan(fchan, level, format, ...) ftdm_log(level, "[s%dc%d][%d:%d] " format, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
 
 #define ftdm_log_chan_msg(fchan, level, msg) ftdm_log(level, "[s%dc%d][%d:%d] " msg, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id)
 
-#define ftdm_log_chan_throttle(fchan, level, format, ...) ftdm_log_throttle(level, "[s%dc%d][%d:%d] " format, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
-#define ftdm_log_chan_msg_throttle(fchan, level, format, ...) ftdm_log_throttle(level, "[s%dc%d][%d:%d] " format, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
-
 #define ftdm_span_lock(span) ftdm_mutex_lock(span->mutex)
 #define ftdm_span_unlock(span) ftdm_mutex_unlock(span->mutex)
-
-#define ftdm_test_and_set_media(fchan) \
-		do { \
-			if (!ftdm_test_flag((fchan), FTDM_CHANNEL_MEDIA)) { \
-				ftdm_set_flag((fchan), FTDM_CHANNEL_MEDIA); \
-				ftdm_set_echocancel_call_begin((fchan)); \
-				if ((fchan)->dtmfdbg.requested) { \
-					ftdm_channel_command((fchan), FTDM_COMMAND_ENABLE_DEBUG_DTMF, NULL); \
-				} \
-			} \
-		} while (0);
 
 FT_DECLARE_DATA extern const char *FTDM_LEVEL_NAMES[9];
 
