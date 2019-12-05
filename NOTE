@@ -1,1 +1,7 @@
+see what does script "dahdi_waitfor_span_assignments" - does it do the same what does anologous function in dahdi_cfg.c?
+It seems dahdi_cfg automatically waits until all spans are assigned.
+
 Why DAHDI_GET_PARAMS is done on /dev/dahdi/ctl in dahdi_cfg and on /dev/dahdi/channel in ftmod_zt?
+Try both and compare result.
+
+DAHDI_CHANCONFIG and DAHDI_SET_PARAMS configure the same settings?
