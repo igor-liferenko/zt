@@ -791,19 +791,6 @@ typedef enum { /* Tone Detection */
 #define DAHDI_SETTXBITS _IOW (DAHDI_CODE, 43, int) /* set CAS bits */
 #define DAHDI_GETRXBITS _IOR (DAHDI_CODE, 43, int) /* get CAS bits */
 
-@ Attach the desired echo canceler module (or none) to a channel in an
-audio-supporting mode, so that when the channel needs an echo canceler
-that module will be used to supply one.
-
-@c
-struct dahdi_attach_echocan {
-        int     chan;           /* Channel we're applying this to */
-        char    echocan[16];    /* Name of echo canceler to attach to this channel
-                                   (leave empty to have no echocan attached */
-};
-#define DAHDI_ATTACH_ECHOCAN _IOW(DAHDI_CODE, 59, struct dahdi_attach_echocan)
-
-@ @c
 #define DAHDI_SETPOLARITY _IOW (DAHDI_CODE, 92, int) /* Polarity setting for FXO lines */
 
 #define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int) /* Enable tone detection --- implemented by low
@@ -907,8 +894,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
   unsigned configured = 0, x;
 
   for (x = start; x < end; x++) {
-    @<Configure channel@>@;
-
     ftdm_channel_t *ftdmchan;
 
     ftdm_socket_t sockfd = ZT_INVALID_SOCKET;
@@ -952,27 +937,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
 
   return configured;
 }
-
-@ @<Configure channel@>=
-    struct zt_chanconfig cc;
-    memset(&cc, 0, sizeof cc);
-    cc.chan = x;
-    cc.sigtype = ZT_SIG_FXOKS; /* reversed */
-    if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc) == -1) {
-      ftdm_log(FTDM_LOG_ERROR,
-        "DAHDI_CHANCONFIG failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-      continue;
-    }
-
-    struct dahdi_attach_echocan ae;
-    memset(&ae, 0, sizeof ae);
-    ae.chan = x;
-    strcpy(ae.echocan, "oslec");
-    if (ioctl(CONTROL_FD, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
-      ftdm_log(FTDM_LOG_ERROR,
-        "DAHDI_ATTACH_ECHOCAN failed: chan %d fd %d (%s)]\n", x, CONTROL_FD, strerror(errno));
-      continue;
-    }
 
 @ Initialises a freetdm DAHDI span from a configuration string.
 Returns success or failure.
