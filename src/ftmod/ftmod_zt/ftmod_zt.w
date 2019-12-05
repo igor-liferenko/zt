@@ -100,50 +100,22 @@ Returns true if the object has the flags defined.
 	(obj)->sflags |= (flag); \
 	ftdm_mutex_unlock(obj->mutex);
 
-/*!
-  \brief Clear a flag on an arbitrary object while locked
-  \command obj the object to test
-  \command flag the or'd list of flags to clear
-*/
+@ Clear a flag on an arbitrary object while locked.
+{\settabs\+\hskip100pt&\cr
+\+ \.{obj}& the object to test\cr
+\+ \.{flag}& the or'd list of flags to clear\cr
+}
+
+@c
 #define ftdm_clear_flag(obj, flag) (obj)->flags &= ~(flag)
 
+@ @c
 #define ftdm_clear_flag_locked(obj, flag) assert(obj->mutex != NULL); \
   ftdm_mutex_lock(obj->mutex); (obj)->flags &= ~(flag); ftdm_mutex_unlock(obj->mutex);
 
 #define ftdm_clear_pflag(obj, flag) (obj)->pflags &= ~(flag)
 
 #define ftdm_clear_sflag(obj, flag) (obj)->sflags &= ~(flag)
-
-/* this macro assumes obj is locked! */
-#define ftdm_wait_for_flag_cleared(obj, flag, time) 					\
-	do {										\
-		int __safety = time;							\
-		while(__safety-- && ftdm_test_flag(obj, flag)) { 			\
-			ftdm_mutex_unlock(obj->mutex);					\
-			ftdm_sleep(10);							\
-			ftdm_mutex_lock(obj->mutex);					\
-		}									\
-		if(!__safety) {								\
-			ftdm_log(FTDM_LOG_CRIT, "flag %"FTDM_UINT64_FMT" was never cleared\n", (uint64_t)flag);	\
-		}									\
-	} while(0);
-
-#define ftdm_print_stack(level) \
-	do { \
-		void *__stacktrace[100] = { 0 }; \
-		char **__symbols = NULL; \
-		int __size = 0; \
-		int __i = 0; \
-		__size = backtrace(__stacktrace, ftdm_array_len(__stacktrace)); \
-		__symbols = backtrace_symbols(__stacktrace, __size); \
-		if (__symbols) { \
-			for (__i = 0; __i < __size; __i++) { \
-				ftdm_log(__level, "%s\n", __symbols[i]); \
-			} \
-		free(__symbols); \
-		} \
-	} while (0);
-
 
 struct ftdm_stream_handle {
 	ftdm_stream_handle_write_function_t write_function;
@@ -171,7 +143,7 @@ struct ftdm_stream_handle {
 /*! destroy the queue */ 
 #define ftdm_queue_destroy(queue) g_ftdm_queue_handler.destroy(queue)
 
-FT_DECLARE_DATA extern ftdm_queue_handler_t g_ftdm_queue_handler;
+extern ftdm_queue_handler_t g_ftdm_queue_handler;
 
 #define FTDM_TOKEN_STRLEN 128
 #define FTDM_MAX_TOKENS 10
@@ -263,7 +235,7 @@ typedef struct {
 	uint8_t trigger_on_start; 
 } ftdm_dtmf_detect_t;
 
-/* 2^8 table size, one for each byte (sample) value */
+/* $2^8$ table size, one for each byte (sample) value */
 #define FTDM_GAINS_TABLE_SIZE 256
 struct ftdm_channel {
 	ftdm_data_type_t data_type;
@@ -424,7 +396,7 @@ struct ftdm_group {
 	struct ftdm_group *next;
 };
 
-FT_DECLARE_DATA extern ftdm_crash_policy_t g_ftdm_crash_policy;
+extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
 ftdm_size_t ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t *fsk_trans, int8_t bit,
   int16_t *buf, ftdm_size_t buflen);
@@ -501,69 +473,32 @@ ftdm_status_t ftdm_channel_process_media(ftdm_channel_t *ftdmchan, void *data,
 ftdm_status_t ftdm_raw_read (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
 ftdm_status_t ftdm_raw_write (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
 
-/*! 
- * \brief Retrieves an event from the span
- *
- * \note
- * 	This function is non-reentrant and not thread-safe. 
- * 	The event returned may be modified if the function is called again 
- * 	from a different thread or even the same. It is recommended to
- * 	handle events from the same span in a single thread.
- * 	WARNING: this function used to be public ( in freetdm.h )
- * 	but since is really of no use to users better keep it here
- *
- * \param span The span to retrieve the event from
- * \param event Pointer to store the pointer to the event
- *
- * \retval FTDM_SUCCESS success (at least one event available)
- * \retval FTDM_TIMEOUT Timed out waiting for events
- * \retval FTDM_FAIL failure
- */
-ftdm_status_t ftdm_span_next_event(ftdm_span_t *span, ftdm_event_t **event);
+@ Enqueue a DTMF string into the channel.
+{\settabs\+\hskip100pt&\cr
+\+ * \.{ftdmchan}& The channel to enqueue the dtmf string to\cr
+\+ * \.{dtmf}& null-terminated DTMF string\cr
+}
 
-/*! 
- * \brief Enqueue a DTMF string into the channel
- *
- * \param ftdmchan The channel to enqueue the dtmf string to
- * \param dtmf null-terminated DTMF string
- *
- * \retval FTDM_SUCCESS success
- * \retval FTDM_FAIL failure
- */
+@c
 ftdm_status_t ftdm_channel_queue_dtmf(ftdm_channel_t *ftdmchan, const char *dtmf);
 
+@ @c
 /* dequeue pending signals and notify the user via the span signal callback */
 ftdm_status_t ftdm_span_trigger_signals(const ftdm_span_t *span);
-
-/*! \brief clear the tone detector state */
-void ftdm_channel_clear_detected_tones(ftdm_channel_t *ftdmchan);
-
-/*!
-  \brief Socket the given socket
-  \command it the socket
-*/
-#define ftdm_socket_close(it) if (it > -1) { close(it); it = -1;}
 
 #define ftdm_channel_lock(chan) ftdm_mutex_lock((chan)->mutex)
 #define ftdm_channel_unlock(chan) ftdm_mutex_unlock((chan)->mutex)
 
-#define ftdm_log_chan(fchan, level, format, ...) ftdm_log(level, "[s%dc%d][%d:%d] " format, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
+#define ftdm_log_chan(fchan, level, format, ...) ftdm_log(level, "[s%dc%d][%d:%d] " format, \
+  fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id, __VA_ARGS__)
 
-#define ftdm_log_chan_msg(fchan, level, msg) ftdm_log(level, "[s%dc%d][%d:%d] " msg, fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id)
+#define ftdm_log_chan_msg(fchan, level, msg) ftdm_log(level, "[s%dc%d][%d:%d] " msg, \
+  fchan->span_id, fchan->chan_id, fchan->physical_span_id, fchan->physical_chan_id)
 
 #define ftdm_span_lock(span) ftdm_mutex_lock(span->mutex)
 #define ftdm_span_unlock(span) ftdm_mutex_unlock(span->mutex)
 
-FT_DECLARE_DATA extern const char *FTDM_LEVEL_NAMES[9];
-
-static __inline__ void ftdm_abort(void)
-{
-#ifdef __cplusplus
-	::abort();
-#else
-	abort();
-#endif
-}
+extern const char *FTDM_LEVEL_NAMES[9];
 
 static __inline__ int16_t ftdm_saturated_add(int16_t sample1, int16_t sample2)
 {
@@ -576,14 +511,6 @@ static __inline__ int16_t ftdm_saturated_add(int16_t sample1, int16_t sample2)
 		addres = -32767;
 	return (int16_t)addres;
 }
-
-/* Bitmap helper functions */
-typedef long ftdm_bitmap_t;
-#define FTDM_BITMAP_NBITS (sizeof(ftdm_bitmap_t) * 8)
-#define ftdm_map_set_bit(map, bit) (map[(bit/FTDM_BITMAP_NBITS)] |= ((ftdm_bitmap_t)1 << (bit % FTDM_BITMAP_NBITS)))
-#define ftdm_map_clear_bit(map, bit) (map[(bit/FTDM_BITMAP_NBITS)] &= ~((ftdm_bitmap_t)1 << (bit % FTDM_BITMAP_NBITS)))
-#define ftdm_map_test_bit(map, bit) (map[(bit/FTDM_BITMAP_NBITS)] & ((ftdm_bitmap_t)1 << (bit % FTDM_BITMAP_NBITS)))
-
 
 #include <sys/ioctl.h>
 #include <poll.h>
@@ -949,7 +876,8 @@ Returns success or failure.
 }
 
 @c
-static ftdm_status_t zt_configure_span(ftdm_span_t *span, const char *str, ftdm_chan_type_t type, char *name, char *number)
+static ftdm_status_t zt_configure_span(ftdm_span_t *span, const char *str, ftdm_chan_type_t type,
+  char *name, char *number)
 {
 
 	int items, i;
@@ -1015,7 +943,8 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span, const char *str, ftdm_
 }
 
 @c
-static ftdm_status_t zt_configure(const char *category, const char *var, const char *val, int lineno)
+static ftdm_status_t zt_configure(const char *category, const char *var, const char *val,
+  int lineno)
 {
   int num;
   float fnum;
