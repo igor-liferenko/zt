@@ -1000,10 +1000,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
   ftdm_chan_type_t type, char *name, char *number, unsigned char cas_bits)
 {
   unsigned configured = 0, x;
-  zt_params_t ztp;
-
-  memset(&ztp, 0, sizeof ztp); /* FIXME: why is it not zeroed for each channel ? */
-@^FIXME@>
 
   for (x = start; x < end; x++) {
     @<Configure channel@>@;
@@ -1037,51 +1033,11 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
       if (ftdmchan->effective_codec == FTDM_CODEC_SLIN)
         ftdmchan->packet_len *= 2;
 			
-      if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) < 0) {
-        ftdm_log(FTDM_LOG_ERROR,
-          "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-          ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-        close(sockfd);
-        continue;
-      }
-
-      ftdm_log(FTDM_LOG_INFO,
-        "configuring device /dev/dahdi/channel channel %d as FreeTDM device %d:%d fd:%d\n",
-        x, ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-			
       ftdmchan->rate = 8000;
-      ftdmchan->physical_span_id = ztp.span_no;
-      ftdmchan->physical_chan_id = ztp.chan_no;
+      ftdmchan->physical_span_id = 1;
+      ftdmchan->physical_chan_id = x;
 			
-      if (ztp.g711_type == ZT_G711_ALAW)
-        ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ALAW;
-      else if (ztp.g711_type == ZT_G711_MULAW)
-	ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
-      else {
-	int type;
-	if (ftdmchan->span->trunk_type == FTDM_TRUNK_E1)
-	  type = FTDM_CODEC_ALAW;
-        else
-	  type = FTDM_CODEC_ULAW;
-
-        ftdmchan->native_codec = ftdmchan->effective_codec = type;
-      }
-
-      ztp.wink_time = zt_globals.wink_ms;
-      ztp.flash_time = zt_globals.flash_ms;
-
-      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
-	ftdm_log(FTDM_LOG_ERROR,
-          "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-          ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-	close(sockfd);
-	continue;
-      }
-
-      if (!ftdm_strlen_zero(name))
-	ftdm_copy_string(ftdmchan->chan_name, name, sizeof ftdmchan->chan_name);
-      if (!ftdm_strlen_zero(number))
-	ftdm_copy_string(ftdmchan->chan_number, number, sizeof ftdmchan->chan_number);
+      ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
 
       configured++;
     }
