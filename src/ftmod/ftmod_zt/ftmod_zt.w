@@ -397,7 +397,8 @@ struct ftdm_span {
         ftdm_channel_sig_dtmf_t sig_queue_dtmf;
         ftdm_channel_sig_dtmf_t sig_send_dtmf;
         uint32_t sig_release_guard_time_ms;
-        ftdm_channel_state_processor_t state_processor; /* this guy is called whenever state processing is required */
+        ftdm_channel_state_processor_t state_processor; /* this guy is called whenever
+          state processing is required */
 
 @ Do not touch unless you are an I/O module.
 
@@ -425,74 +426,80 @@ struct ftdm_group {
 
 FT_DECLARE_DATA extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
-FT_DECLARE(ftdm_size_t) ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t *fsk_trans, int8_t bit, int16_t *buf, ftdm_size_t buflen);
-FT_DECLARE(int32_t) ftdm_fsk_modulator_generate_carrier_bits(ftdm_fsk_modulator_t *fsk_trans, uint32_t bits);
-FT_DECLARE(void) ftdm_fsk_modulator_generate_chan_sieze(ftdm_fsk_modulator_t *fsk_trans);
-FT_DECLARE(void) ftdm_fsk_modulator_send_data(ftdm_fsk_modulator_t *fsk_trans);
+ftdm_size_t ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t *fsk_trans, int8_t bit,
+  int16_t *buf, ftdm_size_t buflen);
+int32_t ftdm_fsk_modulator_generate_carrier_bits(ftdm_fsk_modulator_t *fsk_trans, uint32_t bits);
+void ftdm_fsk_modulator_generate_chan_sieze(ftdm_fsk_modulator_t *fsk_trans);
+void ftdm_fsk_modulator_send_data(ftdm_fsk_modulator_t *fsk_trans);
 #define ftdm_fsk_modulator_send_all(_it) ftdm_fsk_modulator_generate_chan_sieze(_it); \
 	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_start); \
 	ftdm_fsk_modulator_send_data(_it); \
 	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_stop)
 
-FT_DECLARE(ftdm_status_t) ftdm_fsk_modulator_init(ftdm_fsk_modulator_t *fsk_trans,
-									fsk_modem_types_t modem_type,
-									uint32_t sample_rate,
-									ftdm_fsk_data_state_t *fsk_data,
-									float db_level,
-									uint32_t carrier_bits_start,
-									uint32_t carrier_bits_stop,
-									uint32_t chan_sieze_bits,
-									ftdm_fsk_write_sample_t write_sample_callback,
-									void *user_data);
-FT_DECLARE(int8_t) ftdm_bitstream_get_bit(ftdm_bitstream_t *bsp);
-FT_DECLARE(void) ftdm_bitstream_init(ftdm_bitstream_t *bsp, uint8_t *data, uint32_t datalen, ftdm_endian_t endian, uint8_t ss);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_parse(ftdm_fsk_data_state_t *state, ftdm_size_t *type, char **data, ftdm_size_t *len);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_demod_feed(ftdm_fsk_data_state_t *state, int16_t *data, size_t samples);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_demod_destroy(ftdm_fsk_data_state_t *state);
-FT_DECLARE(int) ftdm_fsk_demod_init(ftdm_fsk_data_state_t *state, int rate, uint8_t *buf, size_t bufsize);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_init(ftdm_fsk_data_state_t *state, uint8_t *data, uint32_t datalen);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_mdmf(ftdm_fsk_data_state_t *state, ftdm_mdmf_type_t type, const uint8_t *data, uint32_t datalen);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_checksum(ftdm_fsk_data_state_t *state);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_sdmf(ftdm_fsk_data_state_t *state, const char *date, char *number);
-FT_DECLARE(ftdm_status_t) ftdm_channel_send_fsk_data(ftdm_channel_t *ftdmchan, ftdm_fsk_data_state_t *fsk_data, float db_level);
+ftdm_status_t ftdm_fsk_modulator_init(ftdm_fsk_modulator_t *fsk_trans,
+						fsk_modem_types_t modem_type,
+						uint32_t sample_rate,
+						ftdm_fsk_data_state_t *fsk_data,
+						float db_level,
+						uint32_t carrier_bits_start,
+						uint32_t carrier_bits_stop,
+						uint32_t chan_sieze_bits,
+						ftdm_fsk_write_sample_t write_sample_callback,
+						void *user_data);
+int8_t ftdm_bitstream_get_bit(ftdm_bitstream_t *bsp);
+void ftdm_bitstream_init(ftdm_bitstream_t *bsp, uint8_t *data, uint32_t datalen,
+  ftdm_endian_t endian, uint8_t ss);
+ftdm_status_t ftdm_fsk_data_parse(ftdm_fsk_data_state_t *state, ftdm_size_t *type, char **data,
+  ftdm_size_t *len);
+ftdm_status_t ftdm_fsk_demod_feed(ftdm_fsk_data_state_t *state, int16_t *data, size_t samples);
+ftdm_status_t ftdm_fsk_demod_destroy(ftdm_fsk_data_state_t *state);
+int ftdm_fsk_demod_init(ftdm_fsk_data_state_t *state, int rate, uint8_t *buf, size_t bufsize);
+ftdm_status_t ftdm_fsk_data_init(ftdm_fsk_data_state_t *state, uint8_t *data, uint32_t datalen);
+ftdm_status_t ftdm_fsk_data_add_mdmf(ftdm_fsk_data_state_t *state, ftdm_mdmf_type_t type,
+  const uint8_t *data, uint32_t datalen);
+ftdm_status_t ftdm_fsk_data_add_checksum(ftdm_fsk_data_state_t *state);
+ftdm_status_t ftdm_fsk_data_add_sdmf(ftdm_fsk_data_state_t *state, const char *date, char *number);
+ftdm_status_t ftdm_channel_send_fsk_data(ftdm_channel_t *ftdmchan, ftdm_fsk_data_state_t *fsk_data,
+  float db_level);
 
-FT_DECLARE(ftdm_status_t) ftdm_span_load_tones(ftdm_span_t *span, const char *mapname);
+ftdm_status_t ftdm_span_load_tones(ftdm_span_t *span, const char *mapname);
 
-FT_DECLARE(ftdm_status_t) ftdm_channel_use(ftdm_channel_t *ftdmchan);
+ftdm_status_t ftdm_channel_use(ftdm_channel_t *ftdmchan);
 
-FT_DECLARE(void) ftdm_generate_sln_silence(int16_t *data, uint32_t samples, uint32_t divisor);
+void ftdm_generate_sln_silence(int16_t *data, uint32_t samples, uint32_t divisor);
 
-FT_DECLARE(uint32_t) ftdm_separate_string(char *buf, char delim, char **array, int arraylen);
-FT_DECLARE(void) print_bits(uint8_t *b, int bl, char *buf, int blen, int e, uint8_t ss);
-FT_DECLARE(void) print_hex_bytes(uint8_t *data, ftdm_size_t dlen, char *buf, ftdm_size_t blen);
+uint32_t ftdm_separate_string(char *buf, char delim, char **array, int arraylen);
+void print_bits(uint8_t *b, int bl, char *buf, int blen, int e, uint8_t ss);
+void print_hex_bytes(uint8_t *data, ftdm_size_t dlen, char *buf, ftdm_size_t blen);
 
-FT_DECLARE_NONSTD(int) ftdm_hash_equalkeys(void *k1, void *k2);
-FT_DECLARE_NONSTD(uint32_t) ftdm_hash_hashfromstring(void *ky);
+int ftdm_hash_equalkeys(void *k1, void *k2);
+uint32_t ftdm_hash_hashfromstring(void *ky);
 
-FT_DECLARE(int) ftdm_load_modules(void);
+int ftdm_load_modules(void);
 
-FT_DECLARE(ftdm_status_t) ftdm_unload_modules(void);
+ftdm_status_t ftdm_unload_modules(void);
 
-FT_DECLARE(ftdm_status_t) ftdm_span_send_signal(ftdm_span_t *span, ftdm_sigmsg_t *sigmsg);
+ftdm_status_t ftdm_span_send_signal(ftdm_span_t *span, ftdm_sigmsg_t *sigmsg);
 
-FT_DECLARE(void) ftdm_channel_clear_needed_tones(ftdm_channel_t *ftdmchan);
-FT_DECLARE(void) ftdm_channel_rotate_tokens(ftdm_channel_t *ftdmchan);
+void ftdm_channel_clear_needed_tones(ftdm_channel_t *ftdmchan);
+void ftdm_channel_rotate_tokens(ftdm_channel_t *ftdmchan);
 
-FT_DECLARE(int) ftdm_load_module(const char *name);
-FT_DECLARE(int) ftdm_load_module_assume(const char *name);
-FT_DECLARE(int) ftdm_vasprintf(char **ret, const char *fmt, va_list ap);
+int ftdm_load_module(const char *name);
+int ftdm_load_module_assume(const char *name);
+int ftdm_vasprintf(char **ret, const char *fmt, va_list ap);
 
-FT_DECLARE(ftdm_status_t) ftdm_span_close_all(void);
-FT_DECLARE(ftdm_status_t) ftdm_channel_open_chan(ftdm_channel_t *ftdmchan);
-FT_DECLARE(void) ftdm_ack_indication(ftdm_channel_t *ftdmchan, ftdm_channel_indication_t indication, ftdm_status_t status);
+ftdm_status_t ftdm_span_close_all(void);
+ftdm_status_t ftdm_channel_open_chan(ftdm_channel_t *ftdmchan);
+void ftdm_ack_indication(ftdm_channel_t *ftdmchan, ftdm_channel_indication_t indication,
+  ftdm_status_t status);
 
+ftdm_iterator_t * ftdm_get_iterator(ftdm_iterator_type_t type, ftdm_iterator_t *iter);
 
-FT_DECLARE(ftdm_iterator_t *) ftdm_get_iterator(ftdm_iterator_type_t type, ftdm_iterator_t *iter);
+ftdm_status_t ftdm_channel_process_media(ftdm_channel_t *ftdmchan, void *data,
+  ftdm_size_t *datalen);
 
-FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
-
-FT_DECLARE(ftdm_status_t) ftdm_raw_read (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
-FT_DECLARE(ftdm_status_t) ftdm_raw_write (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
+ftdm_status_t ftdm_raw_read (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
+ftdm_status_t ftdm_raw_write (ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen);
 
 /*! 
  * \brief Retrieves an event from the span
@@ -512,7 +519,7 @@ FT_DECLARE(ftdm_status_t) ftdm_raw_write (ftdm_channel_t *ftdmchan, void *data, 
  * \retval FTDM_TIMEOUT Timed out waiting for events
  * \retval FTDM_FAIL failure
  */
-FT_DECLARE(ftdm_status_t) ftdm_span_next_event(ftdm_span_t *span, ftdm_event_t **event);
+ftdm_status_t ftdm_span_next_event(ftdm_span_t *span, ftdm_event_t **event);
 
 /*! 
  * \brief Enqueue a DTMF string into the channel
@@ -523,29 +530,29 @@ FT_DECLARE(ftdm_status_t) ftdm_span_next_event(ftdm_span_t *span, ftdm_event_t *
  * \retval FTDM_SUCCESS success
  * \retval FTDM_FAIL failure
  */
-FT_DECLARE(ftdm_status_t) ftdm_channel_queue_dtmf(ftdm_channel_t *ftdmchan, const char *dtmf);
+ftdm_status_t ftdm_channel_queue_dtmf(ftdm_channel_t *ftdmchan, const char *dtmf);
 
 /* dequeue pending signals and notify the user via the span signal callback */
-FT_DECLARE(ftdm_status_t) ftdm_span_trigger_signals(const ftdm_span_t *span);
+ftdm_status_t ftdm_span_trigger_signals(const ftdm_span_t *span);
 
 /*! \brief clear the tone detector state */
-FT_DECLARE(void) ftdm_channel_clear_detected_tones(ftdm_channel_t *ftdmchan);
+void ftdm_channel_clear_detected_tones(ftdm_channel_t *ftdmchan);
 
 /*! \brief adjust echocanceller for beginning of call */
-FT_DECLARE(void) ftdm_set_echocancel_call_begin(ftdm_channel_t *chan);
+void ftdm_set_echocancel_call_begin(ftdm_channel_t *chan);
 
 /*! \brief adjust echocanceller for end of call */
-FT_DECLARE(void) ftdm_set_echocancel_call_end(ftdm_channel_t *chan);
+void ftdm_set_echocancel_call_end(ftdm_channel_t *chan);
 
 /*! \brief save data from user */
-FT_DECLARE(ftdm_status_t) ftdm_channel_save_usrmsg(ftdm_channel_t *ftdmchan, ftdm_usrmsg_t *usrmsg);
+ftdm_status_t ftdm_channel_save_usrmsg(ftdm_channel_t *ftdmchan, ftdm_usrmsg_t *usrmsg);
 
 /*! \brief free usrmsg and variables/raw data attached to it */
-FT_DECLARE(ftdm_status_t) ftdm_usrmsg_free(ftdm_usrmsg_t **usrmsg);
+ftdm_status_t ftdm_usrmsg_free(ftdm_usrmsg_t **usrmsg);
 
 /*! \brief Get a custom variable from the user message
  *  \note The variable pointer returned is only valid while the before the event is processed and it'll be destroyed once the event is processed. */
-FT_DECLARE(const char *) ftdm_usrmsg_get_var(ftdm_usrmsg_t *usrmsg, const char *var_name);
+const char * ftdm_usrmsg_get_var(ftdm_usrmsg_t *usrmsg, const char *var_name);
 
 /*! \brief Get raw data from user message
  *  \param usrmsg The message structure containing the variables
@@ -556,20 +563,20 @@ FT_DECLARE(const char *) ftdm_usrmsg_get_var(ftdm_usrmsg_t *usrmsg, const char *
  *  \note data is only valid within the duration of the callback, to receive a data pointer that does not get
  *  \note destroyed when callback returns, see ftdm_sigmsg_get_raw_data_detached
  */
-FT_DECLARE(ftdm_status_t) ftdm_usrmsg_get_raw_data(ftdm_usrmsg_t *usrmsg, void **data, ftdm_size_t *datalen);
+ftdm_status_t ftdm_usrmsg_get_raw_data(ftdm_usrmsg_t *usrmsg, void **data, ftdm_size_t *datalen);
 
 /*! \brief free sigmsg and variables/raw data attached to it */
-FT_DECLARE(ftdm_status_t) ftdm_sigmsg_free(ftdm_sigmsg_t **sigmsg);
+ftdm_status_t ftdm_sigmsg_free(ftdm_sigmsg_t **sigmsg);
 
 /*! \brief Add a custom variable to the event
  *  \note This variables may be used by signaling modules to override signaling parameters
  *  \todo Document which signaling variables are available
  * */
-FT_DECLARE(ftdm_status_t) ftdm_sigmsg_add_var(ftdm_sigmsg_t *sigmsg, const char *var_name, const char *value);
+ftdm_status_t ftdm_sigmsg_add_var(ftdm_sigmsg_t *sigmsg, const char *var_name, const char *value);
 
 /*! \brief Remove a custom variable from the event
  *  \note The variable pointer returned is only valid while the before the event is processed and it'll be destroyed once the event is processed. */
-FT_DECLARE(ftdm_status_t) ftdm_sigmsg_remove_var(ftdm_sigmsg_t *sigmsg, const char *var_name);
+ftdm_status_t ftdm_sigmsg_remove_var(ftdm_sigmsg_t *sigmsg, const char *var_name);
 
 /*! \brief Attach raw data to sigmsg
  *  \param sigmsg The message structure containing the variables
@@ -579,10 +586,11 @@ FT_DECLARE(ftdm_status_t) ftdm_sigmsg_remove_var(ftdm_sigmsg_t *sigmsg, const ch
  *  \retval FTDM_FAIL failed, event already had data attached to it.
  *  \note data must have been allocated using ftdm_calloc, FreeTDM will free data once the usrmsg is processed.
  */
-FT_DECLARE(ftdm_status_t) ftdm_sigmsg_set_raw_data(ftdm_sigmsg_t *sigmsg, void *data, ftdm_size_t datalen);
+ftdm_status_t ftdm_sigmsg_set_raw_data(ftdm_sigmsg_t *sigmsg, void *data, ftdm_size_t datalen);
 
 /*! \brief Retrieve a span and channel data structure from a string in the format 'span_id:chan_id'*/
-FT_DECLARE(ftdm_status_t) ftdm_get_channel_from_string(const char *string_id, ftdm_span_t **out_span, ftdm_channel_t **out_channel);
+ftdm_status_t ftdm_get_channel_from_string(const char *string_id, ftdm_span_t **out_span,
+  ftdm_channel_t **out_channel);
 
 /*!
   \brief Assert condition
