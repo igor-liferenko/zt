@@ -1,6 +1,4 @@
 @ @c
-#include "freetdm.h"
-
 #if !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
 #endif
@@ -36,10 +34,11 @@
 
 #include "ftdm_types.h"
 #include "libteletone.h"
-#include "ftdm_buffer.h"
-#include "ftdm_threadmutex.h"
-#include "ftdm_sched.h"
-#include "ftdm_call_utils.h"
+
+struct ftdm_buffer;
+typedef struct ftdm_buffer ftdm_buffer_t;
+
+typedef uint64_t ftdm_timer_id_t;
 
 #define SPAN_PENDING_CHANS_QUEUE_SIZE 1000
 #define SPAN_PENDING_SIGNALS_QUEUE_SIZE 1000
