@@ -35,9 +35,6 @@
 #include <assert.h>
 
 #include "ftdm_types.h"
-#include "hashtable.h"
-#include "ftdm_config.h"
-#include "g711.h"
 #include "libteletone.h"
 #include "ftdm_buffer.h"
 #include "ftdm_threadmutex.h"
@@ -745,60 +742,6 @@ static ftdm_socket_t CONTROL_FD = ZT_INVALID_SOCKET;
 
 @<Function prototypes@>@;
 
-@ Initialises codec, and rx/tx gains.
-
-@c
-static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain, int codec)
-{
-  int j;
-  int k;
-  float linear_rxgain = pow(10.0, rxgain / 20.0);
-  float linear_txgain = pow(10.0, txgain / 20.0);
-
-  switch (codec) {
-  case FTDM_CODEC_ALAW:
-		for (j = 0; j < (sizeof g->receive_gain / sizeof g->receive_gain[0]); j++) {
-			if (rxgain) {
-				k = (int) (((float) alaw_to_linear(j)) * linear_rxgain);
-				if (k > 32767) k = 32767;
-				if (k < -32767) k = -32767;
-				g->receive_gain[j] = linear_to_alaw(k);
-			}
-			else
-				g->receive_gain[j] = j;
-			if (txgain) {
-				k = (int) (((float) alaw_to_linear(j)) * linear_txgain);
-				if (k > 32767) k = 32767;
-				if (k < -32767) k = -32767;
-				g->transmit_gain[j] = linear_to_alaw(k);
-			}
-			else
-				g->transmit_gain[j] = j;
-		}
-		break;
-	case FTDM_CODEC_ULAW:
-		for (j = 0; j < (sizeof g->receive_gain / sizeof g->receive_gain[0]); j++) {
-			if (rxgain) {
-				k = (int) (((float) ulaw_to_linear(j)) * linear_rxgain);
-				if (k > 32767) k = 32767;
-				if (k < -32767) k = -32767;
-				g->receive_gain[j] = linear_to_ulaw(k);
-			}
-			else
-				g->receive_gain[j] = j;
-			if (txgain) {
-				k = (int) (((float) ulaw_to_linear(j)) * linear_txgain);
-				if (k > 32767) k = 32767;
-				if (k < -32767) k = -32767;
-				g->transmit_gain[j] = linear_to_ulaw(k);
-			}
-			else
-				g->transmit_gain[j] = j;
-		}
-		break;
-	}
-}
-
 @ Initialises a range of DAHDI channels.
 Returns number of configured spans.
 {\settabs\+\hskip100pt&\cr
@@ -947,7 +890,6 @@ static ftdm_status_t zt_configure(const char *category, const char *var, const c
   int lineno)
 {
   int num;
-  float fnum;
 
   if (strcasecmp(category, "defaults") == 0) {
     if (strcasecmp(var, "codec_ms") == 0) {
@@ -991,24 +933,6 @@ static ftdm_status_t zt_configure(const char *category, const char *var, const c
 	  zt_globals.etlevel = num;
       }
     }
-    else if (strcasecmp(var, "rxgain") == 0) {
-      fnum = (float)atof(val);
-      if (fnum < -100.0 || fnum > 100.0)
-	ftdm_log(FTDM_LOG_WARNING, "invalid rxgain val at line %d\n", lineno);
-      else {
-	zt_globals.rxgain = fnum;
-	ftdm_log(FTDM_LOG_INFO, "Setting rxgain val to %f\n", fnum);
-      }
-    }
-    else if (strcasecmp(var, "txgain") == 0) {
-      fnum = (float)atof(val);
-      if (fnum < -100.0 || fnum > 100.0)
-	ftdm_log(FTDM_LOG_WARNING, "invalid txgain val at line %d\n", lineno);
-      else {
-	zt_globals.txgain = fnum;
-	ftdm_log(FTDM_LOG_INFO, "Setting txgain val to %f\n", fnum);
-      }
-    }
     else
       ftdm_log(FTDM_LOG_WARNING, "Ignoring unknown setting '%s'\n", var);
   }
@@ -1038,27 +962,6 @@ static ftdm_status_t zt_open(ftdm_channel_t *ftdmchan)
     ftdmchan->native_codec = ftdmchan->effective_codec;
   }
 		
-  if (zt_globals.rxgain || zt_globals.txgain) {
-    struct zt_gains gains;
-    memset(&gains, 0, sizeof gains);
-
-    gains.chan_no = ftdmchan->physical_chan_id;
-    zt_build_gains(&gains, zt_globals.rxgain, zt_globals.txgain, ftdmchan->native_codec);
-
-    if (zt_globals.rxgain)
-      ftdm_log(FTDM_LOG_INFO, "Setting rxgain to %f on channel %d\n", zt_globals.rxgain,
-        gains.chan_no);
-
-    if (zt_globals.txgain)
-      ftdm_log(FTDM_LOG_INFO, "Setting txgain to %f on channel %d\n", zt_globals.txgain,
-        gains.chan_no);
-
-    if (ioctl(ftdmchan->sockfd, DAHDI_SETGAINS, &gains) < 0)
-      ftdm_log(FTDM_LOG_ERROR,
-        "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-        ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->sockfd);
-  }
-
   int len = zt_globals.eclevel;
   if (len)
     ftdm_log(FTDM_LOG_INFO, "Setting echo cancel to %d taps for %d:%d\n", len, ftdmchan->span_id,
