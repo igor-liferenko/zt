@@ -44,3 +44,6 @@ install:
 	/bin/bash ./libtool   --mode=install /usr/bin/install -c   ftmod_zt.la ftmod_analog.la '/usr/lib/freeswitch/mod'
 	/usr/bin/mkdir -p '/usr/lib/pkgconfig'
 	/usr/bin/install -c -m 644 freetdm.pc '/usr/lib/pkgconfig'
+
+scp:
+	scp ~/zt/src/ftmod/ftmod_zt/ftmod_zt.w l:zt/src/ftmod/ftmod_zt/
