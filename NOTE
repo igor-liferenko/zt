@@ -1,0 +1,1 @@
+Why DAHDI_GET_PARAMS is done on /dev/dahdi/ctl in dahdi_cfg and on /dev/dahdi/channel in ftmod_zt?
