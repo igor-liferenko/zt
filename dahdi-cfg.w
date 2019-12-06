@@ -51,6 +51,7 @@ int main(void)
 
 @ If configuration will not be applied, 
 take implementation of function \\{wait\_for\_all\_spans\_assigned} from \.{dahdi\_cfg.c}
+(+see what does script \.{dahdi\_waitfor\_span\_assignments}).
 
 @<Wait for all spans assigned@>=
 
