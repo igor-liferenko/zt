@@ -5016,29 +5016,6 @@ FT_DECLARE(char *) ftdm_api_execute(const char *cmd)
 	return rval;
 }
 
-static ftdm_status_t ftdm_set_channels_gains(ftdm_span_t *span, int currindex, float rxgain, float txgain)
-{
-	unsigned chan_index = 0;
-
-	if (!span->chan_count) {
-		ftdm_log(FTDM_LOG_ERROR, "Failed to set channel gains because span %s has no channels\n", span->name);
-		return FTDM_FAIL;
-	}
-
-	for (chan_index = currindex+1; chan_index <= span->chan_count; chan_index++) {
-		if (!FTDM_IS_VOICE_CHANNEL(span->channels[chan_index])) {
-			continue;
-		}
-		if (ftdm_channel_command(span->channels[chan_index], FTDM_COMMAND_SET_RX_GAIN, &rxgain) != FTDM_SUCCESS) {
-			return FTDM_FAIL;
-		}
-		if (ftdm_channel_command(span->channels[chan_index], FTDM_COMMAND_SET_TX_GAIN, &txgain) != FTDM_SUCCESS) {
-			return FTDM_FAIL;
-		}
-	}
-	return FTDM_SUCCESS;
-}
-
 static ftdm_status_t ftdm_report_initial_channels_alarms(ftdm_span_t *span) 
 {
 	ftdm_channel_t *fchan = NULL;
@@ -5098,11 +5075,6 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, const 
 			ftdm_log(FTDM_LOG_ERROR, "%d:Failed to add channels to group %s\n", span->span_id, chan_config->group_name);
 			return FTDM_FAIL;
 		}
-	}
-
-	if (ftdm_set_channels_gains(span, currindex, chan_config->rxgain, chan_config->txgain) != FTDM_SUCCESS) {
-		ftdm_log(FTDM_LOG_ERROR, "%d:Failed to set channel gains\n", span->span_id);
-		return FTDM_FAIL;
 	}
 
 	for (chan_index = currindex + 1; chan_index <= span->chan_count; chan_index++) {
