@@ -506,7 +506,7 @@ typedef enum ftdm_channel_hw_link_status {
 typedef ftdm_status_t (*ftdm_stream_handle_raw_write_function_t) (ftdm_stream_handle_t *handle, uint8_t *data, ftdm_size_t datalen);
 typedef ftdm_status_t (*ftdm_stream_handle_write_function_t) (ftdm_stream_handle_t *handle, const char *fmt, ...);
 
-#include "ftdm_dso.h"
+typedef void * ftdm_dso_lib_t;
 
 #define FTDM_NODE_NAME_SIZE 50
 struct ftdm_conf_node {
