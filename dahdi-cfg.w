@@ -9,10 +9,8 @@ To compile this program, install \.{libtonezone-dev} package.
 Compile with
 $$\hbox{\.{gcc -o /bin/dahdi-cfg dahdi-cfg.c -ltonezone}}$$
 
-To apply the configuration, patch \.{/lib/udev/rules.d/60-dahdi.rules}:
-$$\vbox{
-\hbox{\.{+SUBSYSTEM=="dahdi\_spans", RUN+="/bin/dahdi-cfg"}}
-\hbox{\.{ LABEL="dahdi\_add\_end"}}}$$
+To apply the configuration, add the following line to \.{/lib/udev/rules.d/60-dahdi.rules}:
+$$\hbox{\.{SUBSYSTEM=="dahdi\_spans", ACTION=="add", RUN+="/bin/dahdi-cfg"}}$$
 
 After this program runs successfully, \.{/proc/dahdi/1} must contain this:
 $$\vbox{
@@ -25,7 +23,7 @@ $$\vbox{
 #include <string.h> /* |memset|, |strcpy| */
 #include <sys/ioctl.h> /* |ioctl| */
 #include <dahdi/user.h>
-#include <dahdi/tonezone.h>
+#include <dahdi/tonezone.h> /* |tone_zone_register| */
 
 int main(void)
 {
