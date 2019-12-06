@@ -1,8 +1,10 @@
 @* Intro.
 
 @c
-#include <stdio.h>
-#include <fcntl.h>
+#include <stdio.h> /* |fprintf| */
+#include <fcntl.h> /* |open| */
+#include <string.h> /* |memset| */
+#include <sys/ioctl.h> /* |ioctl| */
 #include <dahdi/user.h>
 #include <dahdi/tonezone.h>
 
@@ -27,22 +29,24 @@ int main(void)
     return 1;
   }
 
-  struct dahdi_chanconfig cc;
-  memset(&cc, 0, sizeof cc);
-  cc.chan = x;
-  cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
-  if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1) {
-    fprintf(stderr, "DAHDI_CHANCONFIG failed: %m\n");
-    return 1;
-  }
+  for (int x = 2; x <= 4; x++) {
+    struct dahdi_chanconfig cc;
+    memset(&cc, 0, sizeof cc);
+    cc.chan = x;
+    cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
+    if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1) {
+      fprintf(stderr, "DAHDI_CHANCONFIG failed: %m\n");
+      return 1;
+    }
 
-  struct dahdi_attach_echocan ae;
-  memset(&ae, 0, sizeof ae);
-  ae.chan = x;
-  strcpy(ae.echocan, "oslec");
-  if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
-    fprintf(stderr, "DAHDI_ATTACH_ECHOCAN failed: %m\n");
-    return 1;
+    struct dahdi_attach_echocan ae;
+    memset(&ae, 0, sizeof ae);
+    ae.chan = x;
+    strcpy(ae.echocan, "oslec");
+    if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1) {
+      fprintf(stderr, "DAHDI_ATTACH_ECHOCAN failed: %m\n");
+      return 1;
+    }
   }
 
   return 0;
