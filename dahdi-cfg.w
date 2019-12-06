@@ -3,20 +3,18 @@
 
 We use only one card, so assign span automatically. Use the following command.
 When it is used, the file \.{/proc/dahdi/1} is created.
-$$\hbox{\.{echo options dahdi auto\_assign\_spans=1 >/etc/modprobe.d/dahdi.conf}}$$
+$$\hbox{\tt\catcode`_=11 echo options dahdi auto_assign_spans=1 >/etc/modprobe.d/dahdi.conf}$$
 
 To compile this program, install \.{libtonezone-dev} package.
 Compile with
 $$\hbox{\.{gcc -o /bin/dahdi-cfg dahdi-cfg.c -ltonezone}}$$
 
 To apply the configuration, add the following line to \.{/lib/udev/rules.d/60-dahdi.rules}:
-$$\hbox{\.{SUBSYSTEM=="dahdi\_spans", ACTION=="add", RUN+="/bin/dahdi-cfg"}}$$
+$$\hbox{\tt\catcode`_=11
+  SUBSYSTEM=="dahdi_spans", ACTION=="add", RUN+="/bin/dahdi-cfg"}$$
 
-After this program runs successfully, \.{/proc/dahdi/1} must contain this:
-$$\vbox{
-\hbox{\.{2 WCTDM/0/1 FXOKS (EC: OSLEC - INACTIVE)}}
-\hbox{\.{3 WCTDM/0/2 FXOKS (EC: OSLEC - INACTIVE)}}
-\hbox{\.{4 WCTDM/0/3 FXOKS (EC: OSLEC - INACTIVE)}}}$$
+The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
+appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
 
 @c
 #include <fcntl.h> /* |open| */
