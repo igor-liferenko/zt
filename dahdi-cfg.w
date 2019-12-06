@@ -1,7 +1,8 @@
 \nosecs
 @* Intro.
 
-We use only one card, so assign span automatically. For this run the following command:
+We use only one card, so assign span automatically. Use the following command.
+When it is used, the file \.{/proc/dahdi/1} is created.
 $$\hbox{\.{echo options dahdi auto\_assign\_spans=1 >/etc/modprobe.d/dahdi.conf}}$$
 
 To compile this program, install \.{libtonezone-dev} package.
@@ -12,6 +13,12 @@ To apply the configuration, patch \.{/lib/udev/rules.d/60-dahdi.rules}:
 $$\vbox{
 \hbox{\.{+SUBSYSTEM=="dahdi\_spans", RUN+="/bin/dahdi-cfg"}}
 \hbox{\.{ LABEL="dahdi\_add\_end"}}}$$
+
+After this program runs successfully, \.{/proc/dahdi/1} must contain this:
+$$\vbox{
+\hbox{\.{2 WCTDM/0/1 FXOKS (EC: OSLEC - INACTIVE)}}
+\hbox{\.{3 WCTDM/0/2 FXOKS (EC: OSLEC - INACTIVE)}}
+\hbox{\.{4 WCTDM/0/3 FXOKS (EC: OSLEC - INACTIVE)}}}$$
 
 @c
 #include <fcntl.h> /* |open| */
