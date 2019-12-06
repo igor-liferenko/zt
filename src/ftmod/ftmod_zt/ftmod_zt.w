@@ -1,4 +1,7 @@
 @ @c
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #if !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
 #endif
@@ -566,7 +569,6 @@ typedef struct hashtable_iterator ftdm_hash_iterator_t;
 typedef struct key ftdm_hash_key_t;
 typedef struct value ftdm_hash_val_t;
 typedef struct ftdm_bitstream ftdm_bitstream_t;
-typedef struct ftdm_fsk_modulator ftdm_fsk_modulator_t;
 typedef ftdm_status_t (*ftdm_span_start_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_span_stop_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_span_destroy_t)(ftdm_span_t *span);
@@ -592,7 +594,135 @@ struct ftdm_iterator {
 	} pvt;
 };
 
-#include "libteletone.h"
+#define TELETONE_MAX_TONES 18
+typedef double teletone_process_t;
+typedef int16_t teletone_audio_t;
+/*! \brief An abstraction to store a tone mapping */
+typedef struct {
+        /*! An array of tone frequencies */
+        teletone_process_t freqs[TELETONE_MAX_TONES];
+} teletone_tone_map_t;
+
+#define TELETONE_TONE_RANGE 127
+
+struct teletone_generation_session;
+typedef int (*tone_handler)(struct teletone_generation_session *ts, teletone_tone_map_t *map);
+
+/*! \brief An abstraction to store a tone generation session */
+struct teletone_generation_session {
+        /*! An array of tone mappings to character mappings */
+        teletone_tone_map_t TONES[TELETONE_TONE_RANGE];
+        /*! The number of channels the output audio should be in */
+        int channels;
+        /*! The Rate in hz of the output audio */
+        int rate;
+        /*! The duration (in samples) of the output audio */
+        int duration;
+        /*! The duration of silence to append after the initial audio is generated */
+        int wait;
+        /*! The duration (in samples) of the output audio (takes prescedence over actual duration value) */
+        int tmp_duration;
+        /*! The duration of silence to append after the initial audio is generated (takes prescedence over actual wait value)*/
+        int tmp_wait;
+        /*! Number of loops to repeat a single instruction*/
+        int loops;
+        /*! Number of loops to repeat the entire set of instructions*/
+        int LOOPS;
+        /*! Number to mutiply total samples by to determine when to begin ascent or decent e.g. 0=beginning 4=(last 25%) */
+        float decay_factor;
+        /*! Direction to perform volume increase/decrease 1/-1*/
+        int decay_direction;
+        /*! Number of samples between increase/decrease of volume */
+        int decay_step;
+        /*! Volume factor of the tone */
+        float volume;
+        /*! Debug on/off */
+        int debug;
+        /*! FILE stream to write debug data to */
+        FILE *debug_stream;
+        /*! Extra user data to attach to the session*/
+        void *user_data;
+        /*! Buffer for storing sample data (dynamic) */
+        teletone_audio_t *buffer;
+        /*! Size of the buffer */
+        int datalen;
+        /*! In-Use size of the buffer */
+        int samples;
+        /*! Callback function called during generation */
+        int dynamic;
+        tone_handler handler;
+};
+
+typedef struct teletone_generation_session teletone_generation_session_t;
+
+
+#define GRID_FACTOR 4
+
+        /*! \brief A continer for the elements of a Goertzel Algorithm (The names are from his formula) */
+        typedef struct {
+                float v2;
+                float v3;
+                double fac;
+        } teletone_goertzel_state_t;
+
+        /*! \brief A container for a DTMF detection state.*/
+        typedef struct {
+                int hit1;
+                int hit2;
+                int hit3;
+                int hit4;
+                int dur;
+                int zc;
+
+
+                teletone_goertzel_state_t row_out[GRID_FACTOR];
+                teletone_goertzel_state_t col_out[GRID_FACTOR];
+                teletone_goertzel_state_t row_out2nd[GRID_FACTOR];
+                teletone_goertzel_state_t col_out2nd[GRID_FACTOR];
+                float energy;
+                float lenergy;
+
+                int current_sample;
+                char digit;
+                int current_digits;
+                int detected_digits;
+                int lost_digits;
+                int digit_hits[16];
+        } teletone_dtmf_detect_state_t;
+
+
+        /*! \brief An abstraction to store the coefficient of a tone frequency */
+        typedef struct {
+                float fac;
+        } teletone_detection_descriptor_t;
+
+        /*! \brief A container for a single multi-tone detection
+          TELETONE_MAX_TONES dictates the maximum simultaneous tones that can be present
+          in a multi-tone representation.
+        */
+        typedef struct {
+                int sample_rate;
+
+                teletone_detection_descriptor_t tdd[TELETONE_MAX_TONES];
+                teletone_goertzel_state_t gs[TELETONE_MAX_TONES];
+                teletone_goertzel_state_t gs2[TELETONE_MAX_TONES];
+                int tone_count;
+
+                float energy;
+                int current_sample;
+
+                int min_samples;
+                int total_samples;
+
+                int positives;
+                int negatives;
+                int hits;
+
+                int positive_factor;
+                int negative_factor;
+                int hit_factor;
+
+        } teletone_multi_tone_t;
 
 struct ftdm_buffer;
 typedef struct ftdm_buffer ftdm_buffer_t;
@@ -740,25 +870,6 @@ struct ftdm_fsk_data_state {
 	ftdm_size_t ppos;
 	int checksum;
 };
-
-struct ftdm_fsk_modulator {
-	teletone_dds_state_t dds;
-	ftdm_bitstream_t bs;
-	uint32_t carrier_bits_start;
-	uint32_t carrier_bits_stop;
-	uint32_t chan_sieze_bits;
-	uint32_t bit_factor;
-	uint32_t bit_accum;
-	uint32_t sample_counter;
-	int32_t samples_per_bit;
-	int32_t est_bytes;
-	fsk_modem_types_t modem_type;
-	ftdm_fsk_data_state_t *fsk_data;
-	ftdm_fsk_write_sample_t write_sample_callback;
-	void *user_data;
-	int16_t sample_buffer[64];
-};
-
 
 typedef enum {
 	FTDM_TYPE_NONE,
@@ -953,26 +1064,6 @@ struct ftdm_group {
 
 extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
-ftdm_size_t ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t *fsk_trans, int8_t bit,
-  int16_t *buf, ftdm_size_t buflen);
-int32_t ftdm_fsk_modulator_generate_carrier_bits(ftdm_fsk_modulator_t *fsk_trans, uint32_t bits);
-void ftdm_fsk_modulator_generate_chan_sieze(ftdm_fsk_modulator_t *fsk_trans);
-void ftdm_fsk_modulator_send_data(ftdm_fsk_modulator_t *fsk_trans);
-#define ftdm_fsk_modulator_send_all(_it) ftdm_fsk_modulator_generate_chan_sieze(_it); \
-	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_start); \
-	ftdm_fsk_modulator_send_data(_it); \
-	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_stop)
-
-ftdm_status_t ftdm_fsk_modulator_init(ftdm_fsk_modulator_t *fsk_trans,
-						fsk_modem_types_t modem_type,
-						uint32_t sample_rate,
-						ftdm_fsk_data_state_t *fsk_data,
-						float db_level,
-						uint32_t carrier_bits_start,
-						uint32_t carrier_bits_stop,
-						uint32_t chan_sieze_bits,
-						ftdm_fsk_write_sample_t write_sample_callback,
-						void *user_data);
 int8_t ftdm_bitstream_get_bit(ftdm_bitstream_t *bsp);
 void ftdm_bitstream_init(ftdm_bitstream_t *bsp, uint8_t *data, uint32_t datalen,
   ftdm_endian_t endian, uint8_t ss);
