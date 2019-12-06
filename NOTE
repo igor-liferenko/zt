@@ -5,3 +5,4 @@ Why DAHDI_GET_PARAMS is done on /dev/dahdi/ctl in dahdi_cfg and on /dev/dahdi/ch
 Try both and compare result.
 
 DAHDI_CHANCONFIG and DAHDI_SET_PARAMS configure the same settings?
+Compare 'struct dahdi_chanconfig' with 'struct dahdi_params'.
