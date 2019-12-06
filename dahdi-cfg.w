@@ -28,12 +28,12 @@ int main(void)
 {
   @<Wait for all spans assigned@>@;
 
-  int fd = open("/dev/dahdi/ctl", O_RDWR);
+  int fd = open("/dev/dahdi/ctl", O_WRONLY);
   if (fd == -1) return 1;
 
   @<Configure tone zone@>@;
 
-  for (int x = 2; x <= 4; x++) {
+  for (int channel = 2; channel <= 4; channel++) {
     @<Configure channel@>@;
     @<Attach echo canceller@>@;
   }
@@ -49,24 +49,24 @@ take implementation of function \\{wait\_for\_all\_spans\_assigned} from \.{dahd
 @ Set signalling type.
 
 @<Configure channel@>=
-    struct dahdi_chanconfig cc;
-    memset(&cc, 0, sizeof cc);
-    cc.chan = x;
-    cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
-    if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1)  
-      return 1;
+struct dahdi_chanconfig cc;
+memset(&cc, 0, sizeof cc);
+cc.chan = channel;
+cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
+if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1)  
+  return 1;
 
 @ Attach the desired echo canceler module to a channel,
 so that when the channel needs an echo canceler
 that module will be used to supply one.
 
 @<Attach echo canceller@>=
-    struct dahdi_attach_echocan ae;
-    memset(&ae, 0, sizeof ae);
-    ae.chan = x;
-    strcpy(ae.echocan, "oslec");
-    if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1)
-      return 1;
+struct dahdi_attach_echocan ae;
+memset(&ae, 0, sizeof ae);
+ae.chan = channel;
+strcpy(ae.echocan, "oslec");
+if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1)
+  return 1;
 
 @ Without this phone will not ring on incoming calls.
 
