@@ -1,4 +1,4 @@
-dahdi_cfg.c
+dahdi-cfg.c
 *.dvi
 *.ps
 *.toc
