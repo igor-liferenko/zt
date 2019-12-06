@@ -1,5 +1,17 @@
 @* Intro.
 
+We use only one card, so assign span automatically. For this run the following command:
+$$\hbox{\.{echo options dahdi auto\_assign\_spans=1 >/etc/modprobe.d/dahdi.conf}}$$
+
+To compile this program, install \.{libtonezone-dev} package.
+Compile with
+$$\hbox{\.{gcc -o /bin/dahdi\_cfg dahdi\_cfg.c -ltonezone}}$$
+
+To apply the configuration, patch \.{/lib/udev/rules.d/60-dahdi.rules}:
+$$\vbox{
+\hbox{\.{+SUBSYSTEM=="dahdi\_spans", RUN+="/bin/dahdi\_cfg"}}
+\hbox{\.{ LABEL="dahdi\_add\_end"}}}$$
+
 @c
 #include <stdio.h> /* |fprintf| */
 #include <fcntl.h> /* |open| */
@@ -53,6 +65,22 @@ int main(void)
 }
 
 @ If configuration will not be applied, 
-take implementation of \\{wait\_for\_all\_spans\_assigned} from \.{dahdi_cfg.c}
+take implementation of function \\{wait\_for\_all\_spans\_assigned} from \.{dahdi\_cfg.c}
 
 @<Wait for all spans assigned@>=
+
+
+
+# Signal type (reversed):
+fxoks=2
+fxoks=3
+fxoks=4
+
+# Attach the desired echo canceler module to a channel,
+# so that when the channel needs an echo canceler
+# that module will be used to supply one:
+echocanceller=oslec,2
+echocanceller=oslec,3
+echocanceller=oslec,4
+
+# Without this phone will not ring on incoming calls:
