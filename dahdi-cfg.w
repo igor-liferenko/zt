@@ -1,3 +1,4 @@
+\let\lheader\rheader
 \nosecs
 @* Intro.
 
