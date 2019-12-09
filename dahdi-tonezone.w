@@ -2,6 +2,9 @@
 \nosecs
 @* Intro.
 
+The "tone zone" defines the standard tone indications (dialing, ringing, busy, etc).
+(Without this phone will not ring on incoming calls.)
+
 \noindent
 To compile this program, install \.{libtonezone-dev} package.
 Compile with
@@ -10,8 +13,6 @@ Compile with
 \medskip
 \noindent
 To apply the configuration, add ???
-
-Without this phone will not ring on incoming calls.
 
 \bigskip
 
