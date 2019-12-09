@@ -3,23 +3,6 @@
 @* Intro.
 
 \noindent
-We use only one card, so assign span automatically. Use the following command.
-When it is used, the file \.{/proc/dahdi/1} is created.
-\smallskip
-\line{\hss\tt\catcode`_11 echo options dahdi auto_assign_spans=1 >/etc/modprobe.d/dahdi.conf\hss}
-\medskip
-\noindent
-Compile with
-\smallskip
-\centerline{\tt gcc -o /bin/dahdi-span dahdi-span.c}
-\medskip
-\noindent
-To apply the configuration, add the following line to \.{/lib/udev/rules.d/60-dahdi.rules}:
-\smallskip
-\line{\hss\tt\catcode`_11
-  SUBSYSTEM=="dahdi_spans", ACTION=="add", RUN+="/bin/dahdi-span"\hss}
-\medskip
-\noindent
 The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
 appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
 \bigskip
