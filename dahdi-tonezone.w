@@ -12,10 +12,6 @@ To compile this program, install \.{libtonezone-dev} package.
 Compile with
 \smallskip
 \centerline{\tt gcc -o /bin/dahdi-tonezone dahdi-tonezone.c -ltonezone}
-\medskip
-\noindent
-To apply the configuration, add ???
-
 \bigskip
 
 @c
