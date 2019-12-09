@@ -15,8 +15,6 @@ appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
 
 int main(void)
 {
-  @<Wait for all spans assigned@>@;
-
   int fd = open("/dev/dahdi/ctl", O_WRONLY);
   if (fd == -1) return 1;
 
@@ -27,12 +25,6 @@ int main(void)
 
   return 0;
 }
-
-@ If configuration will not be applied, 
-take implementation of function \\{wait\_for\_all\_spans\_assigned} from \.{dahdi\_cfg.c}
-(+see what does script \.{dahdi\_waitfor\_span\_assignments}).
-
-@<Wait for all spans assigned@>=
 
 @ Set signalling type.
 
