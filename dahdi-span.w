@@ -9,16 +9,15 @@ When it is used, the file \.{/proc/dahdi/1} is created.
 \line{\hss\tt\catcode`_11 echo options dahdi auto_assign_spans=1 >/etc/modprobe.d/dahdi.conf\hss}
 \medskip
 \noindent
-To compile this program, install \.{libtonezone-dev} package.
 Compile with
 \smallskip
-\centerline{\tt gcc -o /bin/dahdi-cfg dahdi-cfg.c -ltonezone}
+\centerline{\tt gcc -o /bin/dahdi-span dahdi-span.c}
 \medskip
 \noindent
 To apply the configuration, add the following line to \.{/lib/udev/rules.d/60-dahdi.rules}:
 \smallskip
 \line{\hss\tt\catcode`_11
-  SUBSYSTEM=="dahdi_spans", ACTION=="add", RUN+="/bin/dahdi-cfg"\hss}
+  SUBSYSTEM=="dahdi_spans", ACTION=="add", RUN+="/bin/dahdi-span"\hss}
 \medskip
 \noindent
 The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
@@ -30,7 +29,6 @@ appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
 #include <string.h> /* |memset|, |strcpy| */
 #include <sys/ioctl.h> /* |ioctl| */
 #include <dahdi/user.h>
-#include <dahdi/tonezone.h> /* |tone_zone_register| */
 
 int main(void)
 {
@@ -38,8 +36,6 @@ int main(void)
 
   int fd = open("/dev/dahdi/ctl", O_WRONLY);
   if (fd == -1) return 1;
-
-  @<Configure tone zone@>@;
 
   for (int channel = 2; channel <= 4; channel++) {
     @<Configure channel@>@;
@@ -76,12 +72,3 @@ ae.chan = channel;
 strcpy(ae.echocan, "oslec");
 if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1)
   return 1;
-
-@ Without this phone will not ring on incoming calls.
-
-@<Configure tone zone@>=
-  if (tone_zone_register(fd, "us") != 0)
-    return 1;
-  int deftonezone = 0;
-  if (ioctl(fd, DAHDI_DEFAULTZONE, &deftonezone) == -1)
-    return 1;
