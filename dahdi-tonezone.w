@@ -27,9 +27,6 @@ int main(void)
 
   if (tone_zone_register(fd, "us") != 0)
     return 1;
-  int deftonezone = 0;
-  if (ioctl(fd, DAHDI_DEFAULTZONE, &deftonezone) == -1)
-    return 1;
 
   return 0;
 }
