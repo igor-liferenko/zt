@@ -1,4 +1,5 @@
-dahdi-cfg.c
+dahdi-span.c
+dahdi-tonezone.c
 *.dvi
 *.ps
 *.toc
