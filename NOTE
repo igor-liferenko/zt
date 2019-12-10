@@ -3,3 +3,5 @@ Try both and compare result.
 
 DAHDI_CHANCONFIG and DAHDI_SET_PARAMS configure the same settings?
 Compare 'struct dahdi_chanconfig' with 'struct dahdi_params'.
+
+In DAHDI_SPECIFY we use absolute channel number.
