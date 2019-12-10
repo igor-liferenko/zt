@@ -26,7 +26,9 @@ int main(void)
   return 0;
 }
 
-@ Set signalling type.
+@ Set signalling type for channel.
+(Each channel may be configured to handle different signalling types,
+e.g., FXOLS, FXOGS and FXOKS.)
 
 @<Configure channel@>=
 struct dahdi_chanconfig cc;
