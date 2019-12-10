@@ -1443,7 +1443,7 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end,
         ftdmchan->packet_len *= 2;
 			
       ftdmchan->rate = 8000;
-      ftdmchan->physical_span_id = 1;
+      ftdmchan->physical_span_id = 1; /* should be |ztp.span_no| --- see git lg */
       ftdmchan->physical_chan_id = x;
 			
       ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
