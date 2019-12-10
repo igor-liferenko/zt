@@ -2,16 +2,8 @@
 \nosecs
 @* Intro.
 
-The "tone zone" defines the standard tone indications (dialing, ringing, busy, etc).
+Define the standard tone indications (dialing, ringing, busy, etc).
 (Without this phone will not ring on incoming calls.)
-
-\noindent
-Compile with
-\smallskip
-\centerline{\tt gcc -o /bin/dahdi-tonezone dahdi-tonezone.c -lm}
-\bigskip
-
-TODO: rename z to tone_zone
 
 @d MAX_SIZE 16384
 @d LEVEL -10
