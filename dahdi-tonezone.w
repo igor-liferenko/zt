@@ -5,13 +5,10 @@
 The "tone zone" defines the standard tone indications (dialing, ringing, busy, etc).
 (Without this phone will not ring on incoming calls.)
 
-The defaultzone is used if no zone is specified for a channel (after \.{DAHDI\_SPECIFY} (?)).
-
 \noindent
-To compile this program, install \.{libtonezone-dev} package.
 Compile with
 \smallskip
-\centerline{\tt gcc -o /bin/dahdi-tonezone dahdi-tonezone.c -ltonezone}
+\centerline{\tt gcc -o /bin/dahdi-tonezone dahdi-tonezone.c -lm}
 \bigskip
 
 TODO: rename z to tone_zone
