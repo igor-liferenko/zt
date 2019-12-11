@@ -353,10 +353,6 @@ static unsigned zt_open_range(ftdm_span_t *span, unsigned start, unsigned end, f
 				default:
 					break;
 				}
-				
-				if (ioctl(CONTROL_FD, codes.CHANCONFIG, &cc)) {
-					ftdm_log(FTDM_LOG_WARNING, "this ioctl fails in older zaptel but is harmless if you used ztcfg\n[device %s chan %d fd %d (%s)]\n", chanpath, x, CONTROL_FD, strerror(errno));
-				}
 			}
 
 			if (type == FTDM_CHAN_TYPE_CAS) {
