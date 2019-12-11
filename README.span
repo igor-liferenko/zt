@@ -1,0 +1,7 @@
+When span is assigned, directory span-N appears in /sys/bus/dahdi_devices/devices/X/,
+all spans are listed in file dahdi_spantype in the same directory.
+
+X:Y:Z is this:
+1. on one device may be several spans, so X is span number within the device - listed in dahdi_spantype
+2. Y is filename in /proc/dahdi/ - chosen arbitrarily
+3. Z is start chan num in cat /proc/dahdi/Y - chosen arbitrarily (but the order of Z must be the same as that of Y)
