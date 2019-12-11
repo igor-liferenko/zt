@@ -10,5 +10,3 @@ Note, that spans in freetdm.conf are not connected with Y (freetdm calls them
 "physical") - they are assigned in order of occurrence in freetdm.conf and are used
 in dialplan (like freetdm/U/V); V is not connected with Z (Z are specified in freetdm.conf,
 but V is assigned automatically in increasing order) - Z is called "physical" by freetdm.
-
-channel number used for ioctls is which is listed in cat /proc/dahdi/Y
