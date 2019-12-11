@@ -3,10 +3,12 @@ all spans are listed in file dahdi_spantype in the same directory.
 
 X:Y:Z is this:
 1. on one device may be several spans, so X is span number within the device - listed in dahdi_spantype
-2. Y is filename in /proc/dahdi/ - chosen arbitrarily
-3. Z is start chan num in cat /proc/dahdi/Y - chosen arbitrarily (but the order of Z must be the same as that of Y)
+2. Y is filename in /proc/dahdi/ - chosen arbitrarily. Starts with 1.
+3. Z is start chan num in cat /proc/dahdi/Y - chosen arbitrarily (but the order of Z must be the same as that of Y); Z is global numbering of all channels in all spans (must be unique), it is used in ioctls. Starts with 1.
 
 Note, that spans in freetdm.conf are not connected with Y (freetdm calls them
 "physical") - they are assigned in order of occurrence in freetdm.conf and are used
 in dialplan (like freetdm/U/V); V is not connected with Z (Z are specified in freetdm.conf,
 but V is assigned automatically in increasing order) - Z is called "physical" by freetdm.
+
+channel number used for ioctls is which is listed in cat /proc/dahdi/Y
