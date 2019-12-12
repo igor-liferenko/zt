@@ -13,7 +13,6 @@
 ftdm_status_t _ftdm_mutex_lock(const char *file, int line, const char *func, ftdm_mutex_t *mutex);
 ftdm_status_t _ftdm_mutex_unlock(const char *file, int line, const char *func,
   ftdm_mutex_t *mutex);
-void ftdm_log(const char *file, const char *func, int line, int level, const char *fmt, ...);
 
 @ @c
 #if !defined(_XOPEN_SOURCE)
@@ -993,6 +992,9 @@ ftdm_bool_t ftdm_running(void);
 ftdm_status_t ftdm_backtrace_walk(void (* callback)(const int tid, const void *addr, const char *symbol, void *priv), void *priv);
 ftdm_status_t ftdm_backtrace_span(ftdm_span_t *span);
 ftdm_status_t ftdm_backtrace_chan(ftdm_channel_t *chan);
+
+typedef void (*ftdm_logger_t)(const char *file, const char *func, int line, int level, const char *fmt, ...) __attribute__((format (printf, 5, 6)));
+extern ftdm_logger_t ftdm_log;
 
 typedef ftdm_status_t (*fio_codec_t) (void *data, size_t max, size_t *datalen) ;
 
