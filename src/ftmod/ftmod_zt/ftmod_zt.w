@@ -1,7 +1,6 @@
 @ @c
 #if !defined(_XOPEN_SOURCE)
 #endif
-#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
@@ -18,6 +17,25 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
+#define FTDM_PRE __FILE__, __func__, __LINE__
+#define FTDM_LOG_LEVEL_DEBUG 7
+#define FTDM_LOG_LEVEL_INFO 6
+#define FTDM_LOG_LEVEL_NOTICE 5
+#define FTDM_LOG_LEVEL_WARNING 4
+#define FTDM_LOG_LEVEL_ERROR 3
+#define FTDM_LOG_LEVEL_CRIT 2
+#define FTDM_LOG_LEVEL_ALERT 1
+#define FTDM_LOG_LEVEL_EMERG 0
+
+#define FTDM_LOG_DEBUG FTDM_PRE, FTDM_LOG_LEVEL_DEBUG
+#define FTDM_LOG_INFO FTDM_PRE, FTDM_LOG_LEVEL_INFO
+#define FTDM_LOG_NOTICE FTDM_PRE, FTDM_LOG_LEVEL_NOTICE
+#define FTDM_LOG_WARNING FTDM_PRE, FTDM_LOG_LEVEL_WARNING
+#define FTDM_LOG_ERROR FTDM_PRE, FTDM_LOG_LEVEL_ERROR
+#define FTDM_LOG_CRIT FTDM_PRE, FTDM_LOG_LEVEL_CRIT
+#define FTDM_LOG_ALERT FTDM_PRE, FTDM_LOG_LEVEL_ALERT
+#define FTDM_LOG_EMERG FTDM_PRE, FTDM_LOG_LEVEL_EMERG
 
 typedef int ftdm_socket_t;
 
@@ -2597,306 +2615,6 @@ ioctlcmd SETPOLARITY;
 ioctlcmd TONEDETECT;
 };
 
-static struct ioctl_codes zt_ioctl_codes= {
-.GET_BLOCKSIZE= 
-               (((2U) << (((0 +8)+8)+14)) | (((
-               'J'
-               )) << (0 +8)) | (((
-               1
-               )) << 0) | ((((sizeof(
-               int
-               )))) << ((0 +8)+8)))
-                               ,
-.SET_BLOCKSIZE= 
-               (((1U) << (((0 +8)+8)+14)) | (((
-               'J'
-               )) << (0 +8)) | (((
-               2
-               )) << 0) | ((((sizeof(
-               int
-               )))) << ((0 +8)+8)))
-                               ,
-.FLUSH= 
-       (((1U) << (((0 +8)+8)+14)) | (((
-       'J'
-       )) << (0 +8)) | (((
-       3
-       )) << 0) | ((((sizeof(
-       int
-       )))) << ((0 +8)+8)))
-               ,
-.SYNC= 
-      (((1U) << (((0 +8)+8)+14)) | (((
-      'J'
-      )) << (0 +8)) | (((
-      4
-      )) << 0) | ((((sizeof(
-      int
-      )))) << ((0 +8)+8)))
-             ,
-.GET_PARAMS= 
-            (((2U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            5
-            )) << 0) | ((((sizeof(
-            struct zt_params
-            )))) << ((0 +8)+8)))
-                         ,
-.SET_PARAMS= 
-            (((1U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            6
-            )) << 0) | ((((sizeof(
-            struct zt_params
-            )))) << ((0 +8)+8)))
-                         ,
-.HOOK= 
-      (((1U) << (((0 +8)+8)+14)) | (((
-      'J'
-      )) << (0 +8)) | (((
-      7
-      )) << 0) | ((((sizeof(
-      int
-      )))) << ((0 +8)+8)))
-             ,
-.GETEVENT= 
-          (((2U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          8
-          )) << 0) | ((((sizeof(
-          int
-          )))) << ((0 +8)+8)))
-                     ,
-.IOMUX= 
-       (((2U|1U) << (((0 +8)+8)+14)) | (((
-       'J'
-       )) << (0 +8)) | (((
-       9
-       )) << 0) | ((((sizeof(
-       int
-       )))) << ((0 +8)+8)))
-               ,
-.SPANSTAT= 
-          (((2U|1U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          10
-          )) << 0) | ((((sizeof(
-          struct zt_spaninfo
-          )))) << ((0 +8)+8)))
-                     ,
-.MAINT= 
-       (((1U) << (((0 +8)+8)+14)) | (((
-       'J'
-       )) << (0 +8)) | (((
-       11
-       )) << 0) | ((((sizeof(
-       struct zt_maintinfo
-       )))) << ((0 +8)+8)))
-               ,
-.GETCONF= 
-         (((2U|1U) << (((0 +8)+8)+14)) | (((
-         'J'
-         )) << (0 +8)) | (((
-         12
-         )) << 0) | ((((sizeof(
-         struct zt_confinfo
-         )))) << ((0 +8)+8)))
-                   ,
-.SETCONF= 
-         (((2U|1U) << (((0 +8)+8)+14)) | (((
-         'J'
-         )) << (0 +8)) | (((
-         13
-         )) << 0) | ((((sizeof(
-         struct zt_confinfo
-         )))) << ((0 +8)+8)))
-                   ,
-.CONFLINK= 
-          (((1U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          14
-          )) << 0) | ((((sizeof(
-          struct zt_confinfo
-          )))) << ((0 +8)+8)))
-                     ,
-.CONFDIAG= 
-          (((2U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          15
-          )) << 0) | ((((sizeof(
-          int
-          )))) << ((0 +8)+8)))
-                     ,
-.GETGAINS= 
-          (((2U|1U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          16
-          )) << 0) | ((((sizeof(
-          struct zt_gains
-          )))) << ((0 +8)+8)))
-                     ,
-.SETGAINS= 
-          (((2U|1U) << (((0 +8)+8)+14)) | (((
-          'J'
-          )) << (0 +8)) | (((
-          17
-          )) << 0) | ((((sizeof(
-          struct zt_gains
-          )))) << ((0 +8)+8)))
-                     ,
-.SPANCONFIG= 
-            (((1U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            18
-            )) << 0) | ((((sizeof(
-            struct zt_lineconfig
-            )))) << ((0 +8)+8)))
-                         ,
-.CHANCONFIG= 
-            (((1U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            19
-            )) << 0) | ((((sizeof(
-            struct zt_chanconfig
-            )))) << ((0 +8)+8)))
-                         ,
-.SET_BUFINFO= 
-             (((1U) << (((0 +8)+8)+14)) | (((
-             'J'
-             )) << (0 +8)) | (((
-             27
-             )) << 0) | ((((sizeof(
-             struct zt_bufferinfo
-             )))) << ((0 +8)+8)))
-                           ,
-.GET_BUFINFO= 
-             (((2U) << (((0 +8)+8)+14)) | (((
-             'J'
-             )) << (0 +8)) | (((
-             28
-             )) << 0) | ((((sizeof(
-             struct zt_bufferinfo
-             )))) << ((0 +8)+8)))
-                           ,
-.AUDIOMODE= 
-           (((1U) << (((0 +8)+8)+14)) | (((
-           'J'
-           )) << (0 +8)) | (((
-           32
-           )) << 0) | ((((sizeof(
-           int
-           )))) << ((0 +8)+8)))
-                       ,
-.ECHOCANCEL= 
-            (((1U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            33
-            )) << 0) | ((((sizeof(
-            int
-            )))) << ((0 +8)+8)))
-                         ,
-.HDLCRAWMODE= 
-             (((1U) << (((0 +8)+8)+14)) | (((
-             'J'
-             )) << (0 +8)) | (((
-             36
-             )) << 0) | ((((sizeof(
-             int
-             )))) << ((0 +8)+8)))
-                           ,
-.HDLCFCSMODE= 
-             (((1U) << (((0 +8)+8)+14)) | (((
-             'J'
-             )) << (0 +8)) | (((
-             37
-             )) << 0) | ((((sizeof(
-             int
-             )))) << ((0 +8)+8)))
-                           ,
-.SPECIFY= 
-         (((1U) << (((0 +8)+8)+14)) | (((
-         'J'
-         )) << (0 +8)) | (((
-         38
-         )) << 0) | ((((sizeof(
-         int
-         )))) << ((0 +8)+8)))
-                   ,
-.SETLAW= 
-        (((1U) << (((0 +8)+8)+14)) | (((
-        'J'
-        )) << (0 +8)) | (((
-        39
-        )) << 0) | ((((sizeof(
-        int
-        )))) << ((0 +8)+8)))
-                 ,
-.SETLINEAR= 
-           (((1U) << (((0 +8)+8)+14)) | (((
-           'J'
-           )) << (0 +8)) | (((
-           40
-           )) << 0) | ((((sizeof(
-           int
-           )))) << ((0 +8)+8)))
-                       ,
-.GETCONFMUTE= 
-             (((2U) << (((0 +8)+8)+14)) | (((
-             'J'
-             )) << (0 +8)) | (((
-             49
-             )) << 0) | ((((sizeof(
-             int
-             )))) << ((0 +8)+8)))
-                           ,
-.ECHOTRAIN= 
-           (((1U) << (((0 +8)+8)+14)) | (((
-           'J'
-           )) << (0 +8)) | (((
-           50
-           )) << 0) | ((((sizeof(
-           int
-           )))) << ((0 +8)+8)))
-                       ,
-.SETTXBITS= 
-           (((1U) << (((0 +8)+8)+14)) | (((
-           'J'
-           )) << (0 +8)) | (((
-           43
-           )) << 0) | ((((sizeof(
-           int
-           )))) << ((0 +8)+8)))
-                       ,
-.GETRXBITS= 
-           (((2U) << (((0 +8)+8)+14)) | (((
-           'J'
-           )) << (0 +8)) | (((
-           45
-           )) << 0) | ((((sizeof(
-           int
-           )))) << ((0 +8)+8)))
-                       ,
-.TONEDETECT= 
-            (((1U) << (((0 +8)+8)+14)) | (((
-            'J'
-            )) << (0 +8)) | (((
-            91
-            )) << 0) | ((((sizeof(
-            int
-            )))) << ((0 +8)+8)))
-                         ,
-};
-
 static struct ioctl_codes dahdi_ioctl_codes= {
 .GET_BLOCKSIZE= 
                (((2U) << (((0 +8)+8)+14)) | (((
@@ -3205,18 +2923,6 @@ static struct ioctl_codes dahdi_ioctl_codes= {
 };
 
 static struct ioctl_codes codes;
-static const char*ctlpath= 
-                          ((void *)0)
-                              ;
-static const char*chanpath= 
-                           ((void *)0)
-                               ;
-
-static const char dahdi_ctlpath[]= "/dev/dahdi/ctl";
-static const char dahdi_chanpath[]= "/dev/dahdi/channel";
-
-static const char zt_ctlpath[]= "/dev/zap/ctl";
-static const char zt_chanpath[]= "/dev/zap/channel";
 
 static ftdm_socket_t CONTROL_FD= -1;
 
@@ -3289,15 +2995,11 @@ ftdm_channel_t*ftdmchan;
 ftdm_socket_t sockfd= -1;
 int len;
 
-sockfd= open(chanpath,
-                     02
-                           );
+sockfd= open("/dev/dahdi/channel", O_RDWR);
 if(sockfd!=-1&&ftdm_span_add_channel(span,sockfd,type,&ftdmchan)==FTDM_SUCCESS){
 
 if(ioctl(sockfd,codes.SPECIFY,&x)){
-ftdm_log("./ftmod_zt.w", __func__, 294, 3,"failure configuring device %s chan %d fd %d (%s)\n",chanpath,x,sockfd,strerror(
-                                                                                                       (*__errno_location ())
-                                                                                                            ));
+ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel chan %d fd %d (%s)\n", x, sockfd, strerror(errno));
 close(sockfd);
 continue;
 }
@@ -3310,7 +3012,7 @@ binfo.rxbufpolicy= 0;
 binfo.numbufs= 32;
 binfo.bufsize= 1024;
 if(ioctl(sockfd,codes.SET_BUFINFO,&binfo)){
-ftdm_log("./ftmod_zt.w", __func__, 307, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd);
+ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd);
 close(sockfd);
 continue;
 }
@@ -3368,24 +3070,19 @@ cc.chan= cc.master= x;
 cc.sigtype= ZT_SIG_CAS;
 cc.idlebits= cas_bits;
 if(ioctl(CONTROL_FD,codes.CHANCONFIG,&cc)){
-ftdm_log("./ftmod_zt.w", __func__, 365, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d err:%s\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd,strerror(
-                                                                                                                                                           (*__errno_location ())
-                                                                                                                                                                ));
+ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd, strerror(errno));
 close(sockfd);
 continue;
 }
 }
 
-if(ftdmchan->type!=FTDM_CHAN_TYPE_DQ921&&ftdmchan->type!=FTDM_CHAN_TYPE_DQ931){
-len= zt_globals.codec_ms*8;
-if(ioctl(ftdmchan->sockfd,codes.SET_BLOCKSIZE,&len)){
-ftdm_log("./ftmod_zt.w", __func__, 374, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d err:%s\n",
-chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd,strerror(
-                                                            (*__errno_location ())
-                                                                 ));
-close(sockfd);
-continue;
-}
+if (ftdmchan->type != FTDM_CHAN_TYPE_DQ921 && ftdmchan->type != FTDM_CHAN_TYPE_DQ931) {
+  len = zt_globals.codec_ms*8;
+  if (ioctl(ftdmchan->sockfd, codes.SET_BLOCKSIZE, &len)) {
+    ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd, strerror(errno));
+    close(sockfd);
+    continue;
+  }
 
 ftdmchan->packet_len= len;
 ftdmchan->effective_interval= ftdmchan->native_interval= ftdmchan->packet_len/8;
@@ -3395,10 +3092,10 @@ ftdmchan->packet_len*= 2;
 }
 }
 
-if(ioctl(sockfd,codes.GET_PARAMS,&ztp)<0){
-ftdm_log("./ftmod_zt.w", __func__, 389, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd);
-close(sockfd);
-continue;
+if (ioctl(sockfd, codes.GET_PARAMS, &ztp) < 0) {
+  ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd);
+  close(sockfd);
+  continue;
 }
 
 if(ftdmchan->type==FTDM_CHAN_TYPE_DQ921){
@@ -3407,13 +3104,13 @@ if(
 (ztp.sig_type!=ZT_SIG_HDLCFCS)&&
 (ztp.sig_type!=ZT_SIG_HARDHDLC)
 ){
-ftdm_log("./ftmod_zt.w", __func__, 400, 3,"Failure configuring device %s as FreeTDM device %d:%d fd:%d, hardware signaling is not HDLC, fix your Zap/DAHDI configuration!\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd);
+ftdm_log(FTDM_LOG_ERROR, "Failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d, hardware signaling is not HDLC, fix your DAHDI configuration!\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd);
 close(sockfd);
 continue;
 }
 }
 
-ftdm_log("./ftmod_zt.w", __func__, 406, 6,"configuring device %s channel %d as FreeTDM device %d:%d fd:%d\n",chanpath,x,ftdmchan->span_id,ftdmchan->chan_id,sockfd);
+ftdm_log(FTDM_LOG_INFO, "configuring device /dev/dahdi/channel channel %d as FreeTDM device %d:%d fd:%d\n", x, ftdmchan->span_id, ftdmchan->chan_id, sockfd);
 
 ftdmchan->rate= 8000;
 ftdmchan->physical_span_id= ztp.span_no;
@@ -3441,10 +3138,10 @@ ftdmchan->native_codec= ftdmchan->effective_codec= type;
 ztp.wink_time= zt_globals.wink_ms;
 ztp.flash_time= zt_globals.flash_ms;
 
-if(ioctl(sockfd,codes.SET_PARAMS,&ztp)<0){
-ftdm_log("./ftmod_zt.w", __func__, 435, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,sockfd);
-close(sockfd);
-continue;
+if (ioctl(sockfd,codes.SET_PARAMS,&ztp) < 0) {
+  ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n", ftdmchan->span_id, ftdmchan->chan_id, sockfd);
+  close(sockfd);
+  continue;
 }
 
 mode= ZT_TONEDETECT_ON|ZT_TONEDETECT_MUTE;
@@ -3465,9 +3162,9 @@ strncpy(ftdmchan->chan_number, number, sizeof(ftdmchan->chan_number) - 1);
 }
 
 configured++;
-}else{
-ftdm_log("./ftmod_zt.w", __func__, 459, 3,"failure configuring device %s\n",chanpath);
 }
+else
+  ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel\n");
 }
 
 return configured;
@@ -3641,9 +3338,8 @@ ftdm_log("./ftmod_zt.w", __func__, 655, 6,"Setting rxgain to %f on channel %d\n"
 if(zt_globals.txgain)
 ftdm_log("./ftmod_zt.w", __func__, 658, 6,"Setting txgain to %f on channel %d\n",zt_globals.txgain,gains.chan_no);
 
-if(ioctl(ftdmchan->sockfd,codes.SETGAINS,&gains)<0){
-ftdm_log("./ftmod_zt.w", __func__, 661, 3,"failure configuring device %s as FreeTDM device %d:%d fd:%d\n",chanpath,ftdmchan->span_id,ftdmchan->chan_id,ftdmchan->sockfd);
-}
+  if (ioctl(ftdmchan->sockfd,codes.SETGAINS,&gains) < 0)
+    ftdm_log(FTDM_LOG_ERROR, "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n", ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->sockfd);
 }
 
 if(1){
@@ -4434,27 +4130,17 @@ struct stat statbuf;
 memset(&zt_interface,0,sizeof(zt_interface));
 memset(&zt_globals,0,sizeof(zt_globals));
 
-if(!stat(zt_ctlpath,&statbuf)){
-ftdm_log("./ftmod_zt.w", __func__, 1496, 5,"Using Zaptel control device\n");
-ctlpath= zt_ctlpath;
-chanpath= zt_chanpath;
-memcpy(&codes,&zt_ioctl_codes,sizeof(codes));
-}else if(!stat(dahdi_ctlpath,&statbuf)){
-ftdm_log("./ftmod_zt.w", __func__, 1501, 5,"Using DAHDI control device\n");
-ctlpath= dahdi_ctlpath;
-chanpath= dahdi_chanpath;
-memcpy(&codes,&dahdi_ioctl_codes,sizeof(codes));
-}else{
-ftdm_log("./ftmod_zt.w", __func__, 1506, 3,"No DAHDI or Zap control device found in /dev/\n");
-return FTDM_FAIL;
+if(!stat("/dev/dahdi/ctl",&statbuf)) {
+  ftdm_log("./ftmod_zt.w", __func__, 1501, 5,"Using DAHDI control device\n");
+  memcpy(&codes,&dahdi_ioctl_codes,sizeof(codes));
 }
-if((CONTROL_FD= open(ctlpath,
-                            02
-                                  ))<0){
-ftdm_log("./ftmod_zt.w", __func__, 1510, 3,"Cannot open control device %s: %s\n",ctlpath,strerror(
-                                                                              (*__errno_location ())
-                                                                                   ));
-return FTDM_FAIL;
+else {
+  ftdm_log("./ftmod_zt.w", __func__, 1506, 3,"No DAHDI or Zap control device found in /dev/\n");
+  return FTDM_FAIL;
+}
+if ((CONTROL_FD = open("/dev/dahdi/ctl", O_RDWR)) < 0) {
+  ftdm_log(FTDM_LOG_ERROR, "Cannot open control device /dev/dahdi/ctl: %s\n", strerror(errno));
+  return FTDM_FAIL;
 }
 
 zt_globals.codec_ms= 20;
