@@ -7,11 +7,11 @@ FTLA=$(FT_DIR)/libfreetdm.la
 LOCAL_OBJS=tdm.o
 LOCAL_CFLAGS=-I$(FT_DIR)/src/include -I$(FT_DIR)/src/isdn/include $(FT_CFLAGS)
 LOCAL_LDFLAGS=-L$(FT_DIR) -lfreetdm 
-include $(BASE)/build/modmake.rules
+include modmake.rules
 
 local_depend: $(FTLA)
 
-$(FTLA): $(FT_DIR)/.update
+$(FTLA): .update
 	cd $(FT_DIR) && $(MAKE)
 
 local_install:
