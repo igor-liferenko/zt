@@ -2,7 +2,8 @@
 \nosecs
 @* Intro.
 
-Define the standard tone indications (dialing, ringing, busy, etc).
+Define the standard tone indications (dialing, ringing, busy, etc)
+and load them to `\.{dahdi}' module.
 (Without this phone will not ring on incoming calls.)
 
 @d MAX_SIZE 16384
