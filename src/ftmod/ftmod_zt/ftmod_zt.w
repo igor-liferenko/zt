@@ -3483,25 +3483,7 @@ int channo;
 int top= 0;
 unsigned configured= 0;
 
-((void) sizeof ((
-str!=
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-str!=
-((void *)0)) ; else __assert_fail (
-"str!=NULL"
-, "./ftmod_zt.w", 488, __extension__ __PRETTY_FUNCTION__); }))
-                ;
-
 mydata= ftdm_strdup(str);
-
-((void) sizeof ((
-mydata!=
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-mydata!=
-((void *)0)) ; else __assert_fail (
-"mydata!=NULL"
-, "./ftmod_zt.w", 492, __extension__ __PRETTY_FUNCTION__); }))
-                   ;
 
 items= ftdm_separate_string(mydata,',',item_list,(sizeof(item_list)/sizeof(item_list[0])));
 
@@ -3741,14 +3723,7 @@ return FTDM_FAIL;
 }
 ftdm_log("./ftmod_zt.w", __func__, 751, 7, "[s%dc%d][%d:%d] " "Channel is now offhook\n", ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->physical_span_id, ftdmchan->physical_chan_id);
 
-((void) sizeof ((
-ftdmchan->mutex != 
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-ftdmchan->mutex != 
-((void *)0)) ; else __assert_fail (
-"ftdmchan->mutex != NULL"
-, "./ftmod_zt.w", 752, __extension__ __PRETTY_FUNCTION__); }))
-; _ftdm_mutex_lock("./ftmod_zt.w", 752, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags |= ((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 752, (const char *)__func__, ftdmchan->mutex);;
+_ftdm_mutex_lock("./ftmod_zt.w", 752, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags |= ((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 752, (const char *)__func__, ftdmchan->mutex);;
 }
 break;
 case FTDM_COMMAND_ONHOOK:
@@ -3760,14 +3735,7 @@ return FTDM_FAIL;
 }
 ftdm_log("./ftmod_zt.w", __func__, 762, 7, "[s%dc%d][%d:%d] " "Channel is now onhook\n", ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->physical_span_id, ftdmchan->physical_chan_id);
 
-((void) sizeof ((
-ftdmchan->mutex != 
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-ftdmchan->mutex != 
-((void *)0)) ; else __assert_fail (
-"ftdmchan->mutex != NULL"
-, "./ftmod_zt.w", 763, __extension__ __PRETTY_FUNCTION__); }))
-; _ftdm_mutex_lock("./ftmod_zt.w", 763, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags &= ~((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 763, (const char *)__func__, ftdmchan->mutex);;
+_ftdm_mutex_lock("./ftmod_zt.w", 763, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags &= ~((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 763, (const char *)__func__, ftdmchan->mutex);;
 }
 break;
 case FTDM_COMMAND_FLASH:
@@ -3796,14 +3764,7 @@ ftdm_log("./ftmod_zt.w", __func__, 788, 3, "[s%dc%d][%d:%d] " "RING Failed", ftd
 return FTDM_FAIL;
 }
 
-((void) sizeof ((
-ftdmchan->mutex != 
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-ftdmchan->mutex != 
-((void *)0)) ; else __assert_fail (
-"ftdmchan->mutex != NULL"
-, "./ftmod_zt.w", 791, __extension__ __PRETTY_FUNCTION__); }))
-; _ftdm_mutex_lock("./ftmod_zt.w", 791, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags |= ((1ULL << 15)); _ftdm_mutex_unlock("./ftmod_zt.w", 791, (const char *)__func__, ftdmchan->mutex);;
+_ftdm_mutex_lock("./ftmod_zt.w", 791, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags |= ((1ULL << 15)); _ftdm_mutex_unlock("./ftmod_zt.w", 791, (const char *)__func__, ftdmchan->mutex);;
 }
 break;
 case FTDM_COMMAND_GENERATE_RING_OFF:
@@ -3814,14 +3775,7 @@ ftdm_log("./ftmod_zt.w", __func__, 798, 3, "[s%dc%d][%d:%d] " "Ring-off Failed",
 return FTDM_FAIL;
 }
 
-((void) sizeof ((
-ftdmchan->mutex != 
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-ftdmchan->mutex != 
-((void *)0)) ; else __assert_fail (
-"ftdmchan->mutex != NULL"
-, "./ftmod_zt.w", 801, __extension__ __PRETTY_FUNCTION__); }))
-; _ftdm_mutex_lock("./ftmod_zt.w", 801, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags &= ~((1ULL << 15)); _ftdm_mutex_unlock("./ftmod_zt.w", 801, (const char *)__func__, ftdmchan->mutex);;
+_ftdm_mutex_lock("./ftmod_zt.w", 801, (const char *)__func__, ftdmchan->mutex); (ftdmchan)->flags &= ~((1ULL << 15)); _ftdm_mutex_unlock("./ftmod_zt.w", 801, (const char *)__func__, ftdmchan->mutex);;
 }
 break;
 case FTDM_COMMAND_GET_INTERVAL:
@@ -4185,14 +4139,7 @@ case ZT_EVENT_RINGOFFHOOK:
 if(fchan->type==FTDM_CHAN_TYPE_FXS||(fchan->type==FTDM_CHAN_TYPE_EM&&fchan->state!=FTDM_CHANNEL_STATE_UP)){
 if(fchan->type!=FTDM_CHAN_TYPE_EM){
 
-((void) sizeof ((
-fchan->mutex != 
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-fchan->mutex != 
-((void *)0)) ; else __assert_fail (
-"fchan->mutex != NULL"
-, "./ftmod_zt.w", 1166, __extension__ __PRETTY_FUNCTION__); }))
-; _ftdm_mutex_lock("./ftmod_zt.w", 1166, (const char *)__func__, fchan->mutex); (fchan)->flags |= ((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 1166, (const char *)__func__, fchan->mutex);;
+_ftdm_mutex_lock("./ftmod_zt.w", 1166, (const char *)__func__, fchan->mutex); (fchan)->flags |= ((1ULL << 14)); _ftdm_mutex_unlock("./ftmod_zt.w", 1166, (const char *)__func__, fchan->mutex);;
 }
 
 if(fchan->type==FTDM_CHAN_TYPE_EM&&((fchan)->flags & (1ULL << 18))){
@@ -4483,15 +4430,6 @@ static ftdm_io_interface_t zt_interface;
 
 static ftdm_status_t zt_init (ftdm_io_interface_t **fio)
 {
-
-((void) sizeof ((
-fio!=
-((void *)0)) ? 1 : 0), __extension__ ({ if (
-fio!=
-((void *)0)) ; else __assert_fail (
-"fio!=NULL"
-, "./ftmod_zt.w", 1490, __extension__ __PRETTY_FUNCTION__); }))
-                ;
 struct stat statbuf;
 memset(&zt_interface,0,sizeof(zt_interface));
 memset(&zt_globals,0,sizeof(zt_globals));
