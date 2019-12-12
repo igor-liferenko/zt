@@ -270,48 +270,6 @@ typedef enum {
 } ftdm_chan_type_t;
 
 typedef enum {
- FTDM_TON_UNKNOWN = 0,
- FTDM_TON_INTERNATIONAL,
- FTDM_TON_NATIONAL,
- FTDM_TON_NETWORK_SPECIFIC,
- FTDM_TON_SUBSCRIBER_NUMBER,
- FTDM_TON_ABBREVIATED_NUMBER,
- FTDM_TON_RESERVED,
- FTDM_TON_INVALID
-} ftdm_ton_t;
-ftdm_ton_t ftdm_str2ftdm_ton (const char *name); const char * ftdm_ton2str (ftdm_ton_t type);
-
-typedef enum {
- FTDM_NPI_UNKNOWN = 0,
- FTDM_NPI_ISDN,
- FTDM_NPI_DATA,
- FTDM_NPI_TELEX,
- FTDM_NPI_NATIONAL,
- FTDM_NPI_PRIVATE,
- FTDM_NPI_RESERVED,
- FTDM_NPI_INVALID
-} ftdm_npi_t;
-ftdm_npi_t ftdm_str2ftdm_npi (const char *name); const char * ftdm_npi2str (ftdm_npi_t type);
-
-typedef enum {
- FTDM_PRES_ALLOWED,
- FTDM_PRES_RESTRICTED,
- FTDM_PRES_NOT_AVAILABLE,
- FTDM_PRES_RESERVED,
- FTDM_PRES_INVALID
-} ftdm_presentation_t;
-ftdm_presentation_t ftdm_str2ftdm_presentation (const char *name); const char * ftdm_presentation2str (ftdm_presentation_t type);
-
-typedef enum {
- FTDM_SCREENING_NOT_SCREENED,
- FTDM_SCREENING_VERIFIED_PASSED,
- FTDM_SCREENING_VERIFIED_FAILED,
- FTDM_SCREENING_NETWORK_PROVIDED,
- FTDM_SCREENING_INVALID
-} ftdm_screening_t;
-ftdm_screening_t ftdm_str2ftdm_screening (const char *name); const char * ftdm_screening2str (ftdm_screening_t type);
-
-typedef enum {
  FTDM_BEARER_CAP_SPEECH = 0x00,
  FTDM_BEARER_CAP_UNRESTRICTED,
  FTDM_BEARER_CAP_RESTRICTED,
@@ -321,7 +279,6 @@ typedef enum {
  FTDM_BEARER_CAP_VIDEO,
  FTDM_BEARER_CAP_INVALID
 } ftdm_bearer_cap_t;
-ftdm_bearer_cap_t ftdm_str2ftdm_bearer_cap (const char *name); const char * ftdm_bearer_cap2str (ftdm_bearer_cap_t type);
 
 typedef enum {
  FTDM_USER_LAYER1_PROT_V110 = 0x01,
@@ -329,7 +286,6 @@ typedef enum {
  FTDM_USER_LAYER1_PROT_ALAW = 0x03,
  FTDM_USER_LAYER1_PROT_INVALID
 } ftdm_user_layer1_prot_t;
-ftdm_user_layer1_prot_t ftdm_str2ftdm_usr_layer1_prot (const char *name); const char * ftdm_user_layer1_prot2str (ftdm_user_layer1_prot_t type);
 
 typedef enum {
  FTDM_CPC_UNKNOWN,
@@ -346,7 +302,6 @@ typedef enum {
  FTDM_CPC_PAYPHONE,
  FTDM_CPC_INVALID
 } ftdm_calling_party_category_t;
-ftdm_calling_party_category_t ftdm_str2ftdm_calling_party_category (const char *name); const char * ftdm_calling_party_category2str (ftdm_calling_party_category_t type);
 
 typedef enum {
  FTDM_TRANSFER_RESPONSE_OK,
@@ -357,18 +312,12 @@ typedef enum {
  FTDM_TRANSFER_RESPONSE_TIMEOUT,
  FTDM_TRANSFER_RESPONSE_INVALID,
 } ftdm_transfer_response_t;
-ftdm_transfer_response_t ftdm_str2ftdm_transfer_response (const char *name); const char * ftdm_transfer_response2str (ftdm_transfer_response_t type);
 
 typedef struct {
  char digits[64];
  uint8_t type;
  uint8_t plan;
 } ftdm_number_t;
-
-typedef struct {
- char from[32];
- char body[128];
-} ftdm_sms_data_t;
 
 typedef struct ftdm_caller_data {
  char cid_date[8];
@@ -383,51 +332,14 @@ typedef struct ftdm_caller_data {
  uint8_t pres;
  char collected[64];
  int hangup_cause;
-
  ftdm_bearer_cap_t bearer_capability;
-
  ftdm_user_layer1_prot_t bearer_layer1;
  ftdm_calling_party_category_t cpc;
  uint32_t call_reference;
-
  ftdm_channel_t *fchan;
-
  uint32_t call_id;
-
  void *priv;
 } ftdm_caller_data_t;
-
-typedef enum {
- FTDM_HUNT_SPAN,
- FTDM_HUNT_GROUP,
- FTDM_HUNT_CHAN,
-} ftdm_hunt_mode_t;
-
-typedef struct {
- uint32_t span_id;
- ftdm_hunt_direction_t direction;
-} ftdm_span_hunt_t;
-
-typedef struct {
- uint32_t group_id;
- ftdm_hunt_direction_t direction;
-} ftdm_group_hunt_t;
-
-typedef struct {
- uint32_t span_id;
- uint32_t chan_id;
-} ftdm_chan_hunt_t;
-typedef ftdm_status_t (*ftdm_hunt_result_cb_t)(ftdm_channel_t *fchan, ftdm_caller_data_t *caller_data);
-
-typedef struct {
- ftdm_hunt_mode_t mode;
- union {
-  ftdm_span_hunt_t span;
-  ftdm_group_hunt_t group;
-  ftdm_chan_hunt_t chan;
- } mode_data;
- ftdm_hunt_result_cb_t result_cb;
-} ftdm_hunting_scheme_t;
 
 typedef enum {
  FTDM_TONE_DTMF = (1 << 0)
@@ -459,8 +371,6 @@ typedef enum {
  FTDM_SIGEVENT_INVALID,
 } ftdm_signal_event_t;
 
-ftdm_signal_event_t ftdm_str2ftdm_signal_event (const char *name); const char * ftdm_signal_event2str (ftdm_signal_event_t type);
-
 typedef enum {
  FTDM_TRUNK_E1,
  FTDM_TRUNK_T1,
@@ -474,15 +384,11 @@ typedef enum {
  FTDM_TRUNK_NONE
 } ftdm_trunk_type_t;
 
-ftdm_trunk_type_t ftdm_str2ftdm_trunk_type (const char *name); const char * ftdm_trunk_type2str (ftdm_trunk_type_t type);
-
 typedef enum {
  FTDM_TRUNK_MODE_CPE,
  FTDM_TRUNK_MODE_NET,
  FTDM_TRUNK_MODE_INVALID
 } ftdm_trunk_mode_t;
-
-ftdm_trunk_mode_t ftdm_str2ftdm_trunk_mode (const char *name); const char * ftdm_trunk_mode2str (ftdm_trunk_mode_t type);
 
 typedef struct ftdm_channel_config {
  char name[128];
@@ -500,32 +406,21 @@ typedef struct ftdm_channel_config {
 } ftdm_channel_config_t;
 
 typedef enum {
-
  FTDM_SIG_STATE_DOWN,
-
  FTDM_SIG_STATE_SUSPENDED,
-
  FTDM_SIG_STATE_UP,
-
  FTDM_SIG_STATE_INVALID
 } ftdm_signaling_status_t;
-
-ftdm_signaling_status_t ftdm_str2ftdm_signaling_status (const char *name); const char * ftdm_signaling_status2str (ftdm_signaling_status_t type);
 
 typedef struct {
  ftdm_signaling_status_t status;
 } ftdm_event_sigstatus_t;
 
 typedef enum {
-
  FTDM_TRACE_DIR_INCOMING,
-
  FTDM_TRACE_DIR_OUTGOING,
-
-  FTDM_TRACE_DIR_INVALID,
+ FTDM_TRACE_DIR_INVALID,
 } ftdm_trace_dir_t;
-
-ftdm_trace_dir_t ftdm_str2ftdm_trace_dir (const char *name); const char * ftdm_trace_dir2str (ftdm_trace_dir_t type);
 
 typedef enum {
  FTDM_TRACE_TYPE_Q931,
@@ -533,16 +428,12 @@ typedef enum {
  FTDM_TRACE_TYPE_INVALID,
 } ftdm_trace_type_t;
 
-ftdm_trace_type_t ftdm_str2ftdm_trace_type (const char *name); const char * ftdm_trace_type2str (ftdm_trace_type_t type);
-
 typedef struct {
-
  ftdm_trace_dir_t dir;
  ftdm_trace_type_t type;
 } ftdm_event_trace_t;
 
 typedef struct {
-
  char digits[64];
 } ftdm_event_collected_t;
 
@@ -560,12 +451,8 @@ typedef enum {
  FTDM_CHANNEL_INDICATE_INVALID,
 } ftdm_channel_indication_t;
 
-ftdm_channel_indication_t ftdm_str2ftdm_channel_indication (const char *name); const char * ftdm_channel_indication2str (ftdm_channel_indication_t type);
-
 typedef struct {
-
  ftdm_channel_indication_t indication;
-
  ftdm_status_t status;
 } ftdm_event_indication_completed_t;
 
