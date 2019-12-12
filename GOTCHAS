@@ -1,0 +1,3 @@
+dahdi and zaptel ioctl defines are incompatible somewhere ("stack smashing detected"), so do not hurry to switch to '#include <dahdi/user.h>'
+
+if something will not work, try to use tones.conf
