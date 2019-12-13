@@ -18,7 +18,7 @@ appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
 int main(void)
 {
   int fd = open("/dev/dahdi/ctl", O_WRONLY);
-  if (fd == -1) return 255;
+  if (fd == -1) return 1;
 
   for (int channel = 2; channel <= 4; channel++) {
     @<Configure channel@>@;
