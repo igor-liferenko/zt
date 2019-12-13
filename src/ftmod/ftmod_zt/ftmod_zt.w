@@ -1,3 +1,29 @@
+@s ftdm_mutex_t int
+@s ftdm_status_t int
+@s line normal int
+@s ftdm_channel int
+@s ftdm_span int
+@s ftdm_event int
+@s ftdm_conf_node int
+@s ftdm_group int
+@s fio_wait_t int
+@s fio_read_t int
+@s fio_write_t int
+@s fio_get_alarms_t int
+@s fio_span_destroy_t int
+@s fio_channel_destroy_t int
+@s fio_open_t int
+@s fio_close_t int
+@s fio_command_t int
+@s fio_configure_t int
+@s fio_configure_span_t int
+@s fio_api_t int
+@s fio_span_start_t int
+@s fio_span_stop_t int
+@s fio_span_poll_event_t int
+@s fio_span_next_event_t int
+@s fio_channel_next_event_t int
+
 @* Intro.
 
 @c
@@ -41,10 +67,10 @@
 #define DAHDI_CHANCONFIG _IOW (DAHDI_CODE, 19, struct zt_chanconfig)
   /* Set Channel Configuration  */
 #define DAHDI_SET_BUFINFO _IOW (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Set buffer policy */
-#define DAHDI_GET_BUFINFO _IOR (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Get current buffer info */
+#define DAHDI_GET_BUFINFO _IOR (DAHDI_CODE, 27, struct zt_bufferinfo) /* Get current buffer info */
 #define DAHDI_AUDIOMODE _IOW (DAHDI_CODE, 32, int)      /* Set a clear channel into audio mode */
 #define DAHDI_ECHOCANCEL _IOW (DAHDI_CODE, 33, int)     /* Control Echo Canceller */
-#define DAHDI_HDLCRAWMODE_IOW (DAHDI_CODE, 36, int)     /* Set a clear channel into HDLC w/out FCS
+#define DAHDI_HDLCRAWMODE _IOW (DAHDI_CODE, 36, int)     /* Set a clear channel into HDLC w/out FCS
                                                            checking/calculation mode */
 #define DAHDI_HDLCFCSMODE _IOW (DAHDI_CODE, 37, int)    /* Set a clear channel into HDLC w/ FCS
                                                            mode */
@@ -52,15 +78,15 @@
 #define         DAHDI_ALARM_YELLOW (1 << 2)     /* channel alarm */
 #define         DAHDI_ALARM_BLUE (1 << 4)       /* channel alarm */
 
-#define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)        /* Specify a channel on /dev/dahdi/chan --- must
-                                                           be done before any other ioctl's and is only valid on /dev/dahdi/chan */
+#define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)  /* Specify a channel on /dev/dahdi/chan --- must
+                       be done before any other ioctl's and is only valid on /dev/dahdi/channel */
 
-#define         DAHDI_SETLAW            _IOW  (DAHDI_CODE, 39, int)     /* Temporarily set the law on
-                                                                           a channel to \.{DAHDI\_LAW\_DEFAULT}, \.{DAHDI\_LAW\_ALAW}, or \.{DAHDI\_LAW\_MULAW}. Is reset
+#define DAHDI_SETLAW     _IOW  (DAHDI_CODE, 39, int)     /* Temporarily set the law on
+   a channel to \.{DAHDI\_LAW\_DEFAULT}, \.{DAHDI\_LAW\_ALAW}, or \.{DAHDI\_LAW\_MULAW}. Is reset
                                                                            on close. */
 
 #define DAHDI_SETLINEAR         _IOW  (DAHDI_CODE, 40, int)     /* Temporarily set the channel
-                                                                   to operate in linear mode when non-zero or default law if 0 */
+                           to operate in linear mode when non-zero or default law if 0 */
 
 #define DAHDI_ECHOTRAIN         _IOW  (DAHDI_CODE, 50, int)     /* Control Echo Trainer */
 
@@ -69,10 +95,10 @@
 
 #define DAHDI_SETPOLARITY _IOW (DAHDI_CODE, 92, int)    /* Polarity setting for FXO lines */
 
-#define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int)      /* Enable tone detection --- implemented by low
+#define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int) /* Enable tone detection --- implemented by low
                                                            level driver */
 
-#define ELAST 500               /* used by dahdi to indicate there is no data available, but events to read */
+#define ELAST 500  /* used by dahdi to indicate there is no data available, but events to read */
 
 #define FTDM_PRE __FILE__, __func__, __LINE__
 
@@ -174,6 +200,7 @@ char *ftdm_strndup(const char *str, size_t inlen);
 
 ftdm_time_t ftdm_current_time_in_ms(void);
 
+@ @c
 typedef enum {
   FTDM_CAUSE_NONE = 0,
   FTDM_CAUSE_UNALLOCATED = 1,
@@ -283,6 +310,7 @@ typedef enum {
   FTDM_CHAN_TYPE_COUNT
 } ftdm_chan_type_t;
 
+@ @c
 ftdm_chan_type_t ftdm_str2ftdm_chan_type(const char *name);
 const char *ftdm_chan_type2str(ftdm_chan_type_t type);
 
@@ -632,6 +660,7 @@ typedef enum {
   FTDM_POLARITY_REVERSE = 1
 } ftdm_polarity_t;
 
+@ @c
 typedef void *(*ftdm_malloc_func_t)(void *pool, size_t len);
 typedef void *(*ftdm_calloc_func_t)(void *pool, size_t elements,
                                     size_t len);
@@ -898,6 +927,7 @@ ftdm_status_t ftdm_channel_read(ftdm_channel_t * ftdmchan, void *data,
 ftdm_status_t ftdm_channel_write(ftdm_channel_t * ftdmchan, void *data,
                                  size_t datasize, size_t *datalen);
 
+@ @c
 const char *ftdm_sigmsg_get_var(ftdm_sigmsg_t * sigmsg,
                                 const char *var_name);
 ftdm_iterator_t *ftdm_sigmsg_get_var_iterator(const ftdm_sigmsg_t * sigmsg,
@@ -1151,6 +1181,7 @@ extern fsk_modem_definition_t fsk_modem_definitions[];
 typedef ssize_t ftdm_ssize_t;
 typedef int ftdm_filehandle_t;
 
+@ @c
 typedef enum {
   FTDM_ENDIAN_BIG = 1,
   FTDM_ENDIAN_LITTLE = -1
@@ -1406,6 +1437,7 @@ ftdm_dso_lib_t ftdm_dso_open(const char *path, char **err);
 void *ftdm_dso_func_sym(ftdm_dso_lib_t lib, const char *sym, char **err);
 char *ftdm_build_dso_path(const char *name, char *path, size_t len);
 
+@ @c
 struct ftdm_conf_node {
 
   char name[50];
@@ -1666,6 +1698,7 @@ static __inline__ void teletone_dds_state_set_tx_level(teletone_dds_state_t
   dds->tx_level = tx_level;
 }
 
+@ @c
 static __inline__ void teletone_dds_state_reset_accum(teletone_dds_state_t
                                                       * dds)
 {
@@ -1901,6 +1934,7 @@ struct ftdm_stream_handle {
   size_t alloc_chunk;
 };
 
+@ @c
 ftdm_status_t ftdm_console_stream_raw_write(ftdm_stream_handle_t * handle,
                                             uint8_t * data,
                                             size_t datalen);
@@ -2141,6 +2175,7 @@ struct ftdm_group {
   struct ftdm_group *next;
 };
 
+@ @c
 extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
 size_t ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t * fsk_trans,
@@ -2374,6 +2409,7 @@ struct zt_lineconfig {
   int sync;
 };
 
+@ @c
 struct zt_chanconfig {
 
   int chan;
@@ -2569,7 +2605,7 @@ static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain,
     break;
   }
 }
-
+@ @c
 static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
                               unsigned end, ftdm_chan_type_t type,
                               char *name, char *number,
@@ -2668,7 +2704,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         cc.idlebits = cas_bits;
         if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc)) {
           ftdm_log(FTDM_LOG_ERROR,
-                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
+            "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
                    ftdmchan->span_id, ftdmchan->chan_id, sockfd,
                    strerror(errno));
           close(sockfd);
@@ -2681,7 +2717,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         len = zt_globals.codec_ms * 8;
         if (ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) {
           ftdm_log(FTDM_LOG_ERROR,
-                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
+            "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
                    ftdmchan->span_id, ftdmchan->chan_id, sockfd,
                    strerror(errno));
           close(sockfd);
@@ -2711,7 +2747,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
             (ztp.sig_type != ZT_SIG_HARDHDLC)
             ) {
           ftdm_log(FTDM_LOG_ERROR,
-                   "Failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d, hardware signaling is not HDLC, fix your DAHDI configuration!\n",
+                   "hardware signaling is not HDLC, fix your DAHDI configuration!\n",
                    ftdmchan->span_id, ftdmchan->chan_id, sockfd);
           close(sockfd);
           continue;
@@ -2793,6 +2829,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
   return configured;
 }
 
+@ @c
 static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
                                        ftdm_chan_type_t type, char *name,
                                        char *number)
@@ -3024,6 +3061,7 @@ static ftdm_status_t zt_close(ftdm_channel_t * ftdmchan)
   return FTDM_SUCCESS;
 }
 
+@ @c
 static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
                                 ftdm_command_t command, void *obj)
 {
@@ -3263,6 +3301,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
   return err == 0 ? FTDM_SUCCESS : err;
 }
 
+@ @c
 static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
 {
   struct zt_spaninfo info;
@@ -3478,6 +3517,7 @@ static __inline__ int handle_dtmf_event(ftdm_channel_t * fchan,
   }
 }
 
+@ @c
 static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
                                                          fchan,
                                                          ftdm_oob_event_t *
@@ -3754,6 +3794,7 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
   return FTDM_FAIL;
 }
 
+@ @c
 static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
                              size_t *datalen)
 {
