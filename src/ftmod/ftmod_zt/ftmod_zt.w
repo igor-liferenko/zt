@@ -1538,6 +1538,7 @@ struct hashtable_iterator *hashtable_next(struct hashtable_iterator *i);
 void hashtable_this(struct hashtable_iterator *i, const void **key,
                     int *klen, void **val);
 
+@ @c
 static __inline__ int top_bit(unsigned int bits)
 {
   int res;
@@ -1548,6 +1549,7 @@ static __inline__ int top_bit(unsigned int bits)
   return res;
 }
 
+@ @c
 static __inline__ int bottom_bit(unsigned int bits)
 {
   int res;
@@ -1558,6 +1560,7 @@ static __inline__ int bottom_bit(unsigned int bits)
   return res;
 }
 
+@ @c
 static __inline__ uint8_t linear_to_ulaw(int linear)
 {
   uint8_t u_val;
