@@ -1,3 +1,6 @@
+@* Intro.
+
+@c
 #if !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
 #endif
@@ -3999,3 +4002,5 @@ ftdm_module_t ftdm_module = {
     zt_init,
     zt_destroy,
 };
+
+@* Index.
