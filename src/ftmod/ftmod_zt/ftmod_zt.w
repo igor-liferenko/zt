@@ -11,9 +11,7 @@
 
 @<Outside@>=
 ftdm_status_t _ftdm_mutex_lock(const char *file, int line, const char *func, ftdm_mutex_t *mutex);
-ftdm_status_t _ftdm_mutex_unlock(const char *file, int line, const char *func,
-  ftdm_mutex_t *mutex);
-
+ftdm_status_t _ftdm_mutex_unlock(const char *file, int line, const char *func, ftdm_mutex_t *mutex);
 @ @c
 #if !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
@@ -142,13 +140,30 @@ ftdm_status_t ftdm_set_screening_ind(const char *string, uint8_t *target);
 ftdm_status_t ftdm_set_presentation_ind(const char *string, uint8_t *target);
 ftdm_status_t ftdm_is_number(const char *number);
 ftdm_status_t ftdm_set_calling_party_category(const char *string, uint8_t *target);
-char *ftdm_url_encode(const char *url, char *buf, size_t len);
-char *ftdm_url_decode(char *s, size_t *len);
+char * ftdm_url_encode(const char *url, char *buf, size_t len);
+
+char * ftdm_url_decode(char *s, size_t *len);
 
 typedef struct ftdm_mutex ftdm_mutex_t;
+typedef struct ftdm_thread ftdm_thread_t;
 typedef struct ftdm_interrupt ftdm_interrupt_t;
+typedef void *(*ftdm_thread_function_t) (ftdm_thread_t *, void *);
+
+ftdm_status_t ftdm_thread_create_detached(ftdm_thread_function_t func, void *data);
+ftdm_status_t ftdm_thread_create_detached_ex(ftdm_thread_function_t func, void *data, size_t stack_size);
+void ftdm_thread_override_default_stacksize(size_t size);
+
+ftdm_status_t ftdm_mutex_create(ftdm_mutex_t **mutex);
+ftdm_status_t ftdm_mutex_destroy(ftdm_mutex_t **mutex);
 
 @<Outside@>@;
+
+ftdm_status_t ftdm_interrupt_create(ftdm_interrupt_t **cond, int device, ftdm_wait_flag_t device_flags);
+ftdm_status_t ftdm_interrupt_destroy(ftdm_interrupt_t **cond);
+ftdm_status_t ftdm_interrupt_signal(ftdm_interrupt_t *cond);
+ftdm_status_t ftdm_interrupt_wait(ftdm_interrupt_t *cond, int ms);
+ftdm_status_t ftdm_interrupt_multiple_wait(ftdm_interrupt_t *interrupts[], size_t size, int ms);
+ftdm_wait_flag_t ftdm_interrupt_device_ready(ftdm_interrupt_t *interrupt);
 
 typedef uint64_t ftdm_time_t;
 
@@ -268,6 +283,26 @@ typedef enum {
  FTDM_CHAN_TYPE_CAS,
  FTDM_CHAN_TYPE_COUNT
 } ftdm_chan_type_t;
+
+ftdm_chan_type_t ftdm_str2ftdm_chan_type (const char *name); const char * ftdm_chan_type2str (ftdm_chan_type_t type);
+
+typedef void (*ftdm_logger_t)(const char *file, const char *func, int line, int level, const char *fmt, ...) __attribute__((format (printf, 5, 6)));
+
+typedef ftdm_status_t (*ftdm_queue_create_func_t)(ftdm_queue_t **queue, size_t capacity);
+typedef ftdm_status_t (*ftdm_queue_enqueue_func_t)(ftdm_queue_t *queue, void *obj);
+typedef void *(*ftdm_queue_dequeue_func_t)(ftdm_queue_t *queue);
+typedef ftdm_status_t (*ftdm_queue_wait_func_t)(ftdm_queue_t *queue, int ms);
+typedef ftdm_status_t (*ftdm_queue_get_interrupt_func_t)(ftdm_queue_t *queue, ftdm_interrupt_t **interrupt);
+typedef ftdm_status_t (*ftdm_queue_destroy_func_t)(ftdm_queue_t **queue);
+
+typedef struct ftdm_queue_handler {
+ ftdm_queue_create_func_t create;
+ ftdm_queue_enqueue_func_t enqueue;
+ ftdm_queue_dequeue_func_t dequeue;
+ ftdm_queue_wait_func_t wait;
+ ftdm_queue_get_interrupt_func_t get_interrupt;
+ ftdm_queue_destroy_func_t destroy;
+} ftdm_queue_handler_t;
 
 typedef enum {
  FTDM_BEARER_CAP_SPEECH = 0x00,
@@ -708,6 +743,8 @@ typedef struct {
  } tx;
 } ftdm_channel_iostats_t;
 
+ftdm_status_t ftdm_global_set_queue_handler(ftdm_queue_handler_t *handler);
+
 int ftdm_channel_get_availability(ftdm_channel_t *ftdmchan);
 
 ftdm_bool_t ftdm_channel_call_check_answered(const ftdm_channel_t *ftdmchan);
@@ -869,6 +906,8 @@ ftdm_status_t ftdm_global_set_memory_handler(ftdm_memory_handler_t *handler);
 
 void ftdm_global_set_crash_policy(ftdm_crash_policy_t policy);
 
+void ftdm_global_set_logger(ftdm_logger_t logger);
+
 void ftdm_global_set_default_logger(int level);
 
 void ftdm_global_set_mod_directory(const char *path);
@@ -880,8 +919,7 @@ ftdm_status_t ftdm_backtrace_walk(void (* callback)(const int tid, const void *a
 ftdm_status_t ftdm_backtrace_span(ftdm_span_t *span);
 ftdm_status_t ftdm_backtrace_chan(ftdm_channel_t *chan);
 
-typedef void (*ftdm_logger_t)(const char *file, const char *func, int line, int level, const char *fmt, ...) __attribute__((format (printf, 5, 6)));
-extern ftdm_logger_t ftdm_log;
+ extern ftdm_logger_t ftdm_log;
 
 typedef ftdm_status_t (*fio_codec_t) (void *data, size_t max, size_t *datalen) ;
 
@@ -1700,6 +1738,8 @@ struct ftdm_stream_handle {
 
 ftdm_status_t ftdm_console_stream_raw_write(ftdm_stream_handle_t *handle, uint8_t *data, size_t datalen);
 ftdm_status_t ftdm_console_stream_write(ftdm_stream_handle_t *handle, const char *fmt, ...);
+
+ extern ftdm_queue_handler_t g_ftdm_queue_handler;
 
 static __inline__ char *ftdm_clean_string(char *s)
 {
