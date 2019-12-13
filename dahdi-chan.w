@@ -2,7 +2,8 @@
 \nosecs
 @* Intro.
 
-%NOTE: if it fails, instead of `return 2' repeat until success (it means span was not yet assigned)
+% NOTE: if it fails with error code `2' (see `systemctl status freeswitch'),
+% instead of `return 2' repeat until success (it means span was not yet assigned)
 
 \noindent
 The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
