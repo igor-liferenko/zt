@@ -24,6 +24,8 @@
 @s fio_span_next_event_t int
 @s fio_channel_next_event_t int
 
+\nosecs
+
 @* Intro.
 
 @c
