@@ -1,0 +1,1 @@
+in original ftmod_zt.c ioctl with "ztcfg" message will never work, because it is done on /dev/dahdi/channel - this ioctl only works on /dev/dahdi/ctl
