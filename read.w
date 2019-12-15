@@ -1,8 +1,6 @@
 @* Intro.
 
-Write is done each 128 milliseconds.
-
-\.{sox -r 8000 -e signed -b 16 -c 1 read.raw read.wav}
+Read is done each 128 milliseconds.
 
 @c
 #include <stdio.h> 
@@ -17,7 +15,7 @@ Write is done each 128 milliseconds.
 int main(void)
 {
   FILE *fp;
-  if ((fp = fopen("read.raw","w")) == NULL) return 1;
+  if ((fp = fopen("rec.pcm","w")) == NULL) return 1;
 
   int fd;
   if ((fd = open("/dev/dahdi/channel",O_RDWR)) == -1) return 2;

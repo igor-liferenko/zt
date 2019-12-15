@@ -2,8 +2,6 @@
 
 Write is done each 128 milliseconds.
 
-mp32pcm <silbo.mp3 | sox -r 44100 -e signed -b 16 -c 2 -t raw - -c 1 -r 8000 write.raw
-
 @c
 #include <stdio.h> 
 #include <math.h> 
@@ -17,7 +15,7 @@ mp32pcm <silbo.mp3 | sox -r 44100 -e signed -b 16 -c 2 -t raw - -c 1 -r 8000 wri
 int main(void)
 {
   int fp;
-  if ((fp = open("write.raw",O_RDWR)) == -1) return 1;
+  if ((fp = open("rec.pcm",O_RDWR)) == -1) return 1;
 
   int fd;
   if ((fd = open("/dev/dahdi/channel",O_RDWR)) == -1) return 2;
