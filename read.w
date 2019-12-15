@@ -1,6 +1,9 @@
 @* Intro.
 
-sox -r 8000 -e signed -b 16 -c 1 read.raw read.wav
+Write is done each 128 milliseconds (1024 bytes without SETLINEAR, 2048 bytes
+with SETLINEAR).
+
+\.{sox -r 8000 -e signed -b 16 -c 1 read.raw read.wav}
 
 @c
 #include <stdio.h> 
