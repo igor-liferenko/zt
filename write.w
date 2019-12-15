@@ -2,10 +2,7 @@
 
 Write is done each 128 milliseconds.
 
-mp32pcm <silbo.mp3 >silbo.raw
-sox -r 44100 -e signed -b 16 -c 2 silbo.raw silbo.wav
-sox silbo.wav -c 1 -r 8000 write.wav
-sox write.wav write.raw
+mp32pcm <silbo.mp3 | sox -r 44100 -e signed -b 16 -c 2 -t raw - -c 1 -r 8000 write.raw
 
 @c
 #include <stdio.h> 
