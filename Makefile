@@ -48,8 +48,8 @@ install:
 scp:
 	scp ~/zt/src/ftmod/ftmod_zt/ftmod_zt.w l:zt/src/ftmod/ftmod_zt/
 
-dahdi-tone:
+dahdi-tone: dahdi-tone.c
 	gcc -o dahdi-tone dahdi-tone.c -lm
 
-dahdi-chan:
+dahdi-chan: dahdi-chan.c
 	gcc -o dahdi-chan dahdi-chan.c
