@@ -1,4 +1,10 @@
+read
+read.c
+write
+write.c
+dahdi-chan
 dahdi-chan.c
+dahdi-tone
 dahdi-tone.c
 *.dvi
 *.ps
