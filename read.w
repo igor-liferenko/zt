@@ -1,7 +1,6 @@
 @* Intro.
 
-Write is done each 128 milliseconds (1024 bytes without SETLINEAR, 2048 bytes
-with SETLINEAR).
+Write is done each 128 milliseconds.
 
 \.{sox -r 8000 -e signed -b 16 -c 1 read.raw read.wav}
 
