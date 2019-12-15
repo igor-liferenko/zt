@@ -2752,8 +2752,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
             (ztp.sig_type != ZT_SIG_HARDHDLC)
             ) {
           ftdm_log(FTDM_LOG_ERROR,
-                   "hardware signaling is not HDLC, fix your DAHDI configuration!\n",
-                   ftdmchan->span_id, ftdmchan->chan_id, sockfd);
+                   "hardware signaling is not HDLC, fix your DAHDI configuration!\n");
           close(sockfd);
           continue;
         }
