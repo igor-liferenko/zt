@@ -2879,6 +2879,12 @@ static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
       ftdm_log(FTDM_LOG_ERROR, "Invalid range number %d\n", top);
       continue;
     }
+
+    if (FTDM_CHAN_TYPE_CAS == type && ftdm_config_get_cas_bits(ch, &cas_bits)) {
+      ftdm_log(FTDM_LOG_ERROR, "Failed to get CAS bits in CAS channel\n");
+      continue;
+    }
+
     configured +=
         zt_open_range(span, channo, top, type, name, number, cas_bits);
 
