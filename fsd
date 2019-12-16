@@ -1,6 +1,5 @@
 #!/bin/sh
 pkill freeswitch
-while [ 1 ]; do
-  pgrep freeswitch >/dev/null || break
+while pgrep freeswitch >/dev/null; do
   sleep 0.1
 done
