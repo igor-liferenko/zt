@@ -31,10 +31,10 @@ int main(void)
 e.g., FXOLS, FXOGS and FXOKS.)
 
 % NOTE: I think waiting for span assignments only makes sense when udev is used, but if
-% we assign it via writing to assign_spans or by auto_assign_spans=1, then after writing
-% to assign_spans or modprobe wctdm24xxp, span should be already assigned.
-% If it fails, here, it means that this assumption is wrong, and in such case
-% instead of `return 1' repeat until success (possible with a small sleeps in between)
+% we assign manually by writing to assign_spans or by auto_assign_spans=1, then by the time
+% writing to assign_spans or modprobe wctdm24xxp finishes, span assignment is complete.
+% If `return 1` happens here, it means that this assumption is wrong, and in such case
+% instead of `return 1' repeat until success (possible with a small sleeps in between).
 
 @<Configure channel@>=
 struct dahdi_chanconfig cc;
