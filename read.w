@@ -18,7 +18,7 @@ int main(void)
   if ((fp = fopen("rec.pcm","w")) == NULL) return 1;
 
   int fd;
-  if ((fd = open("/dev/dahdi/channel",O_RDWR)) == -1) return 2;
+  if ((fd = open("/dev/dahdi/channel", O_RDONLY)) == -1) return 2;
 
   int chan = 4;
   if (ioctl(fd, DAHDI_SPECIFY, &chan) == -1) return 3;
@@ -31,14 +31,12 @@ int main(void)
   struct timeval tval;
   struct tm *tms;
   while (1) {
-    if ((n = read(fd, buf, sizeof buf)) == -1) break;
-    if (gettimeofday (&tval, NULL) == -1) return 6;
-    if ((tms = localtime (&tval.tv_sec)) == NULL) return 7;
+    if ((n = read(fd, buf, sizeof buf)) == -1) return 0;
+    if (gettimeofday (&tval, NULL) == -1) return 5;
+    if ((tms = localtime (&tval.tv_sec)) == NULL) return 6;
     printf ("%d bytes, %d:%02d:%02d.%03ld.%03ld\n", n,
-             tms -> tm_hour, tms -> tm_min, tms -> tm_sec, tval.tv_usec / 1000,
+             tms->tm_hour, tms->tm_min, tms->tm_sec, tval.tv_usec / 1000,
              tval.tv_usec % 1000);
-    if (fwrite(buf, n, 1, fp) != 1) return 5;
+    if (fwrite(buf, n, 1, fp) != 1) return 7;
   }
-
-  return 0;
 }
