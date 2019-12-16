@@ -2,9 +2,6 @@
 \nosecs
 @* Intro.
 
-% NOTE: if it fails with error code `2' (see `systemctl status freeswitch'),
-% instead of `return 2' repeat until success (it means span was not yet assigned)
-
 \noindent
 The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
 appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
@@ -33,13 +30,16 @@ int main(void)
 (Each channel may be configured to handle different signalling types,
 e.g., FXOLS, FXOGS and FXOKS.)
 
+% NOTE: if it fails,
+% instead of `return 1' repeat until success (it means span was not yet assigned)
+
 @<Configure channel@>=
 struct dahdi_chanconfig cc;
 memset(&cc, 0, sizeof cc);
 cc.chan = channel;
 cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
 if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1)  
-  return 2;
+  return 1;
 
 @ Attach the desired echo canceler module to a channel,
 so that when the channel needs an echo canceler
@@ -51,4 +51,4 @@ memset(&ae, 0, sizeof ae);
 ae.chan = channel;
 strcpy(ae.echocan, "oslec");
 if (ioctl(fd, DAHDI_ATTACH_ECHOCAN, &ae) == -1)
-  return 2;
+  return 1;
