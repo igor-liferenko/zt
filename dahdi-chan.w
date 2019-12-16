@@ -30,7 +30,7 @@ int main(void)
 (Each channel may be configured to handle different signalling types,
 e.g., FXOLS, FXOGS and FXOKS.)
 
-% NOTE: if it fails,
+% NOTE: I think waiting for span assignments only makes sense when udev is used, but if it fails,
 % instead of `return 1' repeat until success (it means span was not yet assigned)
 
 @<Configure channel@>=
