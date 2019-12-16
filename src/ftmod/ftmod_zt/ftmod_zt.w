@@ -1541,6 +1541,7 @@ void hashtable_this(struct hashtable_iterator *i, const void **key,
                     int *klen, void **val);
 
 @ @c
+int ftdm_config_get_cas_bits(char *strvalue, unsigned char *outbits);
 static __inline__ int top_bit(unsigned int bits)
 {
   int res;
