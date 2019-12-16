@@ -30,8 +30,11 @@ int main(void)
 (Each channel may be configured to handle different signalling types,
 e.g., FXOLS, FXOGS and FXOKS.)
 
-% NOTE: I think waiting for span assignments only makes sense when udev is used, but if it fails,
-% instead of `return 1' repeat until success (it means span was not yet assigned)
+% NOTE: I think waiting for span assignments only makes sense when udev is used, but if
+% we assign it via writing to assign_spans or by auto_assign_spans=1, then after writing
+% to assign_spans or modprobe wctdm24xxp, span should be already assigned.
+% If it fails, here, it means that this assumption is wrong, and in such case
+% instead of `return 1' repeat until success (possible with a small sleeps in between)
 
 @<Configure channel@>=
 struct dahdi_chanconfig cc;
