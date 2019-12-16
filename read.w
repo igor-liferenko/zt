@@ -13,8 +13,6 @@ Read is done each 128 milliseconds.
 #include <time.h>
 #include <sys/time.h>
 
-@<Typedef@>@;
-
 int main(void)
 {
   FILE *fp;
@@ -43,35 +41,10 @@ int main(void)
     if (fwrite(buf, n, 1, fp) != 1) return 7;
   }
 
-  zt_event_t zt_event_id = 0;
+  int event = 0;
   if (errno == ELAST) {
-    if (ioctl(fd, DAHDI_GETEVENT, &zt_event_id) == -1) return 8;
-    printf("event: %d\n", zt_event_id);
+    if (ioctl(fd, DAHDI_GETEVENT, &event) == -1) return 8;
+    printf("event: %d\n", event);
   }
   else return 9;
 }
-
-@ @<Typedef@>=
-typedef enum {
-  ZT_EVENT_NONE = 0,
-  ZT_EVENT_ONHOOK = 1,
-  ZT_EVENT_RINGOFFHOOK = 2,
-  ZT_EVENT_WINKFLASH = 3,
-  ZT_EVENT_ALARM = 4,
-  ZT_EVENT_NOALARM = 5,
-  ZT_EVENT_ABORT = 6,
-  ZT_EVENT_OVERRUN = 7,
-  ZT_EVENT_BADFCS = 8,
-  ZT_EVENT_DIALCOMPLETE = 9,
-  ZT_EVENT_RINGERON = 10,
-  ZT_EVENT_RINGEROFF = 11,
-  ZT_EVENT_HOOKCOMPLETE = 12,
-  ZT_EVENT_BITSCHANGED = 13,
-  ZT_EVENT_PULSE_START = 14,
-  ZT_EVENT_TIMER_EXPIRED = 15,
-  ZT_EVENT_TIMER_PING = 16,
-  ZT_EVENT_POLARITY = 17,
-  ZT_EVENT_RINGBEGIN = 18,
-  ZT_EVENT_DTMFDOWN = (1 << 17),
-  ZT_EVENT_DTMFUP = (1 << 18),
-} zt_event_t;
