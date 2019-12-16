@@ -1,5 +1,6 @@
 #!/bin/sh
-kill `cat /var/run/freeswitch/freeswitch.pid`
+pkill freeswitch
 while [ 1 ]; do
-  ps h -C freeswitch >/dev/null || break
+  pgrep freeswitch >/dev/null || break
+  sleep 0.1
 done
