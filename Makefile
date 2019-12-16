@@ -50,6 +50,3 @@ scp:
 
 dahdi-tone: dahdi-tone.c
 	gcc -o dahdi-tone dahdi-tone.c -lm
-
-dahdi-chan: dahdi-chan.c
-	gcc -o dahdi-chan dahdi-chan.c
