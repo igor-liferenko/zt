@@ -1,2 +1,2 @@
 #!/bin/sh
-freeswitch -ncwait -nonat >/dev/null 2>/dev/null &
+systemctl start freeswitch

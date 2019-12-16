@@ -1,5 +1,2 @@
 #!/bin/sh
-pkill freeswitch
-while pgrep freeswitch >/dev/null; do
-  sleep 0.1
-done
+systemctl stop freeswitch
