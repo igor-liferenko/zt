@@ -3,6 +3,7 @@
 Read is done each 128 milliseconds.
 
 @c
+#include <errno.h>
 #include <stdio.h> 
 #include <math.h> 
 #include <fcntl.h> 
