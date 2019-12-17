@@ -18,21 +18,21 @@ int main(void)
   FILE *fp;
   if ((fp = fopen("rec.raw","w")) == NULL) return 1;
 
-  int fd;
-  if ((fd = open("/dev/dahdi/channel", O_RDONLY)) == -1) return 2;
+  int channel;
+  if ((channel = open("/dev/dahdi/channel", O_RDONLY)) == -1) return 2;
 
   int chan = 4;
-  if (ioctl(fd, DAHDI_SPECIFY, &chan) == -1) return 3;
+  if (ioctl(channel, DAHDI_SPECIFY, &chan) == -1) return 3;
 
   int linear = 1;
-  if (ioctl(fd, DAHDI_SETLINEAR, &linear) == -1) return 4;
+  if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 
   int n;
   char buf[8192];
   struct timeval tval;
   struct tm *tms;
   while (1) {
-    if ((n = read(fd, buf, sizeof buf)) == -1) break;
+    if ((n = read(channel, buf, sizeof buf)) == -1) break;
     if (gettimeofday(&tval, NULL) == -1) return 5;
     if ((tms = localtime(&tval.tv_sec)) == NULL) return 6;
     printf("%d bytes, %d:%02d:%02d.%03ld.%03ld\n", n,
@@ -53,7 +53,7 @@ int main(void)
 
 @<Get event@>=
 int event = 0;
-if (ioctl(fd, DAHDI_GETEVENT, &event) == -1) return 8;
+if (ioctl(channel, DAHDI_GETEVENT, &event) == -1) return 8;
 switch (event) {
 case A: printf("event: A\n"); break;
 case B: printf("event: B\n"); break;

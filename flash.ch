@@ -1,10 +1,10 @@
 @x
-  if (ioctl(fd, DAHDI_SETLINEAR, &linear) == -1) return 4;
+  if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 @y
-  if (ioctl(fd, DAHDI_SETLINEAR, &linear) == -1) return 4;
+  if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 
   struct dahdi_params ztp;
-  if (ioctl(fd, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
+  if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
   ztp.prewinktime = 0;
   ztp.preflashtime = 0;
   ztp.winktime = 0;
@@ -16,5 +16,5 @@
   ztp.pulsebreaktime = 0;
   ztp.pulsemaketime = 0;
   ztp.pulseaftertime = 0;
-  if (ioctl(fd, DAHDI_SET_PARAMS, &ztp) == -1) return 101;
+  if (ioctl(channel, DAHDI_SET_PARAMS, &ztp) == -1) return 101;
 @z
