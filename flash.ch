@@ -5,12 +5,10 @@
 
   struct dahdi_params ztp;
   if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
-  ztp.prewinktime = 0;
+/* TODO: print values of these parameters to see existing values */
   ztp.preflashtime = 0;
-  ztp.winktime = 0;
   ztp.flashtime = 0;
   ztp.starttime = 0;
-  ztp.rxwinktime = 0;
   ztp.rxflashtime = 0;
   ztp.debouncetime = 0;
   ztp.pulsebreaktime = 0;
