@@ -2639,51 +2639,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         }
       }
 
-      if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO) {
-        struct zt_chanconfig cc;
-        memset(&cc, 0, sizeof(cc));
-        cc.chan = cc.master = x;
-
-        switch (type) {
-        case FTDM_CHAN_TYPE_FXS:
-          {
-            switch (span->start_type) {
-            case FTDM_ANALOG_START_KEWL:
-              cc.sigtype = ZT_SIG_FXOKS;
-              break;
-            case FTDM_ANALOG_START_LOOP:
-              cc.sigtype = ZT_SIG_FXOLS;
-              break;
-            case FTDM_ANALOG_START_GROUND:
-              cc.sigtype = ZT_SIG_FXOGS;
-              break;
-            default:
-              break;
-            }
-          }
-          break;
-        case FTDM_CHAN_TYPE_FXO:
-          {
-            switch (span->start_type) {
-            case FTDM_ANALOG_START_KEWL:
-              cc.sigtype = ZT_SIG_FXSKS;
-              break;
-            case FTDM_ANALOG_START_LOOP:
-              cc.sigtype = ZT_SIG_FXSLS;
-              break;
-            case FTDM_ANALOG_START_GROUND:
-              cc.sigtype = ZT_SIG_FXSGS;
-              break;
-            default:
-              break;
-            }
-          }
-          break;
-        default:
-          break;
-        }
-      }
-
       if (type == FTDM_CHAN_TYPE_CAS) {
         struct zt_chanconfig cc;
         memset(&cc, 0, sizeof(cc));
