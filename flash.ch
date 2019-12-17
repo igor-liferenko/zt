@@ -6,7 +6,7 @@
   struct dahdi_params ztp;
   if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
   printf("Default values:\n");
-  printf("preflashtime = %d\n", ztp.preflashtime); /* set to 300000 */
+  printf("preflashtime = %d\n", ztp.preflashtime);
   printf("flashtime = %d\n", ztp.flashtime);
   printf("rxflashtime = %d\n", ztp.rxflashtime);
   ztp.preflashtime = 300000;
