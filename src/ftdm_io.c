@@ -336,9 +336,6 @@ FTDM_STR2ENUM(ftdm_str2ftdm_trunk_type, ftdm_trunk_type2str, ftdm_trunk_type_t, 
 FTDM_ENUM_NAMES(TRUNK_MODE_NAMES, TRUNK_MODE_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_trunk_mode, ftdm_trunk_mode2str, ftdm_trunk_mode_t, TRUNK_MODE_NAMES, FTDM_TRUNK_MODE_INVALID)
 
-FTDM_ENUM_NAMES(START_TYPE_NAMES, START_TYPE_STRINGS)
-FTDM_STR2ENUM(ftdm_str2ftdm_analog_start_type, ftdm_analog_start_type2str, ftdm_analog_start_type_t, START_TYPE_NAMES, FTDM_ANALOG_START_NA)
-
 FTDM_ENUM_NAMES(SIGNAL_NAMES, SIGNAL_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_signal_event, ftdm_signal_event2str, ftdm_signal_event_t, SIGNAL_NAMES, FTDM_SIGEVENT_INVALID)
 

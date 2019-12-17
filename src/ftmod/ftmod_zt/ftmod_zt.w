@@ -1220,16 +1220,6 @@ ftdm_tonemap_t ftdm_str2ftdm_tonemap(const char *name);
 const char *ftdm_tonemap2str(ftdm_tonemap_t type);
 
 typedef enum {
-  FTDM_ANALOG_START_KEWL,
-  FTDM_ANALOG_START_LOOP,
-  FTDM_ANALOG_START_GROUND,
-  FTDM_ANALOG_START_WINK,
-  FTDM_ANALOG_START_NA
-} ftdm_analog_start_type_t;
-ftdm_analog_start_type_t ftdm_str2ftdm_analog_start_type(const char *name);
-const char *ftdm_analog_start_type2str(ftdm_analog_start_type_t type);
-
-typedef enum {
   FTDM_OOB_NOOP,
   FTDM_OOB_ONHOOK,
   FTDM_OOB_OFFHOOK,
@@ -2127,7 +2117,6 @@ struct ftdm_span {
   ftdm_mutex_t *mutex;
   ftdm_trunk_type_t trunk_type;
   ftdm_trunk_mode_t trunk_mode;
-  ftdm_analog_start_type_t start_type;
   ftdm_signal_type_t signal_type;
   uint32_t last_used_index;
 

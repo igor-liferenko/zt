@@ -108,16 +108,6 @@ typedef enum {
 FTDM_STR2ENUM_P(ftdm_str2ftdm_tonemap, ftdm_tonemap2str, ftdm_tonemap_t)
 
 typedef enum {
-	FTDM_ANALOG_START_KEWL,
-	FTDM_ANALOG_START_LOOP,
-	FTDM_ANALOG_START_GROUND,
-	FTDM_ANALOG_START_WINK,
-	FTDM_ANALOG_START_NA
-} ftdm_analog_start_type_t;
-#define START_TYPE_STRINGS "KEWL", "LOOP", "GROUND", "WINK", "NA"
-FTDM_STR2ENUM_P(ftdm_str2ftdm_analog_start_type, ftdm_analog_start_type2str, ftdm_analog_start_type_t)
-
-typedef enum {
 	FTDM_OOB_NOOP,
 	FTDM_OOB_ONHOOK,
 	FTDM_OOB_OFFHOOK,
