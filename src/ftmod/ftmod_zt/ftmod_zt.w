@@ -1004,11 +1004,6 @@ ftdm_status_t ftdm_conf_node_create(const char *name,
 ftdm_status_t ftdm_conf_node_add_param(ftdm_conf_node_t * node,
                                        const char *param, const char *val);
 ftdm_status_t ftdm_conf_node_destroy(ftdm_conf_node_t * node);
-ftdm_status_t ftdm_configure_span_channels(ftdm_span_t * span,
-                                           const char *str,
-                                           ftdm_channel_config_t *
-                                           chan_config,
-                                           unsigned *configured);
 void ftdm_span_set_trunk_type(ftdm_span_t * span, ftdm_trunk_type_t type);
 ftdm_trunk_type_t ftdm_span_get_trunk_type(const ftdm_span_t * span);
 
