@@ -5145,7 +5145,6 @@ static ftdm_status_t load_config(void)
 	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS) {
 		span->trunk_type = FTDM_TRUNK_FXS;
 		span->trunk_mode = FTDM_TRUNK_MODE_NET;
-		span->start_type = 1; /* loop start */
 		unsigned chans_configured = 0;
 		chan_config.type = FTDM_CHAN_TYPE_FXS;
 		if (ftdm_configure_span_channels(span, "2-4", &chan_config, &chans_configured) == FTDM_SUCCESS)
