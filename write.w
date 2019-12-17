@@ -34,9 +34,9 @@ int main(void)
   while (1) {
     if (read(media, buf, BLOCK_SIZE) != BLOCK_SIZE) return 0;
     if (write(channel, buf, BLOCK_SIZE) != BLOCK_SIZE) return 5;
-    if (gettimeofday (&tval, NULL) == -1) return 6;
-    if ((tms = localtime (&tval.tv_sec)) == NULL) return 7;
-    printf ("%d:%02d:%02d.%03ld.%03ld\n",
+    if (gettimeofday(&tval, NULL) == -1) return 6;
+    if ((tms = localtime(&tval.tv_sec)) == NULL) return 7;
+    printf("%d:%02d:%02d.%03ld.%03ld\n",
              tms->tm_hour, tms->tm_min, tms->tm_sec, tval.tv_usec / 1000,
              tval.tv_usec % 1000);
   }

@@ -33,18 +33,29 @@ int main(void)
   struct tm *tms;
   while (1) {
     if ((n = read(fd, buf, sizeof buf)) == -1) break;
-    if (gettimeofday (&tval, NULL) == -1) return 5;
-    if ((tms = localtime (&tval.tv_sec)) == NULL) return 6;
-    printf ("%d bytes, %d:%02d:%02d.%03ld.%03ld\n", n,
+    if (gettimeofday(&tval, NULL) == -1) return 5;
+    if ((tms = localtime(&tval.tv_sec)) == NULL) return 6;
+    printf("%d bytes, %d:%02d:%02d.%03ld.%03ld\n", n,
              tms->tm_hour, tms->tm_min, tms->tm_sec, tval.tv_usec / 1000,
              tval.tv_usec % 1000);
     if (fwrite(buf, n, 1, fp) != 1) return 7;
   }
 
-  int event = 0;
   if (errno == ELAST) {
-    if (ioctl(fd, DAHDI_GETEVENT, &event) == -1) return 8;
-    printf("event: %d\n", event);
+    @<Get event@>@;
   }
   else return 9;
+}
+
+@ @d A 2
+@d B 1
+@d FLASH 3
+
+@<Get event@>=
+int event = 0;
+if (ioctl(fd, DAHDI_GETEVENT, &event) == -1) return 8;
+switch (event) {
+case A: printf("event: A\n"); break;
+case B: printf("event: B\n"); break;
+case FLASH: printf("event: FLASH\n");
 }
