@@ -4,7 +4,7 @@
 
 \noindent
 The result of running this program must be that in \.{/proc/dahdi/1} for each configured channel
-appear `\.{FXOKS}' and `\.{EC: OSLEC}'.
+appear `\.{FXOLS}' and `\.{EC: OSLEC}'.
 \bigskip
 
 @c
@@ -34,7 +34,7 @@ e.g., FXOLS, FXOGS and FXOKS.)
 struct dahdi_chanconfig cc;
 memset(&cc, 0, sizeof cc);
 cc.chan = channel;
-cc.sigtype = DAHDI_SIG_FXOKS; /* reversed */
+cc.sigtype = DAHDI_SIG_FXOLS; /* reversed */
 if (ioctl(fd, DAHDI_CHANCONFIG, &cc) == -1)  
   return 1;
 
