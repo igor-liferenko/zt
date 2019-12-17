@@ -16,7 +16,7 @@ Read is done each 128 milliseconds.
 int main(void)
 {
   FILE *fp;
-  if ((fp = fopen("rec.pcm","w")) == NULL) return 1;
+  if ((fp = fopen("rec.raw","w")) == NULL) return 1;
 
   int fd;
   if ((fd = open("/dev/dahdi/channel", O_RDONLY)) == -1) return 2;

@@ -17,7 +17,7 @@ Write is done each 128 milliseconds (default block size is 1024 bytes, 2048 in l
 int main(void)
 {
   int media;
-  if ((media = open("rec.pcm",O_RDWR)) == -1) return 1;
+  if ((media = open("rec.raw", O_RDONLY)) == -1) return 1;
 
   int channel;
   if ((channel = open("/dev/dahdi/channel", O_WRONLY)) == -1) return 2;
