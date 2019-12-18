@@ -2,6 +2,9 @@ TODO: see where rxflashtime is used and add printing to dmesg there to find out
 if that code is ever executed and if nothing prevents, make preflashtime 1 ms
 (including in ftmod_zt.w)
 
+We need to set it to non-zero in order that timer which is set by this
+parameter will expire (so that rbs_itimer_expire() will be called)
+
 @x
 #include <dahdi/user.h>
 @y
