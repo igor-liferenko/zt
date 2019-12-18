@@ -2727,7 +2727,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         }
       }
 
-      ztp.rxflashtime = 3;
+      ztp.receive_flash_time = 3;
 
       if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) < 0) {
         ftdm_log(FTDM_LOG_ERROR,
