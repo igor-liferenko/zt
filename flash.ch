@@ -3,6 +3,13 @@ if that code is ever executed and if nothing prevents, make preflashtime 1 ms
 (including in ftmod_zt.w)
 
 @x
+#include <dahdi/user.h>
+@y
+#include <dahdi/user.h>
+#include <string.h>
+@z
+
+@x
   if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 @y
   if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
