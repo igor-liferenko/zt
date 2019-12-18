@@ -4,6 +4,7 @@
   if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 
   struct dahdi_params ztp;
+  memset(&ztp, 0, sizeof ztp);
   if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
   printf("Default values:\n");
   printf("preflashtime = %d\n", ztp.preflashtime);
