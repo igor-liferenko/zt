@@ -2604,7 +2604,8 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
   unsigned configured = 0, x;
   zt_params_t ztp;
   zt_tone_mode_t mode = 0;
-memset(&ztp, 0, sizeof(ztp));
+  memset(&ztp, 0, sizeof ztp); /* it seems it is necessary 18.12.2019 (coredump) */
+
   for (x = start; x < end; x++) {
     ftdm_channel_t *ftdmchan;
     int sockfd = -1;
