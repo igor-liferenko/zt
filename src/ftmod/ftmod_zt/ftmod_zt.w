@@ -2518,9 +2518,6 @@ typedef enum {
 } zt_tone_mode_t;
 
 static struct {
-  uint32_t codec_ms;
-  uint32_t wink_ms;
-  uint32_t flash_ms;
   uint32_t eclevel;
   uint32_t etlevel;
   float rxgain;
@@ -2658,7 +2655,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
 
       if (ftdmchan->type != FTDM_CHAN_TYPE_DQ921
           && ftdmchan->type != FTDM_CHAN_TYPE_DQ931) {
-        len = zt_globals.codec_ms * 8;
+        len = 160; /* each 20ms */
         if (ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) {
           ftdm_log(FTDM_LOG_ERROR,
             "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
@@ -2703,7 +2700,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
 
       ftdmchan->rate = 8000;
       ftdmchan->physical_span_id = ztp.span_no;
-      ftdmchan->physical_chan_id = ztp.chan_no;
+      ftdmchan->physical_chan_id = x;
 
       if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO
           || type == FTDM_CHAN_TYPE_EM || type == FTDM_CHAN_TYPE_B) {
@@ -2845,30 +2842,7 @@ static ftdm_status_t zt_configure(const char *category, const char *var,
   float fnum;
 
   if (!strcasecmp(category, "defaults")) {
-    if (!strcasecmp(var, "codec_ms")) {
-      num = atoi(val);
-      if (num < 10 || num > 60) {
-        ftdm_log(FTDM_LOG_WARNING, "invalid codec ms at line %d\n",
-                 lineno);
-      } else {
-        zt_globals.codec_ms = num;
-      }
-    } else if (!strcasecmp(var, "wink_ms")) {
-      num = atoi(val);
-      if (num < 50 || num > 3000) {
-        ftdm_log(FTDM_LOG_WARNING, "invalid wink ms at line %d\n", lineno);
-      } else {
-        zt_globals.wink_ms = num;
-      }
-    } else if (!strcasecmp(var, "flash_ms")) {
-      num = atoi(val);
-      if (num < 50 || num > 3000) {
-        ftdm_log(FTDM_LOG_WARNING, "invalid flash ms at line %d\n",
-                 lineno);
-      } else {
-        zt_globals.flash_ms = num;
-      }
-    } else if (!strcasecmp(var, "echo_cancel_level")) {
+    if (!strcasecmp(var, "echo_cancel_level")) {
       num = atoi(val);
       if (num < 0 || num > 1024) {
         ftdm_log(FTDM_LOG_WARNING,
@@ -2926,7 +2900,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
       || ftdmchan->type == FTDM_CHAN_TYPE_DQ931) {
     ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_NONE;
   } else {
-    int blocksize = zt_globals.codec_ms * (ftdmchan->rate / 1000);
+    int blocksize = 160; /* each 20ms */
     int err;
     if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize))) {
       snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%m");
@@ -3913,9 +3887,6 @@ static ftdm_status_t zt_init(ftdm_io_interface_t ** fio)
     return FTDM_FAIL;
   }
 
-  zt_globals.codec_ms = 20;
-  zt_globals.wink_ms = 150;
-  zt_globals.flash_ms = 750;
   zt_globals.eclevel = 0;
   zt_globals.etlevel = 0;
 
