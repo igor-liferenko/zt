@@ -2517,11 +2517,6 @@ typedef enum {
   ZT_TONEDETECT_MUTE = (1 << 1)
 } zt_tone_mode_t;
 
-static struct {
-  float rxgain;
-  float txgain;
-} zt_globals;
-
 static int CONTROL_FD = -1;
 
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event);
@@ -2529,67 +2524,6 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
                             short *poll_events);
 ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
                                     ftdm_event_t ** event);
-static void zt_build_gains(struct zt_gains *g, float rxgain, float txgain,
-                           int codec)
-{
-  int j;
-  int k;
-  float linear_rxgain = pow(10.0, rxgain / 20.0);
-  float linear_txgain = pow(10.0, txgain / 20.0);
-
-  switch (codec) {
-  case FTDM_CODEC_ALAW:
-    for (j = 0;
-         j < (sizeof(g->receive_gain) / sizeof(g->receive_gain[0])); j++) {
-      if (rxgain) {
-        k = (int) (((float) alaw_to_linear(j)) * linear_rxgain);
-        if (k > 32767)
-          k = 32767;
-        if (k < -32767)
-          k = -32767;
-        g->receive_gain[j] = linear_to_alaw(k);
-      } else {
-        g->receive_gain[j] = j;
-      }
-      if (txgain) {
-        k = (int) (((float) alaw_to_linear(j)) * linear_txgain);
-        if (k > 32767)
-          k = 32767;
-        if (k < -32767)
-          k = -32767;
-        g->transmit_gain[j] = linear_to_alaw(k);
-      } else {
-        g->transmit_gain[j] = j;
-      }
-    }
-    break;
-  case FTDM_CODEC_ULAW:
-    for (j = 0;
-         j < (sizeof(g->receive_gain) / sizeof(g->receive_gain[0])); j++) {
-      if (rxgain) {
-        k = (int) (((float) ulaw_to_linear(j)) * linear_rxgain);
-        if (k > 32767)
-          k = 32767;
-        if (k < -32767)
-          k = -32767;
-        g->receive_gain[j] = linear_to_ulaw(k);
-      } else {
-        g->receive_gain[j] = j;
-      }
-      if (txgain) {
-        k = (int) (((float) ulaw_to_linear(j)) * linear_txgain);
-        if (k > 32767)
-          k = 32767;
-        if (k < -32767)
-          k = -32767;
-        g->transmit_gain[j] = linear_to_ulaw(k);
-      } else {
-        g->transmit_gain[j] = j;
-      }
-    }
-    break;
-  }
-}
 @ @c
 static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
                               unsigned end, ftdm_chan_type_t type,
@@ -2835,34 +2769,6 @@ static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
 static ftdm_status_t zt_configure(const char *category, const char *var,
                                   const char *val, int lineno)
 {
-
-  int num;
-  float fnum;
-
-  if (!strcasecmp(category, "defaults")) {
-    if (!strcasecmp(var, "rxgain")) {
-      fnum = (float) atof(val);
-      if (fnum < -100.0 || fnum > 100.0) {
-        ftdm_log(FTDM_LOG_WARNING,
-                 "invalid rxgain val at line %d\n", lineno);
-      } else {
-        zt_globals.rxgain = fnum;
-        ftdm_log(FTDM_LOG_INFO, "Setting rxgain val to %f\n", fnum);
-      }
-    } else if (!strcasecmp(var, "txgain")) {
-      fnum = (float) atof(val);
-      if (fnum < -100.0 || fnum > 100.0) {
-        ftdm_log(FTDM_LOG_WARNING,
-                 "invalid txgain val at line %d\n", lineno);
-      } else {
-        zt_globals.txgain = fnum;
-        ftdm_log(FTDM_LOG_INFO, "Setting txgain val to %f\n", fnum);
-      }
-    } else {
-      ftdm_log(FTDM_LOG_WARNING, "Ignoring unknown setting '%s'\n", var);
-    }
-  }
-
   return FTDM_SUCCESS;
 }
 
@@ -2894,29 +2800,6 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
         ftdm_log(FTDM_LOG_ERROR, "%s\n", ftdmchan->last_error);
         return FTDM_FAIL;
       }
-    }
-    if (zt_globals.rxgain || zt_globals.txgain) {
-      struct zt_gains gains;
-      memset(&gains, 0, sizeof(gains));
-
-      gains.chan_no = ftdmchan->physical_chan_id;
-      zt_build_gains(&gains, zt_globals.rxgain, zt_globals.txgain,
-                     ftdmchan->native_codec);
-
-      if (zt_globals.rxgain)
-        ftdm_log(FTDM_LOG_INFO,
-                 "Setting rxgain to %f on channel %d\n",
-                 zt_globals.rxgain, gains.chan_no);
-
-      if (zt_globals.txgain)
-        ftdm_log(FTDM_LOG_INFO,
-                 "Setting txgain to %f on channel %d\n",
-                 zt_globals.txgain, gains.chan_no);
-
-      if (ioctl(ftdmchan->sockfd, DAHDI_SETGAINS, &gains) < 0)
-        ftdm_log(FTDM_LOG_ERROR,
-                 "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->sockfd);
     }
 
       int echo_cancel_level = 16; /* (0--1024] */
@@ -3788,7 +3671,6 @@ static ftdm_io_interface_t zt_interface;
 static ftdm_status_t zt_init(ftdm_io_interface_t ** fio)
 {
   memset(&zt_interface, 0, sizeof(zt_interface));
-  memset(&zt_globals, 0, sizeof(zt_globals));
 
   if ((CONTROL_FD = open("/dev/dahdi/ctl", O_RDWR)) < 0) {
     ftdm_log(FTDM_LOG_ERROR,
