@@ -2518,7 +2518,6 @@ typedef enum {
 } zt_tone_mode_t;
 
 static struct {
-  uint32_t eclevel;
   uint32_t etlevel;
   float rxgain;
   float txgain;
@@ -2842,20 +2841,7 @@ static ftdm_status_t zt_configure(const char *category, const char *var,
   float fnum;
 
   if (!strcasecmp(category, "defaults")) {
-    if (!strcasecmp(var, "echo_cancel_level")) {
-      num = atoi(val);
-      if (num < 0 || num > 1024) {
-        ftdm_log(FTDM_LOG_WARNING,
-                 "invalid echo can val at line %d\n", lineno);
-      } else {
-        zt_globals.eclevel = num;
-      }
-    } else if (!strcasecmp(var, "echo_train_level")) {
-      if (zt_globals.eclevel < 1) {
-        ftdm_log(FTDM_LOG_WARNING,
-                 "can't set echo train level without setting echo cancel level first at line %d\n",
-                 lineno);
-      } else {
+    if (!strcasecmp(var, "echo_train_level")) {
         num = atoi(val);
         if (num < 0 || num > 256) {
           ftdm_log(FTDM_LOG_WARNING,
@@ -2863,7 +2849,6 @@ static ftdm_status_t zt_configure(const char *category, const char *var,
         } else {
           zt_globals.etlevel = num;
         }
-      }
     } else if (!strcasecmp(var, "rxgain")) {
       fnum = (float) atof(val);
       if (fnum < -100.0 || fnum > 100.0) {
@@ -2944,7 +2929,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
     }
 
     if (1) {
-      int len = zt_globals.eclevel;
+      int len = 16; /* eclevel (0--1024) */
       if (len) {
         ftdm_log(FTDM_LOG_INFO,
                  "Setting echo cancel to %d taps for %d:%d\n", len,
@@ -3839,7 +3824,6 @@ static ftdm_status_t zt_init(ftdm_io_interface_t ** fio)
     return FTDM_FAIL;
   }
 
-  zt_globals.eclevel = 0;
   zt_globals.etlevel = 0;
 
   zt_interface.name = "zt";
