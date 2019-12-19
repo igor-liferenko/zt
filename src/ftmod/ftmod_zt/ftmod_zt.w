@@ -3417,28 +3417,6 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
   return k ? FTDM_SUCCESS : FTDM_FAIL;
 }
 
-static __inline__ int handle_dtmf_event(ftdm_channel_t * fchan,
-                                        zt_event_t zt_event_id)
-{
-  if ((zt_event_id & ZT_EVENT_DTMFUP)) {
-    int digit = (zt_event_id & (~ZT_EVENT_DTMFUP));
-    char tmp_dtmf[2] = { digit, 0 };
-    ftdm_log(FTDM_LOG_DEBUG, "[s%dc%d][%d:%d] " "DTMF UP [%d]\n",
-             fchan->span_id, fchan->chan_id, fchan->physical_span_id,
-             fchan->physical_chan_id, digit);
-    ftdm_channel_queue_dtmf(fchan, tmp_dtmf);
-    return 0;
-  } else if ((zt_event_id & ZT_EVENT_DTMFDOWN)) {
-    int digit = (zt_event_id & (~ZT_EVENT_DTMFDOWN));
-    ftdm_log(FTDM_LOG_DEBUG, "[s%dc%d][%d:%d] " "DTMF DOWN [%d]\n",
-             fchan->span_id, fchan->chan_id, fchan->physical_span_id,
-             fchan->physical_chan_id, digit);
-    return 0;
-  } else {
-    return -1;
-  }
-}
-
 @ @c
 static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
                                                          fchan,
@@ -3589,16 +3567,12 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     break;
   default:
     {
-      if (handle_dtmf_event(fchan, zt_event_id)) {
         ftdm_log(FTDM_LOG_WARNING,
                  "[s%dc%d][%d:%d] " "Unhandled event %d\n",
                  fchan->span_id, fchan->chan_id,
                  fchan->physical_span_id, fchan->physical_chan_id,
                  zt_event_id);
         *event_id = FTDM_OOB_INVALID;
-      } else {
-        *event_id = FTDM_OOB_NOOP;
-      }
     }
     break;
   }
@@ -3756,8 +3730,6 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
         break;
       }
 
-      if (handle_dtmf_event(ftdmchan, zt_event_id)) {
-
         ftdm_log(FTDM_LOG_DEBUG,
                  "[s%dc%d][%d:%d] "
                  "Deferring event %d to be able to read data\n",
@@ -3779,13 +3751,6 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
             ftdmchan->last_event_time = ftdm_current_time_in_ms();
           } while (0);;
         } while (0);;
-      } else {
-        ftdm_log(FTDM_LOG_DEBUG,
-                 "[s%dc%d][%d:%d] "
-                 "Skipping one IO read cycle due to DTMF event processing\n",
-                 ftdmchan->span_id, ftdmchan->chan_id,
-                 ftdmchan->physical_span_id, ftdmchan->physical_chan_id);
-      }
       break;
     }
 
@@ -3835,8 +3800,6 @@ tryagain:
       return FTDM_FAIL;
     }
 
-    if (handle_dtmf_event(ftdmchan, zt_event_id)) {
-
       ftdm_log(FTDM_LOG_DEBUG,
                "[s%dc%d][%d:%d] "
                "Deferring event %d to be able to write data\n",
@@ -3858,7 +3821,6 @@ tryagain:
           ftdmchan->last_event_time = ftdm_current_time_in_ms();
         } while (0);;
       } while (0);;
-    }
 
     goto tryagain;
   }
