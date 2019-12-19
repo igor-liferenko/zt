@@ -2770,7 +2770,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 
     int echo_cancel_level = 16; /* number of samples of echo cancellation (0--1024);
                                    to disable, set to 0 */
-/* The problem is that if echo_cancel_level is not specified, keys are not always recognized.
+/* The problem is that if ec is disabled, keys are not always recognized.
 Test this parameter separately from freeswitch when you factor-out teletone from freetdm
 and use audacity to view stream with and without ec enabled and vary this parameter and
 see how it will differ */
