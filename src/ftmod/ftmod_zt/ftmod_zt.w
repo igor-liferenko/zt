@@ -2930,14 +2930,6 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 
     if (1) {
       int len = 16; /* eclevel (0--1024) */
-      if (len) {
-        ftdm_log(FTDM_LOG_INFO,
-                 "Setting echo cancel to %d taps for %d:%d\n", len,
-                 ftdmchan->span_id, ftdmchan->chan_id);
-      } else {
-        ftdm_log(FTDM_LOG_INFO, "Disable echo cancel for %d:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id);
-      }
       if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &len)) {
         ftdm_log(FTDM_LOG_WARNING,
                  "Echo cancel not available for %d:%d\n",
