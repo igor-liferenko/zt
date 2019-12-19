@@ -10,7 +10,7 @@ See __dahdi_hooksig_pvt().
 NOTE: if you need pulse dialing work, set it to PULSE_MAX_...+1 in hope that
 you will not be able to generate (either manually or by 'flash' button on phone) voltage drop intervals shorter than this
 
-TODO: in zaptel source read what mean preflash_time flash_time receive_flash_time
+TODO: understand what mean preflashtime flashtime rxflashtime by reading dahdi source
 
 @x
 #include <dahdi/user.h>
