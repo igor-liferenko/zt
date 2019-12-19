@@ -2919,21 +2919,11 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
                  ftdmchan->span_id, ftdmchan->chan_id, ftdmchan->sockfd);
     }
 
-    if (1) {
       int echo_cancel_level = 16; /* (0--1024] */
-      int echo_train_level = 0; /* [0--256] */
-      if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1) {
+      if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
         ftdm_log(FTDM_LOG_WARNING,
                  "Echo cancel not available for %d:%d\n",
                  ftdmchan->span_id, ftdmchan->chan_id);
-      } else if (echo_train_level > 0) {
-        if (ioctl(ftdmchan->sockfd, DAHDI_ECHOTRAIN, &echo_train_level) == -1) {
-          ftdm_log(FTDM_LOG_WARNING,
-                   "Echo training not available for %d:%d\n",
-                   ftdmchan->span_id, ftdmchan->chan_id);
-        }
-      }
-    }
   }
   return FTDM_SUCCESS;
 }
