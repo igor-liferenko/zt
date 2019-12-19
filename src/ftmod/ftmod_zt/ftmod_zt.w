@@ -3391,10 +3391,8 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
       continue;
     }
     if ((pfds[i - 1].revents & 0x002) || (span->channels[i]->io_data)) {
-      do {
-        (span->channels[i])->io_flags |= (FTDM_CHANNEL_IO_EVENT);
-        span->channels[i]->last_event_time = ftdm_current_time_in_ms();
-      } while (0);;
+      span->channels[i]->io_flags |= FTDM_CHANNEL_IO_EVENT;
+      span->channels[i]->last_event_time = ftdm_current_time_in_ms();
       k++;
     }
     if (pfds[i - 1].revents & 0x001) {
@@ -3736,7 +3734,6 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
                  ftdmchan->span_id, ftdmchan->chan_id,
                  ftdmchan->physical_span_id,
                  ftdmchan->physical_chan_id, zt_event_id);
-        do {
           if (ftdmchan->io_data) {
             ftdm_log(FTDM_LOG_WARNING,
                      "[s%dc%d][%d:%d] "
@@ -3746,11 +3743,8 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
                      ftdmchan->physical_chan_id, zt_event_id);
           }
           ftdmchan->io_data = (void *) zt_event_id;
-          do {
-            (ftdmchan)->io_flags |= (FTDM_CHANNEL_IO_EVENT);
-            ftdmchan->last_event_time = ftdm_current_time_in_ms();
-          } while (0);;
-        } while (0);;
+          ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
+          ftdmchan->last_event_time = ftdm_current_time_in_ms();
       break;
     }
 
@@ -3806,7 +3800,6 @@ tryagain:
                ftdmchan->span_id, ftdmchan->chan_id,
                ftdmchan->physical_span_id,
                ftdmchan->physical_chan_id, zt_event_id);
-      do {
         if (ftdmchan->io_data) {
           ftdm_log(FTDM_LOG_WARNING,
                    "[s%dc%d][%d:%d] "
@@ -3816,11 +3809,8 @@ tryagain:
                    ftdmchan->physical_chan_id, zt_event_id);
         }
         ftdmchan->io_data = (void *) zt_event_id;
-        do {
-          (ftdmchan)->io_flags |= (FTDM_CHANNEL_IO_EVENT);
-          ftdmchan->last_event_time = ftdm_current_time_in_ms();
-        } while (0);;
-      } while (0);;
+        ftdmchan->io_flags |= (FTDM_CHANNEL_IO_EVENT);
+        ftdmchan->last_event_time = ftdm_current_time_in_ms();
 
     goto tryagain;
   }
