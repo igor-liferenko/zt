@@ -2518,7 +2518,6 @@ typedef enum {
 } zt_tone_mode_t;
 
 static struct {
-  uint32_t etlevel;
   float rxgain;
   float txgain;
 } zt_globals;
@@ -2841,15 +2840,7 @@ static ftdm_status_t zt_configure(const char *category, const char *var,
   float fnum;
 
   if (!strcasecmp(category, "defaults")) {
-    if (!strcasecmp(var, "echo_train_level")) {
-        num = atoi(val);
-        if (num < 0 || num > 256) {
-          ftdm_log(FTDM_LOG_WARNING,
-                   "invalid echo train val at line %d\n", lineno);
-        } else {
-          zt_globals.etlevel = num;
-        }
-    } else if (!strcasecmp(var, "rxgain")) {
+    if (!strcasecmp(var, "rxgain")) {
       fnum = (float) atof(val);
       if (fnum < -100.0 || fnum > 100.0) {
         ftdm_log(FTDM_LOG_WARNING,
@@ -2929,14 +2920,14 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
     }
 
     if (1) {
-      int len = 16; /* eclevel (0--1024) */
-      if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &len)) {
+      int echo_cancel_level = 16; /* (0--1024] */
+      int echo_train_level = 0; /* [0--256] */
+      if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1) {
         ftdm_log(FTDM_LOG_WARNING,
                  "Echo cancel not available for %d:%d\n",
                  ftdmchan->span_id, ftdmchan->chan_id);
-      } else if (zt_globals.etlevel > 0) {
-        len = zt_globals.etlevel;
-        if (ioctl(ftdmchan->sockfd, DAHDI_ECHOTRAIN, &len)) {
+      } else if (echo_train_level > 0) {
+        if (ioctl(ftdmchan->sockfd, DAHDI_ECHOTRAIN, &echo_train_level) == -1) {
           ftdm_log(FTDM_LOG_WARNING,
                    "Echo training not available for %d:%d\n",
                    ftdmchan->span_id, ftdmchan->chan_id);
@@ -3815,8 +3806,6 @@ static ftdm_status_t zt_init(ftdm_io_interface_t ** fio)
              strerror(errno));
     return FTDM_FAIL;
   }
-
-  zt_globals.etlevel = 0;
 
   zt_interface.name = "zt";
   zt_interface.configure = zt_configure;
