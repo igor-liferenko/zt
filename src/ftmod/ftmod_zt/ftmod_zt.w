@@ -39,10 +39,10 @@
 #define DAHDI_CHANCONFIG _IOW (DAHDI_CODE, 19, struct zt_chanconfig)
   /* Set Channel Configuration  */
 #define DAHDI_SET_BUFINFO _IOW (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Set buffer policy */
-#define DAHDI_GET_BUFINFO _IOR (DAHDI_CODE, 27, struct zt_bufferinfo) /* Get current buffer info */
+#define DAHDI_GET_BUFINFO _IOR (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Get current buffer info */
 #define DAHDI_AUDIOMODE _IOW (DAHDI_CODE, 32, int)      /* Set a clear channel into audio mode */
 #define DAHDI_ECHOCANCEL _IOW (DAHDI_CODE, 33, int)     /* Control Echo Canceller */
-#define DAHDI_HDLCRAWMODE _IOW (DAHDI_CODE, 36, int)     /* Set a clear channel into HDLC w/out FCS
+#define DAHDI_HDLCRAWMODE _IOW (DAHDI_CODE, 36, int)    /* Set a clear channel into HDLC w/out FCS
                                                            checking/calculation mode */
 #define DAHDI_HDLCFCSMODE _IOW (DAHDI_CODE, 37, int)    /* Set a clear channel into HDLC w/ FCS
                                                            mode */
@@ -50,15 +50,15 @@
 #define         DAHDI_ALARM_YELLOW (1 << 2)     /* channel alarm */
 #define         DAHDI_ALARM_BLUE (1 << 4)       /* channel alarm */
 
-#define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)  /* Specify a channel on /dev/dahdi/chan --- must
-                       be done before any other ioctl's and is only valid on /dev/dahdi/channel */
+#define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)        /* Specify a channel on /dev/dahdi/chan --- must
+                                                           be done before any other ioctl's and is only valid on /dev/dahdi/channel */
 
-#define DAHDI_SETLAW     _IOW  (DAHDI_CODE, 39, int)     /* Temporarily set the law on
-   a channel to \.{DAHDI\_LAW\_DEFAULT}, \.{DAHDI\_LAW\_ALAW}, or \.{DAHDI\_LAW\_MULAW}. Is reset
-                                                                           on close. */
+#define DAHDI_SETLAW     _IOW  (DAHDI_CODE, 39, int)    /* Temporarily set the law on
+                                                           a channel to \.{DAHDI\_LAW\_DEFAULT}, \.{DAHDI\_LAW\_ALAW}, or \.{DAHDI\_LAW\_MULAW}. Is reset
+                                                           on close. */
 
 #define DAHDI_SETLINEAR         _IOW  (DAHDI_CODE, 40, int)     /* Temporarily set the channel
-                           to operate in linear mode when non-zero or default law if 0 */
+                                                                   to operate in linear mode when non-zero or default law if 0 */
 
 #define DAHDI_ECHOTRAIN         _IOW  (DAHDI_CODE, 50, int)     /* Control Echo Trainer */
 
@@ -67,10 +67,10 @@
 
 #define DAHDI_SETPOLARITY _IOW (DAHDI_CODE, 92, int)    /* Polarity setting for FXO lines */
 
-#define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int) /* Enable tone detection --- implemented by low
+#define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int)      /* Enable tone detection --- implemented by low
                                                            level driver */
 
-#define ELAST 500  /* used by dahdi to indicate there is no data available, but events to read */
+#define ELAST 500               /* used by dahdi to indicate there is no data available, but events to read */
 
 #define FTDM_PRE __FILE__, __func__, __LINE__
 
@@ -286,7 +286,7 @@ const char *ftdm_chan_type2str(ftdm_chan_type_t type);
 
 typedef void (*ftdm_logger_t)(const char *file, const char *func, int line,
                               int level, const char *fmt, ...)
-    __attribute__((format(printf, 5, 6)));
+    __attribute__ ( (format(printf, 5, 6)));
 
 typedef ftdm_status_t(*ftdm_queue_create_func_t) (ftdm_queue_t ** queue,
                                                   size_t capacity);
@@ -1466,7 +1466,7 @@ struct hashtable;
 struct hashtable_iterator;
 struct hashtable *create_hashtable(unsigned int minsize,
                                    unsigned int (*hashfunction)(void *),
-                                   int (*key_eq_fn)(void *, void *));
+                                   int(*key_eq_fn)(void *, void *));
 typedef enum {
   HASHTABLE_FLAG_NONE = 0,
   HASHTABLE_FLAG_FREE_KEY = (1 << 0),
@@ -1519,7 +1519,8 @@ static __inline__ uint8_t linear_to_ulaw(int linear)
   if (linear < 0) {
     linear = 0x84 - linear;
     mask = 0x7F;
-  } else {
+  }
+  else {
     linear = 0x84 + linear;
     mask = 0xFF;
   }
@@ -1553,7 +1554,8 @@ static __inline__ uint8_t linear_to_alaw(int linear)
   if (linear >= 0) {
 
     mask = 0x55 | 0x80;
-  } else {
+  }
+  else {
 
     mask = 0x55;
     linear = -linear - 8;
@@ -2489,7 +2491,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
   unsigned configured = 0, x;
   zt_params_t ztp;
   zt_tone_mode_t mode = 0;
-  memset(&ztp, 0, sizeof ztp); /* is it necessary? */
+  memset(&ztp, 0, sizeof ztp);  /* is it necessary? */
 
   for (x = start; x < end; x++) {
     ftdm_channel_t *ftdmchan;
@@ -2533,7 +2535,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         cc.idlebits = cas_bits;
         if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc)) {
           ftdm_log(FTDM_LOG_ERROR,
-            "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
+                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
                    ftdmchan->span_id, ftdmchan->chan_id, sockfd,
                    strerror(errno));
           close(sockfd);
@@ -2543,10 +2545,10 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
 
       if (ftdmchan->type != FTDM_CHAN_TYPE_DQ921
           && ftdmchan->type != FTDM_CHAN_TYPE_DQ931) {
-        len = 160; /* each 20ms */
+        len = 160;              /* each 20ms */
         if (ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) {
           ftdm_log(FTDM_LOG_ERROR,
-            "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
+                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
                    ftdmchan->span_id, ftdmchan->chan_id, sockfd,
                    strerror(errno));
           close(sockfd);
@@ -2595,15 +2597,18 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         if (ztp.g711_type == ZT_G711_ALAW) {
           ftdmchan->native_codec = ftdmchan->effective_codec =
               FTDM_CODEC_ALAW;
-        } else if (ztp.g711_type == ZT_G711_MULAW) {
+        }
+        else if (ztp.g711_type == ZT_G711_MULAW) {
           ftdmchan->native_codec = ftdmchan->effective_codec =
               FTDM_CODEC_ULAW;
-        } else {
+        }
+        else {
           int type;
 
           if (ftdmchan->span->trunk_type == FTDM_TRUNK_E1) {
             type = FTDM_CODEC_ALAW;
-          } else {
+          }
+          else {
             type = FTDM_CODEC_ULAW;
           }
 
@@ -2627,7 +2632,8 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         ftdm_log(FTDM_LOG_DEBUG,
                  "HW DTMF not available on FreeTDM device %d:%d fd:%d\n",
                  ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-      } else {
+      }
+      else {
         ftdm_log(FTDM_LOG_DEBUG,
                  "HW DTMF available on FreeTDM device %d:%d fd:%d\n",
                  ftdmchan->span_id, ftdmchan->chan_id, sockfd);
@@ -2648,7 +2654,8 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
       }
 
       configured++;
-    } else
+    }
+    else
       ftdm_log(FTDM_LOG_ERROR,
                "failure configuring device /dev/dahdi/channel\n");
   }
@@ -2693,7 +2700,8 @@ static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
     if ((mx = strchr(ch, '-'))) {
       mx++;
       top = atoi(mx) + 1;
-    } else {
+    }
+    else {
       top = channo + 1;
     }
 
@@ -2702,7 +2710,8 @@ static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
       continue;
     }
 
-    if (FTDM_CHAN_TYPE_CAS == type && ftdm_config_get_cas_bits(ch, &cas_bits)) {
+    if (FTDM_CHAN_TYPE_CAS == type
+        && ftdm_config_get_cas_bits(ch, &cas_bits)) {
       ftdm_log(FTDM_LOG_ERROR, "Failed to get CAS bits in CAS channel\n");
       continue;
     }
@@ -2736,13 +2745,15 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
   if (ftdmchan->type == FTDM_CHAN_TYPE_DQ921
       || ftdmchan->type == FTDM_CHAN_TYPE_DQ931) {
     ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_NONE;
-  } else {
-    int blocksize = 160; /* each 20ms */
+  }
+  else {
+    int blocksize = 160;        /* each 20ms */
     int err;
     if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize))) {
       snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%m");
       return FTDM_FAIL;
-    } else {
+    }
+    else {
       ftdmchan->effective_interval = ftdmchan->native_interval;
       ftdmchan->packet_len = blocksize;
       ftdmchan->native_codec = ftdmchan->effective_codec;
@@ -2757,16 +2768,16 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
       }
     }
 
-      int echo_cancel_level = 16; /* number of samples of echo cancellation (0--1024);
-to disable, set to 0 */
+    int echo_cancel_level = 16; /* number of samples of echo cancellation (0--1024);
+                                   to disable, set to 0 */
 /* The problem is that if echo_cancel_level is not specified, keys are not always recognized.
 Test this parameter separately from freeswitch when you factor-out teletone from freetdm
 and use audacity to view stream with and without ec enabled and vary this parameter and
 see how it will differ */
-      if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
-        ftdm_log(FTDM_LOG_WARNING,
-                 "Echo cancel not available for %d:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id);
+    if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) ==
+        -1)
+      ftdm_log(FTDM_LOG_WARNING, "Echo cancel not available for %d:%d\n",
+               ftdmchan->span_id, ftdmchan->chan_id);
   }
   return FTDM_SUCCESS;
 }
@@ -3056,9 +3067,11 @@ static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
     if (params.chan_alarms > 0) {
       if (params.chan_alarms == (1 << 2)) {
         ftdmchan->alarm_flags = FTDM_ALARM_YELLOW;
-      } else if (params.chan_alarms == (1 << 4)) {
+      }
+      else if (params.chan_alarms == (1 << 4)) {
         ftdmchan->alarm_flags = FTDM_ALARM_BLUE;
-      } else {
+      }
+      else {
         ftdmchan->alarm_flags = FTDM_ALARM_RED;
       }
     }
@@ -3165,7 +3178,8 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
 
   if (r == 0) {
     return FTDM_TIMEOUT;
-  } else if (r < 0) {
+  }
+  else if (r < 0) {
     snprintf(span->last_error, sizeof(span->last_error), "%m");
     return FTDM_FAIL;
   }
@@ -3257,7 +3271,8 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
       if (fchan->state == FTDM_CHANNEL_STATE_DOWN
           || fchan->state == FTDM_CHANNEL_STATE_DIALING) {
         *event_id = FTDM_OOB_WINK;
-      } else {
+      }
+      else {
         *event_id = FTDM_OOB_FLASH;
       }
     }
@@ -3284,10 +3299,12 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
           if (fchan->ring_count == 2) {
             *event_id = FTDM_OOB_OFFHOOK;
           }
-        } else {
+        }
+        else {
           *event_id = FTDM_OOB_OFFHOOK;
         }
-      } else if (fchan->type == FTDM_CHAN_TYPE_FXO) {
+      }
+      else if (fchan->type == FTDM_CHAN_TYPE_FXO) {
         *event_id = FTDM_OOB_RING_START;
       }
     }
@@ -3363,12 +3380,12 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     break;
   default:
     {
-        ftdm_log(FTDM_LOG_WARNING,
-                 "[s%dc%d][%d:%d] " "Unhandled event %d\n",
-                 fchan->span_id, fchan->chan_id,
-                 fchan->physical_span_id, fchan->physical_chan_id,
-                 zt_event_id);
-        *event_id = FTDM_OOB_INVALID;
+      ftdm_log(FTDM_LOG_WARNING,
+               "[s%dc%d][%d:%d] " "Unhandled event %d\n",
+               fchan->span_id, fchan->chan_id,
+               fchan->physical_span_id, fchan->physical_chan_id,
+               zt_event_id);
+      *event_id = FTDM_OOB_INVALID;
     }
     break;
   }
@@ -3389,7 +3406,8 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
   if (ftdmchan->io_data) {
     zt_event_id = (zt_event_t) ftdmchan->io_data;
     ftdmchan->io_data = ((void *) 0);
-  } else if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
+  }
+  else if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
     ftdm_log(FTDM_LOG_ERROR,
              "[s%dc%d][%d:%d] "
              "Failed retrieving event from channel: %s\n",
@@ -3442,7 +3460,8 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
     if (fchan->io_data) {
       zt_event_id = (zt_event_t) fchan->io_data;
       fchan->io_data = ((void *) 0);
-    } else if (ioctl(fchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
+    }
+    else if (ioctl(fchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
       ftdm_log(FTDM_LOG_ERROR,
                "[s%dc%d][%d:%d] "
                "Failed to retrieve DAHDI event from channel: %s\n",
@@ -3525,23 +3544,23 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
         break;
       }
 
-        ftdm_log(FTDM_LOG_DEBUG,
+      ftdm_log(FTDM_LOG_DEBUG,
+               "[s%dc%d][%d:%d] "
+               "Deferring event %d to be able to read data\n",
+               ftdmchan->span_id, ftdmchan->chan_id,
+               ftdmchan->physical_span_id,
+               ftdmchan->physical_chan_id, zt_event_id);
+      if (ftdmchan->io_data) {
+        ftdm_log(FTDM_LOG_WARNING,
                  "[s%dc%d][%d:%d] "
-                 "Deferring event %d to be able to read data\n",
+                 "Dropping event %d, not retrieved on time\n",
                  ftdmchan->span_id, ftdmchan->chan_id,
                  ftdmchan->physical_span_id,
                  ftdmchan->physical_chan_id, zt_event_id);
-          if (ftdmchan->io_data) {
-            ftdm_log(FTDM_LOG_WARNING,
-                     "[s%dc%d][%d:%d] "
-                     "Dropping event %d, not retrieved on time\n",
-                     ftdmchan->span_id, ftdmchan->chan_id,
-                     ftdmchan->physical_span_id,
-                     ftdmchan->physical_chan_id, zt_event_id);
-          }
-          ftdmchan->io_data = (void *) zt_event_id;
-          ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
-          ftdmchan->last_event_time = ftdm_current_time_in_ms();
+      }
+      ftdmchan->io_data = (void *) zt_event_id;
+      ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
+      ftdmchan->last_event_time = ftdm_current_time_in_ms();
       break;
     }
 
@@ -3554,7 +3573,8 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data,
       *datalen -= 2;
     }
     return FTDM_SUCCESS;
-  } else if (read_errno == 500) {
+  }
+  else if (read_errno == 500) {
     return FTDM_SUCCESS;
   }
   return r == 0 ? FTDM_TIMEOUT : FTDM_FAIL;
@@ -3591,23 +3611,23 @@ tryagain:
       return FTDM_FAIL;
     }
 
-      ftdm_log(FTDM_LOG_DEBUG,
+    ftdm_log(FTDM_LOG_DEBUG,
+             "[s%dc%d][%d:%d] "
+             "Deferring event %d to be able to write data\n",
+             ftdmchan->span_id, ftdmchan->chan_id,
+             ftdmchan->physical_span_id,
+             ftdmchan->physical_chan_id, zt_event_id);
+    if (ftdmchan->io_data) {
+      ftdm_log(FTDM_LOG_WARNING,
                "[s%dc%d][%d:%d] "
-               "Deferring event %d to be able to write data\n",
+               "Dropping event %d, not retrieved on time\n",
                ftdmchan->span_id, ftdmchan->chan_id,
                ftdmchan->physical_span_id,
                ftdmchan->physical_chan_id, zt_event_id);
-        if (ftdmchan->io_data) {
-          ftdm_log(FTDM_LOG_WARNING,
-                   "[s%dc%d][%d:%d] "
-                   "Dropping event %d, not retrieved on time\n",
-                   ftdmchan->span_id, ftdmchan->chan_id,
-                   ftdmchan->physical_span_id,
-                   ftdmchan->physical_chan_id, zt_event_id);
-        }
-        ftdmchan->io_data = (void *) zt_event_id;
-        ftdmchan->io_flags |= (FTDM_CHANNEL_IO_EVENT);
-        ftdmchan->last_event_time = ftdm_current_time_in_ms();
+    }
+    ftdmchan->io_data = (void *) zt_event_id;
+    ftdmchan->io_flags |= (FTDM_CHANNEL_IO_EVENT);
+    ftdmchan->last_event_time = ftdm_current_time_in_ms();
 
     goto tryagain;
   }
