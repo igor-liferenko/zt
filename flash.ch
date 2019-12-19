@@ -25,7 +25,7 @@ TODO: in zaptel source read what mean preflash_time flash_time receive_flash_tim
   if (ioctl(channel, DAHDI_SETLINEAR, &linear) == -1) return 4;
 
   struct dahdi_params ztp;
-  memset(&ztp, 0, sizeof ztp);
+  memset(&ztp, 0, sizeof ztp); /* is it necessary? */
   if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
   ztp.rxflashtime = 3;
   if (ioctl(channel, DAHDI_SET_PARAMS, &ztp) == -1) return 101;
