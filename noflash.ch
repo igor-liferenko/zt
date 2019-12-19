@@ -2,8 +2,7 @@ rxflashtime: time after pressing red button during which flash event can be sens
 
 We need to set it to non-zero in order that timer which is set by this
 parameter will expire (so that rbs_itimer_expire() will be called)
-NOTE: if you need pulse dialing work, set it to DAHDI_MAXPULSETIME/8 (add
-debug print to dahdi source to see its actual value).
+NOTE: if you need pulse dialing work, set it to 80
 
 See __dahdi_hooksig_pvt().
 
