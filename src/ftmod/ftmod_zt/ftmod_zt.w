@@ -3036,9 +3036,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
 
       _ftdm_mutex_lock("./ftmod_zt.w", 752, (const char *) __func__,
                        ftdmchan->mutex);
-      (ftdmchan)->flags |= ((1ULL << 14));
-      _ftdm_mutex_unlock("./ftmod_zt.w", 752,
-                         (const char *) __func__, ftdmchan->mutex);;
+      ftdmchan->flags |= 1ULL << 14;
+      _ftdm_mutex_unlock(__FILE__, __LINE__,
+                         (const char *) __func__, ftdmchan->mutex);
     }
     break;
   case FTDM_COMMAND_ONHOOK:
@@ -3056,11 +3056,11 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
                ftdmchan->span_id, ftdmchan->chan_id,
                ftdmchan->physical_span_id, ftdmchan->physical_chan_id);
 
-      _ftdm_mutex_lock("./ftmod_zt.w", 763, (const char *) __func__,
+      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__,
                        ftdmchan->mutex);
       (ftdmchan)->flags &= ~((1ULL << 14));
-      _ftdm_mutex_unlock("./ftmod_zt.w", 763,
-                         (const char *) __func__, ftdmchan->mutex);;
+      _ftdm_mutex_unlock(__FILE__, __LINE__,
+                         (const char *) __func__, ftdmchan->mutex);
     }
     break;
   case FTDM_COMMAND_FLASH:
@@ -3095,11 +3095,11 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock("./ftmod_zt.w", 791, (const char *) __func__,
+      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__,
                        ftdmchan->mutex);
-      (ftdmchan)->flags |= ((1ULL << 15));
-      _ftdm_mutex_unlock("./ftmod_zt.w", 791,
-                         (const char *) __func__, ftdmchan->mutex);;
+      ftdmchan->flags |= 1ULL << 15;
+      _ftdm_mutex_unlock(__FILE__, __LINE__,
+                         (const char *) __func__, ftdmchan->mutex);
     }
     break;
   case FTDM_COMMAND_GENERATE_RING_OFF:
@@ -3113,11 +3113,11 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan,
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock("./ftmod_zt.w", 801, (const char *) __func__,
+      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__,
                        ftdmchan->mutex);
-      (ftdmchan)->flags &= ~((1ULL << 15));
-      _ftdm_mutex_unlock("./ftmod_zt.w", 801,
-                         (const char *) __func__, ftdmchan->mutex);;
+      ftdmchan->flags &= ~(1ULL << 15);
+      _ftdm_mutex_unlock(__FILE__, __LINE__,
+                         (const char *) __func__, ftdmchan->mutex);
     }
     break;
   case FTDM_COMMAND_GET_INTERVAL:
@@ -3472,11 +3472,11 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
               && fchan->state != FTDM_CHANNEL_STATE_UP)) {
         if (fchan->type != FTDM_CHAN_TYPE_EM) {
 
-          _ftdm_mutex_lock("./ftmod_zt.w", 1166,
+          _ftdm_mutex_lock(__FILE__, __LINE__,
                            (const char *) __func__, fchan->mutex);
-          (fchan)->flags |= ((1ULL << 14));
-          _ftdm_mutex_unlock("./ftmod_zt.w", 1166,
-                             (const char *) __func__, fchan->mutex);;
+          fchan->flags |= 1ULL << 14;
+          _ftdm_mutex_unlock(__FILE__, __LINE__,
+                             (const char *) __func__, fchan->mutex);
         }
 
         if (fchan->type == FTDM_CHAN_TYPE_EM
