@@ -1,10 +1,10 @@
-rxflashtime: time after pressing red button during which flash event can be sensed
+rxflashtime: time after pressing red button during which flash event can be sensed (also used for pulse dialing detection)
 
-We need to set it to non-zero in order that timer which is set by this
-parameter will expire (so that rbs_itimer_expire() will be called)
-NOTE: if you need pulse dialing work, set it to 80
+This parameter sets timer when red button is pressed, and if it expires before green button is pressed, this will be an on-hook event. Default is 1250.
 
-See __dahdi_hooksig_pvt().
+See __dahdi_hooksig_pvt() and rbs_itimer_expire().
+
+(preflashtime and flashtime are totally irrelevant to flash detection - they are used to create flash)
 
 @x
 #include <dahdi/user.h>
