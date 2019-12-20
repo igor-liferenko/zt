@@ -2493,63 +2493,53 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
 
   for (x = start; x < end; x++) {
     ftdm_channel_t *ftdmchan;
-    int sockfd = -1;
-    int len;
+    int sockfd;
 
-    sockfd = open("/dev/dahdi/channel", O_RDWR);
-    if (sockfd != -1
-        && ftdm_span_add_channel(span, sockfd, type,
-                                 &ftdmchan) == FTDM_SUCCESS) {
-
-      if (ioctl(sockfd, DAHDI_SPECIFY, &x)) {
-        ftdm_log(FTDM_LOG_ERROR,
-                 "failure configuring device /dev/dahdi/channel chan %d fd %d (%s)\n",
-                 x, sockfd, strerror(errno));
-        close(sockfd);
-        continue;
-      }
-
-      if (ftdmchan->type != FTDM_CHAN_TYPE_DQ921
-          && ftdmchan->type != FTDM_CHAN_TYPE_DQ931) {
-        len = 160;              /* each 20ms */
-        if (ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) {
-          ftdm_log(FTDM_LOG_ERROR,
-                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
-                   ftdmchan->span_id, ftdmchan->chan_id, sockfd,
-                   strerror(errno));
-          close(sockfd);
-          continue;
-        }
-
-        ftdmchan->packet_len = len;
-        ftdmchan->effective_interval = ftdmchan->native_interval = ftdmchan->packet_len / 8;
-
-        if (ftdmchan->effective_codec == FTDM_CODEC_SLIN)
-          ftdmchan->packet_len *= 2;
-      }
-
-      if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) == -1) {
-        ftdm_log(FTDM_LOG_ERROR, "DAHDI_GET_PARAMS failed");
-        close(sockfd);
-        continue;
-      }
-      ztp.receive_flash_time = 250;
-      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
-        ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_PARAMS failed");
-        close(sockfd);
-        continue;
-      }
-
-      ftdmchan->rate = 8000;
-      ftdmchan->physical_span_id = 1;
-      ftdmchan->physical_chan_id = x;
-      ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
-
-      configured++;
+    if ((sockfd = open("/dev/dahdi/channel", O_RDWR)) == -1) {
+      ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel");
+      continue;
     }
-    else
-      ftdm_log(FTDM_LOG_ERROR,
-               "failure configuring device /dev/dahdi/channel\n");
+
+    if (ftdm_span_add_channel(span, sockfd, type, &ftdmchan) != FTDM_SUCCESS) {
+      ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span");
+      close(sockfd);
+      continue;
+    }
+
+    if (ioctl(sockfd, DAHDI_SPECIFY, &x) == -1) {
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SPECIFY failed");
+      close(sockfd);
+      continue;
+    }
+
+    int blocksize = 160;              /* each 20ms */
+    if (ioctl(sockfd, DAHDI_SET_BLOCKSIZE, &blocksize) == -1) {
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_BLOCKSIZE failed");
+      close(sockfd);
+      continue;
+    }
+
+    if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) == -1) {
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_GET_PARAMS failed");
+      close(sockfd);
+      continue;
+    }
+    ztp.receive_flash_time = 250;
+    if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_PARAMS failed");
+      close(sockfd);
+      continue;
+    }
+
+    ftdmchan->rate = 8000;
+    ftdmchan->physical_span_id = 1;
+    ftdmchan->physical_chan_id = x;
+    ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
+    ftdmchan->packet_len = blocksize;
+    ftdmchan->effective_interval = ftdmchan->native_interval = blocksize / 8;
+    if (ftdmchan->effective_codec == FTDM_CODEC_SLIN) ftdmchan->packet_len *= 2;
+
+    configured++;
   }
 
   return configured;
