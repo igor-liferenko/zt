@@ -59,7 +59,7 @@ struct tm *localtime_r(const time_t *clock, struct tm *result);
 #define FTDM_HALF_DTMF_PAUSE 500
 #define FTDM_FULL_DTMF_PAUSE 1000
 
-#define FTDM_CHANNEL_SW_DTMF_ALLOWED(ftdmchan) (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_DETECT) && !ftdm_test_flag(ftdmchan, FTDM_CHANNEL_SIG_DTMF_DETECTION))
+#define FTDM_CHANNEL_SW_DTMF_ALLOWED(ftdmchan) (!ftdm_test_flag(ftdmchan, FTDM_CHANNEL_SIG_DTMF_DETECTION))
 
 ftdm_time_t time_last_throttle_log = 0;
 ftdm_time_t time_current_throttle_log = 0;

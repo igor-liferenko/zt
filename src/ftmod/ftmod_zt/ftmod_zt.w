@@ -1257,7 +1257,6 @@ typedef enum {
 } ftdm_span_flag_t;
 
 typedef enum {
-  FTDM_CHANNEL_FEATURE_DTMF_DETECT = (1 << 0),
   FTDM_CHANNEL_FEATURE_DTMF_GENERATE = (1 << 1),
   FTDM_CHANNEL_FEATURE_CODECS = (1 << 2),
   FTDM_CHANNEL_FEATURE_INTERVAL = (1 << 3),
