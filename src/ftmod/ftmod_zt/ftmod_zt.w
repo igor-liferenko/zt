@@ -2768,16 +2768,12 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
       }
     }
 
-    int echo_cancel_level = 16; /* number of samples of echo cancellation (0--1024);
-                                   to disable, set to 0 */
-/* The problem is that if ec is disabled, keys are not always recognized.
-Test this parameter separately from freeswitch when you factor-out teletone from freetdm
-and use audacity to view stream with and without ec enabled and vary this parameter and
-see how it will differ */
-    if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) ==
-        -1)
-      ftdm_log(FTDM_LOG_WARNING, "Echo cancel not available for %d:%d\n",
-               ftdmchan->span_id, ftdmchan->chan_id);
+    int echo_cancel_level = 16; /* number of samples of echo cancellation (0--256); 0 = disabled */
+      /* The problem is that if ec is disabled, keys are not always recognized.
+         Test this parameter separately from freeswitch when you factor-out teletone from freetdm
+         and see oslec page - there was tool to analyze ec graphically. */
+    if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
+      ftdm_log(FTDM_LOG_WARNING, "Echo cancel not available\n");
   }
   return FTDM_SUCCESS;
 }
