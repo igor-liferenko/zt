@@ -7,6 +7,7 @@ and load them to `\.{dahdi}' module.
 In freetdm only ringcadence is used on incoming call with \.{DAHDI\_RING}.
 Ringcadence even index is number of ms that ring is on, odd index is number of ms
 that ring is off, end is indicated by number zero.
+Last four params may be ignored - they are used to generate DTMF.
 
 @d MAX_SIZE 16384
 @d LEVEL -10
