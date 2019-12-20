@@ -2577,15 +2577,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         continue;
       }
 
-      if (!(!name || *name == '\0')) {
-        strncpy(ftdmchan->chan_name, name,
-                sizeof(ftdmchan->chan_name) - 1);
-      }
-      if (!(!number || *number == '\0')) {
-        strncpy(ftdmchan->chan_number, number,
-                sizeof(ftdmchan->chan_number) - 1);
-      }
-
       configured++;
     }
     else
