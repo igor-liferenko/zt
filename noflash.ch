@@ -26,6 +26,6 @@ rxflashtime = 1250
   struct dahdi_params ztp;
   memset(&ztp, 0, sizeof ztp); /* is it necessary? */
   if (ioctl(channel, DAHDI_GET_PARAMS, &ztp) == -1) return 100;
-  ztp.rxflashtime = 1;
+  ztp.rxflashtime = 250;
   if (ioctl(channel, DAHDI_SET_PARAMS, &ztp) == -1) return 101;
 @z
