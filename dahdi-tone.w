@@ -4,7 +4,9 @@
 
 Define the standard tone indications (dialing, ringing, busy, etc)
 and load them to `\.{dahdi}' module.
-(Without this phone will not ring on incoming calls.)
+In freetdm only ringcadence is used on incoming call with \.{DAHDI\_RING}.
+Ringcadence even index is number of ms that ring is on, odd index is number of ms
+that ring is off, end is indicated by number zero.
 
 @d MAX_SIZE 16384
 @d LEVEL -10
@@ -45,7 +47,7 @@ struct {
     0, @/
     "us", @/
     "United States / North America", @/
-    { 2000, 4000 }, @/
+    { 400, 200, 400, 2000 }, @/
     {
       { DAHDI_TONE_DIALTONE, "350+440" }, @/
       { DAHDI_TONE_BUSY, "480+620/500,0/500" },
