@@ -32,7 +32,7 @@ int main(void)
   struct timeval tval;
   struct tm *tms;
   while (1) {
-    if ((n = read(channel, buf, sizeof buf)) == -1) break;
+    if ((n = read(channel, buf, sizeof buf)) == -1) return 0;
     if (gettimeofday(&tval, NULL) == -1) return 5;
     if ((tms = localtime(&tval.tv_sec)) == NULL) return 6;
     printf("%d bytes, %d:%02d:%02d.%03ld.%03ld\n", n,
@@ -40,22 +40,4 @@ int main(void)
              tval.tv_usec % 1000);
     if (fwrite(buf, n, 1, fp) != 1) return 7;
   }
-
-  if (errno == ELAST) {
-    @<Get event@>@;
-  }
-  else return 9;
-}
-
-@ @d A 2
-@d B 1
-@d FLASH 3
-
-@<Get event@>=
-int event = 0;
-if (ioctl(channel, DAHDI_GETEVENT, &event) == -1) return 8;
-switch (event) {
-case A: printf("event: A\n"); break;
-case B: printf("event: B\n"); break;
-case FLASH: printf("event: FLASH\n");
 }
