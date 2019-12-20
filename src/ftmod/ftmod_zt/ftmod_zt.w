@@ -2522,60 +2522,28 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         }
 
         ftdmchan->packet_len = len;
-        ftdmchan->effective_interval = ftdmchan->native_interval =
-            ftdmchan->packet_len / 8;
+        ftdmchan->effective_interval = ftdmchan->native_interval = ftdmchan->packet_len / 8;
 
-        if (ftdmchan->effective_codec == FTDM_CODEC_SLIN) {
+        if (ftdmchan->effective_codec == FTDM_CODEC_SLIN)
           ftdmchan->packet_len *= 2;
-        }
       }
 
-      if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) < 0) {
-        ftdm_log(FTDM_LOG_ERROR,
-                 "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id, sockfd);
+      if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) == -1) {
+        ftdm_log(FTDM_LOG_ERROR, "DAHDI_GET_PARAMS failed");
+        close(sockfd);
+        continue;
+      }
+      ztp.receive_flash_time = 250;
+      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
+        ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_PARAMS failed");
         close(sockfd);
         continue;
       }
 
       ftdmchan->rate = 8000;
-      ftdmchan->physical_span_id = ztp.span_no;
+      ftdmchan->physical_span_id = 1;
       ftdmchan->physical_chan_id = x;
-
-      if (type == FTDM_CHAN_TYPE_FXS || type == FTDM_CHAN_TYPE_FXO
-          || type == FTDM_CHAN_TYPE_EM || type == FTDM_CHAN_TYPE_B) {
-        if (ztp.g711_type == ZT_G711_ALAW) {
-          ftdmchan->native_codec = ftdmchan->effective_codec =
-              FTDM_CODEC_ALAW;
-        }
-        else if (ztp.g711_type == ZT_G711_MULAW) {
-          ftdmchan->native_codec = ftdmchan->effective_codec =
-              FTDM_CODEC_ULAW;
-        }
-        else {
-          int type;
-
-          if (ftdmchan->span->trunk_type == FTDM_TRUNK_E1) {
-            type = FTDM_CODEC_ALAW;
-          }
-          else {
-            type = FTDM_CODEC_ULAW;
-          }
-
-          ftdmchan->native_codec = ftdmchan->effective_codec = type;
-
-        }
-      }
-
-      ztp.receive_flash_time = 250;
-
-      if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) < 0) {
-        ftdm_log(FTDM_LOG_ERROR,
-                 "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-        close(sockfd);
-        continue;
-      }
+      ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
 
       configured++;
     }
