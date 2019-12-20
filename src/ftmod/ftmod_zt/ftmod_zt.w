@@ -2509,38 +2509,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         continue;
       }
 
-      if (ftdmchan->type == FTDM_CHAN_TYPE_DQ921) {
-        struct zt_bufferinfo binfo;
-        memset(&binfo, 0, sizeof(binfo));
-        binfo.txbufpolicy = 0;
-        binfo.rxbufpolicy = 0;
-        binfo.numbufs = 32;
-        binfo.bufsize = 1024;
-        if (ioctl(sockfd, DAHDI_SET_BUFINFO, &binfo)) {
-          ftdm_log(FTDM_LOG_ERROR,
-                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d\n",
-                   ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-          close(sockfd);
-          continue;
-        }
-      }
-
-      if (type == FTDM_CHAN_TYPE_CAS) {
-        struct zt_chanconfig cc;
-        memset(&cc, 0, sizeof(cc));
-        cc.chan = cc.master = x;
-        cc.sigtype = ZT_SIG_CAS;
-        cc.idlebits = cas_bits;
-        if (ioctl(CONTROL_FD, DAHDI_CHANCONFIG, &cc)) {
-          ftdm_log(FTDM_LOG_ERROR,
-                   "failure configuring device /dev/dahdi/channel as FreeTDM device %d:%d fd:%d err:%s\n",
-                   ftdmchan->span_id, ftdmchan->chan_id, sockfd,
-                   strerror(errno));
-          close(sockfd);
-          continue;
-        }
-      }
-
       if (ftdmchan->type != FTDM_CHAN_TYPE_DQ921
           && ftdmchan->type != FTDM_CHAN_TYPE_DQ931) {
         len = 160;              /* each 20ms */
@@ -2569,22 +2537,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
         close(sockfd);
         continue;
       }
-
-      if (ftdmchan->type == FTDM_CHAN_TYPE_DQ921) {
-        if ((ztp.sig_type != ZT_SIG_HDLCRAW) &&
-            (ztp.sig_type != ZT_SIG_HDLCFCS) &&
-            (ztp.sig_type != ZT_SIG_HARDHDLC)
-            ) {
-          ftdm_log(FTDM_LOG_ERROR,
-                   "hardware signaling is not HDLC, fix your DAHDI configuration!\n");
-          close(sockfd);
-          continue;
-        }
-      }
-
-      ftdm_log(FTDM_LOG_INFO,
-               "configuring device /dev/dahdi/channel channel %d as FreeTDM device %d:%d fd:%d\n",
-               x, ftdmchan->span_id, ftdmchan->chan_id, sockfd);
 
       ftdmchan->rate = 8000;
       ftdmchan->physical_span_id = ztp.span_no;
