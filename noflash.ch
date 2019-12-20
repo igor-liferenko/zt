@@ -6,6 +6,11 @@ See __dahdi_hooksig_pvt() and rbs_itimer_expire().
 
 (preflashtime and flashtime are totally irrelevant to flash detection - they are used to create flash)
 
+Default values:
+preflashtime = 50
+flashtime = 750
+rxflashtime = 1250
+
 @x
 #include <dahdi/user.h>
 @y
