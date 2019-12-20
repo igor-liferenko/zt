@@ -2490,7 +2490,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
 {
   unsigned configured = 0, x;
   zt_params_t ztp;
-  zt_tone_mode_t mode = 0;
   memset(&ztp, 0, sizeof ztp);  /* is it necessary? */
 
   for (x = start; x < end; x++) {
@@ -2625,23 +2624,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
                  ftdmchan->span_id, ftdmchan->chan_id, sockfd);
         close(sockfd);
         continue;
-      }
-
-      mode = ZT_TONEDETECT_ON | ZT_TONEDETECT_MUTE;
-      if (ioctl(sockfd, DAHDI_TONEDETECT, &mode)) {
-        ftdm_log(FTDM_LOG_DEBUG,
-                 "HW DTMF not available on FreeTDM device %d:%d fd:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-      }
-      else {
-        ftdm_log(FTDM_LOG_DEBUG,
-                 "HW DTMF available on FreeTDM device %d:%d fd:%d\n",
-                 ftdmchan->span_id, ftdmchan->chan_id, sockfd);
-        (ftdmchan)->features =
-            (ftdm_channel_feature_t) ((ftdmchan)->features |
-                                      FTDM_CHANNEL_FEATURE_DTMF_DETECT);
-        mode = 0;
-        ioctl(sockfd, DAHDI_TONEDETECT, &mode);
       }
 
       if (!(!name || *name == '\0')) {
