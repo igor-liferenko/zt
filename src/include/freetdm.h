@@ -935,6 +935,10 @@ struct ftdm_io_interface {
 	fio_span_stop_t span_stop; /*!< Stop span I/O */
 };
 
+#define FTDM_CODEC_ULAW 0
+#define FTDM_CODEC_ALAW 8
+#define FTDM_CODEC_SLIN 10
+
 /*! \brief FreeTDM supported hardware alarms. */
 typedef enum {
 	FTDM_ALARM_NONE    = 0,

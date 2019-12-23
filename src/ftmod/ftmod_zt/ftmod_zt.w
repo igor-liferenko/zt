@@ -2471,6 +2471,10 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
                             short *poll_events);
 ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
                                     ftdm_event_t ** event);
+
+@ @d FTDM_CODEC_ULAW 0
+
+@c
 static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
                               unsigned end, ftdm_chan_type_t type,
                               char *name, char *number,
