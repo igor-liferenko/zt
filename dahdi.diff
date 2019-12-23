@@ -1,0 +1,23 @@
+diff -ur modules.orig/dahdi/drivers/dahdi/dahdi-base.c modules/dahdi/drivers/dahdi/dahdi-base.c
+--- modules.orig/dahdi/drivers/dahdi/dahdi-base.c	2019-12-20 20:12:34.244801180 +0700
++++ modules/dahdi/drivers/dahdi/dahdi-base.c	2019-12-20 20:18:37.250421484 +0700
+@@ -8574,6 +8574,7 @@
+ 				  /* if havent got GS detect */
+ 				if (!chan->gotgs) {
+ 					__qevent(chan,DAHDI_EVENT_RINGOFFHOOK);
++                                        module_printk(KERN_NOTICE, "OFFHOOK\n");
+ 					chan->gotgs = 1;
+ 					chan->itimerset = chan->itimer = 0;
+ 				}
+@@ -8585,7 +8586,10 @@
+ 			if ((chan->txstate != DAHDI_TXSTATE_DEBOUNCE) &&
+ 			    (chan->txstate != DAHDI_TXSTATE_KEWL) &&
+ 			    (chan->txstate != DAHDI_TXSTATE_AFTERKEWL)) {
+-				chan->itimerset = chan->itimer = chan->rxflashtime * DAHDI_CHUNKSIZE;
++		            module_printk(KERN_NOTICE, "ONHOOK\n");
++		            chan->itimerset = chan->itimer = 0;
++                            chan->gotgs = 0;
++                            __qevent(chan,DAHDI_EVENT_ONHOOK);
+ 			}
+ 			if (chan->txstate == DAHDI_TXSTATE_KEWL)
+ 				chan->kewlonhook = 1;
