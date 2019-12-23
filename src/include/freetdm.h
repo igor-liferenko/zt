@@ -795,7 +795,7 @@ struct ftdm_memory_handler {
 #define FIO_CHANNEL_NEXT_EVENT_ARGS (ftdm_channel_t *ftdmchan, ftdm_event_t **event)
 #define FIO_SIGNAL_CB_ARGS (ftdm_sigmsg_t *sigmsg)
 #define FIO_EVENT_CB_ARGS (ftdm_channel_t *ftdmchan, ftdm_event_t *event)
-#define FIO_CONFIGURE_SPAN_ARGS (ftdm_span_t *span, const char *str, ftdm_chan_type_t type, char *name, char *number)
+#define FIO_CONFIGURE_SPAN_ARGS (ftdm_span_t *span)
 #define FIO_CONFIGURE_ARGS (const char *category, const char *var, const char *val, int lineno)
 #define FIO_OPEN_ARGS (ftdm_channel_t *ftdmchan)
 #define FIO_CLOSE_ARGS (ftdm_channel_t *ftdmchan)

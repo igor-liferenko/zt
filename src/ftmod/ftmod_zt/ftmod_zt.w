@@ -673,10 +673,7 @@ typedef ftdm_status_t(*fio_signal_cb_t) (ftdm_sigmsg_t * sigmsg);
 
 typedef ftdm_status_t(*fio_event_cb_t) (ftdm_channel_t * ftdmchan,
                                         ftdm_event_t * event);
-typedef ftdm_status_t(*fio_configure_span_t) (ftdm_span_t * span,
-                                              const char *str,
-                                              ftdm_chan_type_t type,
-                                              char *name, char *number);
+typedef ftdm_status_t(*fio_configure_span_t) (ftdm_span_t * span);
 typedef ftdm_status_t(*fio_configure_t) (const char *category,
                                          const char *var, const char *val,
                                          int lineno);
