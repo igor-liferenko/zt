@@ -2891,9 +2891,8 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
       continue;
     }
-    if ((pfds[i-1].revents & 0x002) || span->channels[i]->io_data) {
-      span->channels[i]->io_flags |= FTDM_CHANNEL_IO_EVENT;
-      span->channels[i]->last_event_time = ftdm_current_time_in_ms();
+    if ((pfds[i-1].revents & POLLPRI) || span->channels[i]->io_data) {
+      @<Set event pending on the channel |span->channels[i]|@>@;
       k++;
     }
     if (pfds[i-1].revents & 0x001)
@@ -2910,6 +2909,11 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
   return k ? FTDM_SUCCESS : FTDM_FAIL;
 }
 
+@ @<Set event pending on the channel |span->channels[i]|@>=
+span->channels[i]->io_flags |= FTDM_CHANNEL_IO_EVENT;
+span->channels[i]->last_event_time = ftdm_current_time_in_ms();
+
+@ @c
 static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
                                                          fchan,
                                                          ftdm_oob_event_t *
@@ -3092,8 +3096,7 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
       if (ftdmchan->io_data)
         ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
       ftdmchan->io_data = (void *) zt_event_id;
-      ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
-      ftdmchan->last_event_time = ftdm_current_time_in_ms();
+      @<Set event pending on the channel |ftdmchan|@>@;
       break;
     }
 
@@ -3109,6 +3112,11 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
   return r == 0 ? FTDM_TIMEOUT : FTDM_FAIL;
 }
 
+@ @<Set event pending on the channel |ftdmchan|@>=
+ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
+ftdmchan->last_event_time = ftdm_current_time_in_ms();
+
+@ @c
 static ftdm_status_t zt_write(ftdm_channel_t * ftdmchan, void *data, size_t *datalen)
 {
   ftdm_ssize_t w = 0;
@@ -3134,8 +3142,7 @@ tryagain:
     if (ftdmchan->io_data)
       ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
     ftdmchan->io_data = (void *) zt_event_id;
-    ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
-    ftdmchan->last_event_time = ftdm_current_time_in_ms();
+    @<Set event pending on the channel |ftdmchan|@>@;
 
     goto tryagain;
   }
