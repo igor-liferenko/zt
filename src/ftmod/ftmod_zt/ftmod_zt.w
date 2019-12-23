@@ -2066,6 +2066,9 @@ struct ftdm_channel {
   ftdm_time_t last_release_time;
 };
 
+@ @d FTDM_MAX_CHANNELS 4
+
+@c
 struct ftdm_span {
   ftdm_data_type_t data_type;
   char *name;
@@ -2087,7 +2090,7 @@ struct ftdm_span {
   char tone_map[FTDM_TONEMAP_INVALID + 1][128];
   teletone_tone_map_t tone_detect_map[FTDM_TONEMAP_INVALID + 1];
   teletone_multi_tone_t tone_finder[FTDM_TONEMAP_INVALID + 1];
-  ftdm_channel_t *channels[32 * 128 + 1];
+  ftdm_channel_t *channels[FTDM_MAX_CHANNELS + 1];
   fio_channel_outgoing_call_t outgoing_call;
   fio_channel_indicate_t indicate;
   fio_channel_set_sig_status_t set_channel_sig_status;
@@ -2815,15 +2818,19 @@ static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
   return FTDM_SUCCESS;
 }
 
-static ftdm_status_t zt_wait(ftdm_channel_t * ftdmchan, ftdm_wait_flag_t * flags, int32_t to)
+@ Waits for an event on a channel.
+\.{flags} = type of event to wait for, \.{to} = time to wait (ms).
+
+@c
+static ftdm_status_t zt_wait(ftdm_channel_t *ftdmchan, ftdm_wait_flag_t *flags, int32_t to)
 {
   int32_t inflags = 0;
   int result;
   struct pollfd pfds[1];
 
-  if (*flags & FTDM_READ) inflags |= 0x001;
-  if (*flags & FTDM_WRITE) inflags |= 0x004;
-  if (*flags & FTDM_EVENTS) inflags |= 0x002;
+  if (*flags & FTDM_READ) inflags |= POLLIN;
+  if (*flags & FTDM_WRITE) inflags |= POLLOUT;
+  if (*flags & FTDM_EVENTS) inflags |= POLLPRI;
 
 pollagain:
   memset(&pfds[0], 0, sizeof pfds[0]);
@@ -2851,27 +2858,26 @@ pollagain:
   }
 
   if (result == 0) return FTDM_TIMEOUT;
-  if (inflags & 0x001) *flags |= FTDM_READ;
-  if (inflags & 0x004) *flags |= FTDM_WRITE;
-  if ((inflags & 0x002) || (ftdmchan->io_data && (*flags & FTDM_EVENTS))) *flags |= FTDM_EVENTS;
+  if (inflags & POLLIN) *flags |= FTDM_READ;
+  if (inflags & POLLOUT) *flags |= FTDM_WRITE;
+  if ((inflags & POLLPRI) || (ftdmchan->io_data && (*flags & FTDM_EVENTS))) *flags |= FTDM_EVENTS;
 
   return FTDM_SUCCESS;
-
 }
 
-ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
-                            short *poll_events)
+@ @c
+ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
 {
-  struct pollfd pfds[32 * 128];
+  struct pollfd pfds[FTDM_MAX_CHANNELS];
   uint32_t i, j = 0, k = 0;
   int r;
 
-  (void) (poll_events);
+  (void) (poll_events); /* unused arg, silence the compiler */
 
   for (i = 1; i <= span->chan_count; i++) {
     memset(&pfds[j], 0, sizeof pfds[j]);
     pfds[j].fd = span->channels[i]->sockfd;
-    pfds[j].events = 0x002;
+    pfds[j].events = POLLPRI;
     j++;
   }
 
