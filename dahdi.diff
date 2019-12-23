@@ -21,3 +21,24 @@ diff -ur modules.orig/dahdi/drivers/dahdi/dahdi-base.c modules/dahdi/drivers/dah
  			}
  			if (chan->txstate == DAHDI_TXSTATE_KEWL)
  				chan->kewlonhook = 1;
+diff -ru modules.orig/dahdi/drivers/dahdi/wctdm24xxp/base.c modules/dahdi/drivers/dahdi/wctdm24xxp/base.c
+--- modules.orig/dahdi/drivers/dahdi/wctdm24xxp/base.c	2019-12-23 09:55:49.735676942 +0700
++++ modules/dahdi/drivers/dahdi/wctdm24xxp/base.c	2019-12-23 09:56:39.609643972 +0700
+@@ -2343,7 +2343,7 @@
+ 
+ 	if (debug & DEBUG_CARD)
+ 		dev_info(&wc->vb.pdev->dev,
+-			"fxs_off_hook: Card %d Going off hook\n", mod->card);
++			"fxs_off_hook: Card %d Going off hook ", mod->card);
+ 	switch (fxs->lasttxhook) {
+ 	case SLIC_LF_RINGING:		/* Ringing */
+ 	case SLIC_LF_OHTRAN_FWD:	/* Forward On Hook Transfer */
+@@ -2379,7 +2379,7 @@
+ {
+ 	if (debug & DEBUG_CARD) {
+ 		dev_info(&wc->vb.pdev->dev,
+-			"fxs_on_hook: Card %d Going on hook\n", mod->card);
++			"fxs_on_hook: Card %d Going on hook ", mod->card);
+ 	}
+ 
+ 	if ((mod->mod.fxs.lasttxhook & SLIC_LF_SETMASK) != SLIC_LF_OPEN)
