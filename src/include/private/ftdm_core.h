@@ -243,8 +243,6 @@ extern "C" {
 #define ftdm_print_stack(level) ftdm_log(level, "FTDM_PRINT_STACK is not implemented in this operating system!\n");
 #endif
 
-
-#define FTDM_SPAN_IS_BRI(x)	((x)->trunk_type == FTDM_TRUNK_BRI || (x)->trunk_type == FTDM_TRUNK_BRI_PTMP)
 /*!
   \brief Copy flags from one arbitrary object to another
   \command dest the object to copy the flags to
@@ -489,7 +487,6 @@ struct ftdm_span {
 	struct ftdm_io_interface *fio;
 	fio_event_cb_t event_callback;
 	ftdm_mutex_t *mutex;
-	ftdm_trunk_type_t trunk_type;
 	ftdm_signal_type_t signal_type;
 	uint32_t last_used_index;
 	/* Private signaling data. Do not touch unless you are a signaling module */

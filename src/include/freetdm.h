@@ -207,23 +207,6 @@ FTDM_STR2ENUM_P(ftdm_str2ftdm_chan_type, ftdm_chan_type2str, ftdm_chan_type_t)
 /*! \brief Test if a channel is a D-channel */
 #define FTDM_IS_DCHAN(fchan) ((fchan)->type == FTDM_CHAN_TYPE_DQ921 || (fchan)->type == FTDM_CHAN_TYPE_DQ931)
 
-/*! \brief Test if a channel is digital channel */
-#define FTDM_IS_DIGITAL_CHANNEL(fchan) ((fchan)->span->trunk_type == FTDM_TRUNK_E1 || \
-	                                (fchan)->span->trunk_type == FTDM_TRUNK_T1 || \
-	                                (fchan)->span->trunk_type == FTDM_TRUNK_J1 || \
-	                                (fchan)->span->trunk_type == FTDM_TRUNK_BRI || \
-	                                (fchan)->span->trunk_type == FTDM_TRUNK_BRI_PTMP)
-
-/*! \brief Test if a span is digital */
-#define FTDM_SPAN_IS_DIGITAL(span) \
-	((span)->trunk_type == FTDM_TRUNK_E1 || \
-	 (span)->trunk_type == FTDM_TRUNK_T1 || \
-	 (span)->trunk_type == FTDM_TRUNK_J1 || \
-	 (span)->trunk_type == FTDM_TRUNK_GSM || \
-	 (span)->trunk_type == FTDM_TRUNK_BRI || \
-	 (span)->trunk_type == FTDM_TRUNK_BRI_PTMP)
-
-
 /*! \brief Logging function prototype to be used for all FreeTDM logs 
  *  you should use ftdm_global_set_logger to set your own logger
  */
@@ -491,24 +474,6 @@ typedef enum {
 		"TRACE", "TRACE_RAW", "INDICATION_COMPLETED", "DIALING", "TRANSFER_COMPLETED", "SMS", "INVALID"
 /*! \brief Move from string to ftdm_signal_event_t and viceversa */
 FTDM_STR2ENUM_P(ftdm_str2ftdm_signal_event, ftdm_signal_event2str, ftdm_signal_event_t)
-
-/*! \brief Span trunk types */
-typedef enum {
-	FTDM_TRUNK_E1,
-	FTDM_TRUNK_T1,
-	FTDM_TRUNK_J1,
-	FTDM_TRUNK_BRI,
-	FTDM_TRUNK_BRI_PTMP,
-	FTDM_TRUNK_FXO,
-	FTDM_TRUNK_FXS,
-	FTDM_TRUNK_EM,
-	FTDM_TRUNK_GSM,
-	FTDM_TRUNK_NONE
-} ftdm_trunk_type_t;
-#define TRUNK_TYPE_STRINGS "E1", "T1", "J1", "BRI", "BRI_PTMP", "FXO", "FXS", "EM", "GSM", "NONE"
-
-/*! \brief Move from string to ftdm_trunk_type_t and viceversa */
-FTDM_STR2ENUM_P(ftdm_str2ftdm_trunk_type, ftdm_trunk_type2str, ftdm_trunk_type_t)
 
 /*! \brief Basic channel configuration provided to ftdm_configure_span_channels */
 typedef struct ftdm_channel_config {
@@ -1795,28 +1760,6 @@ FT_DECLARE(ftdm_status_t) ftdm_conf_node_destroy(ftdm_conf_node_t *node);
  * \return FTDM_FAIL failure
  */
 FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_channel_config_t *chan_config, unsigned *configured);
-
-/*! 
- * \brief Set the trunk type for a span
- *        This must be called before configuring any channels within the span
- *
- * \param span The span 
- * \param type The trunk type
- *
- */
-FT_DECLARE(void) ftdm_span_set_trunk_type(ftdm_span_t *span, ftdm_trunk_type_t type);
-
-/*! 
- * \brief Get the trunk type for a span
- *
- * \param span The span 
- *
- * \return The span trunk type
- */
-FT_DECLARE(ftdm_trunk_type_t) ftdm_span_get_trunk_type(const ftdm_span_t *span);
-
-/*! \brief For display debugging purposes you can display this string which describes the trunk type of a span */
-FT_DECLARE(const char *) ftdm_span_get_trunk_type_str(const ftdm_span_t *span);
 
 /*! 
  * \brief Return the channel identified by the provided logical id

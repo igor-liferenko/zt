@@ -312,7 +312,7 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 	strncpy(analog_data->hotline, hotline, sizeof(analog_data->hotline));
 	span->signal_type = FTDM_SIGTYPE_ANALOG;
 	span->signal_data = analog_data;
-	span->outgoing_call = span->trunk_type == FTDM_TRUNK_FXS ? analog_fxs_outgoing_call : analog_fxo_outgoing_call;
+	span->outgoing_call = analog_fxs_outgoing_call;
 	span->get_channel_sig_status = analog_get_channel_sig_status;
 	span->get_span_sig_status = analog_get_span_sig_status;
 

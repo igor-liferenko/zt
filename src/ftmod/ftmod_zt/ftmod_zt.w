@@ -410,19 +410,6 @@ typedef enum {
   FTDM_SIGEVENT_INVALID,
 } ftdm_signal_event_t;
 
-typedef enum {
-  FTDM_TRUNK_E1,
-  FTDM_TRUNK_T1,
-  FTDM_TRUNK_J1,
-  FTDM_TRUNK_BRI,
-  FTDM_TRUNK_BRI_PTMP,
-  FTDM_TRUNK_FXO,
-  FTDM_TRUNK_FXS,
-  FTDM_TRUNK_EM,
-  FTDM_TRUNK_GSM,
-  FTDM_TRUNK_NONE
-} ftdm_trunk_type_t;
-
 typedef struct ftdm_channel_config {
   char name[128];
   char number[32];
@@ -951,10 +938,6 @@ ftdm_status_t ftdm_conf_node_create(const char *name,
 ftdm_status_t ftdm_conf_node_add_param(ftdm_conf_node_t * node,
                                        const char *param, const char *val);
 ftdm_status_t ftdm_conf_node_destroy(ftdm_conf_node_t * node);
-void ftdm_span_set_trunk_type(ftdm_span_t * span, ftdm_trunk_type_t type);
-ftdm_trunk_type_t ftdm_span_get_trunk_type(const ftdm_span_t * span);
-
-const char *ftdm_span_get_trunk_type_str(const ftdm_span_t * span);
 
 ftdm_channel_t *ftdm_span_get_channel(const ftdm_span_t * span,
                                       uint32_t chanid);
@@ -2045,7 +2028,6 @@ struct ftdm_span {
   struct ftdm_io_interface *fio;
   fio_event_cb_t event_callback;
   ftdm_mutex_t *mutex;
-  ftdm_trunk_type_t trunk_type;
   ftdm_signal_type_t signal_type;
   uint32_t last_used_index;
 
