@@ -78,6 +78,7 @@
 #define FTDM_LOG_INFO FTDM_PRE, 6
 #define FTDM_LOG_WARNING FTDM_PRE, 4
 #define FTDM_LOG_ERROR FTDM_PRE, 3
+#define FTDM_LOG_EMERG FTDM_PRE, 0
 
 typedef enum {
   FTDM_SUCCESS,
@@ -2930,6 +2931,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     *event_id = FTDM_OOB_RING_START;
     break;
   case ZT_EVENT_ONHOOK:
+    ftdm_log(FTDM_LOG_EMERG, "ONHOOK");
     *event_id = FTDM_OOB_ONHOOK;
     break;
   case ZT_EVENT_WINKFLASH:
@@ -2939,6 +2941,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
       *event_id = FTDM_OOB_FLASH;
     break;
   case ZT_EVENT_RINGOFFHOOK:
+    ftdm_log(FTDM_LOG_EMERG, "OFFHOOK");
     *event_id = FTDM_OOB_NOOP;
     _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
     fchan->flags |= 1ULL << 14;
