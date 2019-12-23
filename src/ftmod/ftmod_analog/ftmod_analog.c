@@ -41,33 +41,6 @@ struct tm * localtime_r(const time_t *clock, struct tm *result);
 static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj);
 
 /**
- * \brief Starts an FXO channel thread (outgoing call)
- * \param ftdmchan Channel to initiate call on
- * \return Success or failure
- *
- * Initialises state, starts tone progress detection and runs the channel in a new a thread.
- */
-static FIO_CHANNEL_OUTGOING_CALL_FUNCTION(analog_fxo_outgoing_call)
-{
-	ftdm_analog_data_t *analog_data = ftdmchan->span->signal_data;
-	if (!ftdm_test_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK) && !ftdm_test_flag(ftdmchan, FTDM_CHANNEL_INTHREAD)) {		
-		ftdm_channel_clear_needed_tones(ftdmchan);
-		ftdm_channel_clear_detected_tones(ftdmchan);
-
-		ftdm_channel_command(ftdmchan, FTDM_COMMAND_OFFHOOK, NULL);
-		ftdm_channel_command(ftdmchan, FTDM_COMMAND_ENABLE_PROGRESS_DETECT, NULL);
-		if (analog_data->wait_dialtone_timeout) {
-			ftdmchan->needed_tones[FTDM_TONEMAP_DIAL] = 1;
-		}
-		ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_DIALING);
-		ftdm_thread_create_detached(ftdm_analog_channel_run, ftdmchan);
-		return FTDM_SUCCESS;
-	}
-
-	return FTDM_FAIL;
-}
-
-/**
  * \brief Starts an FXS channel thread (outgoing call)
  * \param ftdmchan Channel to initiate call on
  * \return Success or failure
