@@ -2499,8 +2499,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
 
 static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
-  configured += zt_open_range(span, 2, 5);
-  return configured;
+  return zt_open_range(span, 2, 5);
 }
 
 static ftdm_status_t zt_configure(const char *category, const char *var,
