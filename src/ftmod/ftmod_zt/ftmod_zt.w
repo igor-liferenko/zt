@@ -2488,8 +2488,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
                               unsigned char cas_bits)
 {
   unsigned configured = 0, x;
-  zt_params_t ztp;
-  memset(&ztp, 0, sizeof ztp);  /* is it necessary? */
 
   for (x = start; x < end; x++) {
     ftdm_channel_t *ftdmchan;
@@ -2515,18 +2513,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
     int blocksize = 160;              /* each 20ms */
     if (ioctl(sockfd, DAHDI_SET_BLOCKSIZE, &blocksize) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_BLOCKSIZE failed");
-      close(sockfd);
-      continue;
-    }
-
-    if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_GET_PARAMS failed");
-      close(sockfd);
-      continue;
-    }
-    ztp.receive_flash_time = 250;
-    if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_PARAMS failed");
       close(sockfd);
       continue;
     }
