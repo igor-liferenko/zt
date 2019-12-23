@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
-#include <poll.h>
+#include <poll.h> /* |POLLERR|, |POLLIN|, |POLLOUT| */
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
@@ -1275,6 +1275,9 @@ typedef enum {
   FTDM_CHANNEL_IO_READ = (1 << 1),
   FTDM_CHANNEL_IO_WRITE = (1 << 2),
 } ftdm_channel_io_flags_t;
+
+#define FTDM_CHANNEL_OFFHOOK (1ULL << 14)
+#define FTDM_CHANNEL_RINGING (1ULL << 15)
 
 typedef enum {
   FTDM_CHANNEL_STATE_ANY = -1,
@@ -2617,7 +2620,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
        Test this parameter separately from freeswitch when you factor-out teletone from freetdm
        and see oslec page - there was tool to analyze ec graphically. */
   if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
-    ftdm_log(FTDM_LOG_WARNING, "Echo cancel not available\n");
+    ftdm_log(FTDM_LOG_WARNING, "DAHDI_ECHOCANCEL failed");
   
   return FTDM_SUCCESS;
 }
@@ -2658,7 +2661,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
       ftdm_log(FTDM_LOG_DEBUG, "Channel is now offhook");
 
       _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
-      ftdmchan->flags |= 1ULL << 14;
+      ftdmchan->flags |= FTDM_CHANNEL_OFFHOOK;
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
     }
     break;
@@ -2672,7 +2675,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
       ftdm_log(FTDM_LOG_DEBUG, "Channel is now onhook");
 
       _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
-      ftdmchan->flags &= ~(1ULL << 14);
+      ftdmchan->flags &= ~FTDM_CHANNEL_OFFHOOK;
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
     }
     break;
@@ -2686,7 +2689,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
       }
 
       _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
-      ftdmchan->flags |= 1ULL << 15;
+      ftdmchan->flags |= FTDM_CHANNEL_RINGING;
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
     }
     break;
@@ -2699,7 +2702,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
       }
 
       _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
-      ftdmchan->flags &= ~(1ULL << 15);
+      ftdmchan->flags &= ~FTDM_CHANNEL_RINGING;
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
     }
     break;
@@ -2767,6 +2770,10 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   return err == 0 ? FTDM_SUCCESS : err;
 }
 
+@ @d DAHDI_ALARM_YELLOW (1 << 2)
+@d DAHDI_ALARM_BLUE (1 << 4)
+
+@c
 static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
 {
   struct zt_spaninfo info;
@@ -2793,9 +2800,9 @@ static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
     }
 
     if (params.chan_alarms > 0) {
-      if (params.chan_alarms == (1 << 2))
+      if (params.chan_alarms == DAHDI_ALARM_YELLOW)
         ftdmchan->alarm_flags = FTDM_ALARM_YELLOW;
-      else if (params.chan_alarms == (1 << 4))
+      else if (params.chan_alarms == DAHDI_ALARM_BLUE)
         ftdmchan->alarm_flags = FTDM_ALARM_BLUE;
       else
         ftdmchan->alarm_flags = FTDM_ALARM_RED;
@@ -2858,8 +2865,6 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
   struct pollfd pfds[FTDM_MAX_CHANNELS];
   uint32_t i, j = 0, k = 0;
   int r;
-
-  (void) (poll_events); /* unused arg, silence the compiler */
 
   for (i = 1; i <= span->chan_count; i++) {
     memset(&pfds[j], 0, sizeof pfds[j]);
@@ -2944,7 +2949,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     ftdm_log(FTDM_LOG_EMERG, "OFFHOOK");
     *event_id = FTDM_OOB_NOOP;
     _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
-    fchan->flags |= 1ULL << 14;
+    fchan->flags |= FTDM_CHANNEL_OFFHOOK;
     _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
     *event_id = FTDM_OOB_OFFHOOK;
     break;
