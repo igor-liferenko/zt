@@ -2452,11 +2452,11 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
 @ @d FTDM_CODEC_ULAW 0
 
 @c
-static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
+static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
-  unsigned configured = 0, x;
+  unsigned configured = 0;
 
-  for (x = start; x < end; x++) {
+  for (int channel = 2; channel <= 4; channel++) {
     ftdm_channel_t *ftdmchan;
     int sockfd;
 
@@ -2471,7 +2471,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
       continue;
     }
 
-    if (ioctl(sockfd, DAHDI_SPECIFY, &x) == -1) {
+    if (ioctl(sockfd, DAHDI_SPECIFY, &channel) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "DAHDI_SPECIFY failed");
       close(sockfd);
       continue;
@@ -2486,7 +2486,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
 
     ftdmchan->rate = 8000;
     ftdmchan->physical_span_id = 1;
-    ftdmchan->physical_chan_id = x;
+    ftdmchan->physical_chan_id = channel;
     ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
     ftdmchan->packet_len = blocksize;
     ftdmchan->native_interval = ftdmchan->effective_interval = blocksize / 8;
@@ -2495,11 +2495,6 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
   }
 
   return configured;
-}
-
-static ftdm_status_t zt_configure_span(ftdm_span_t *span)
-{
-  return zt_open_range(span, 2, 5);
 }
 
 static ftdm_status_t zt_configure(const char *category, const char *var,
