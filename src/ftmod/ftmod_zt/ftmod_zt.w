@@ -1015,15 +1015,7 @@ ftdm_status_t ftdm_backtrace_chan(ftdm_channel_t * chan);
 
 extern ftdm_logger_t ftdm_log;
 
-typedef ftdm_status_t(*fio_codec_t) (void *data, size_t max,
-                                     size_t *datalen);
-
-ftdm_status_t fio_slin2ulaw(void *data, size_t max, size_t *datalen);
-ftdm_status_t fio_ulaw2slin(void *data, size_t max, size_t *datalen);
-ftdm_status_t fio_slin2alaw(void *data, size_t max, size_t *datalen);
-ftdm_status_t fio_alaw2slin(void *data, size_t max, size_t *datalen);
-ftdm_status_t fio_ulaw2alaw(void *data, size_t max, size_t *datalen);
-ftdm_status_t fio_alaw2ulaw(void *data, size_t max, size_t *datalen);
+typedef ftdm_status_t(*fio_codec_t) (void *data, size_t max, size_t *datalen);
 
 typedef void (*bytehandler_func_t)(void *, int);
 typedef void (*bithandler_func_t)(void *, int);
@@ -2596,7 +2588,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
        Test this parameter separately from freeswitch when you factor-out teletone from freetdm
        and see oslec page - there was tool to analyze ec graphically. */
   if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
-    ftdm_log(FTDM_LOG_WARNING, "DAHDI_ECHOCANCEL failed");
+    ftdm_log(FTDM_LOG_EMERG, "DAHDI_ECHOCANCEL failed");
   
   return FTDM_SUCCESS;
 }
