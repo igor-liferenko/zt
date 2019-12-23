@@ -490,7 +490,6 @@ struct ftdm_span {
 	fio_event_cb_t event_callback;
 	ftdm_mutex_t *mutex;
 	ftdm_trunk_type_t trunk_type;
-	ftdm_trunk_mode_t trunk_mode;
 	ftdm_signal_type_t signal_type;
 	uint32_t last_used_index;
 	/* Private signaling data. Do not touch unless you are a signaling module */

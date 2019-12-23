@@ -333,9 +333,6 @@ FTDM_STR2ENUM(ftdm_str2ftdm_oob_event, ftdm_oob_event2str, ftdm_oob_event_t, OOB
 FTDM_ENUM_NAMES(TRUNK_TYPE_NAMES, TRUNK_TYPE_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_trunk_type, ftdm_trunk_type2str, ftdm_trunk_type_t, TRUNK_TYPE_NAMES, FTDM_TRUNK_NONE)
 
-FTDM_ENUM_NAMES(TRUNK_MODE_NAMES, TRUNK_MODE_STRINGS)
-FTDM_STR2ENUM(ftdm_str2ftdm_trunk_mode, ftdm_trunk_mode2str, ftdm_trunk_mode_t, TRUNK_MODE_NAMES, FTDM_TRUNK_MODE_INVALID)
-
 FTDM_ENUM_NAMES(SIGNAL_NAMES, SIGNAL_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_signal_event, ftdm_signal_event2str, ftdm_signal_event_t, SIGNAL_NAMES, FTDM_SIGEVENT_INVALID)
 
@@ -889,7 +886,6 @@ FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name,
 		ftdm_copy_string(new_span->tone_map[FTDM_TONEMAP_BUSY], "%(500,500,480,620)", FTDM_TONEMAP_LEN);
 		ftdm_copy_string(new_span->tone_map[FTDM_TONEMAP_ATTN], "%(100,100,1400,2060,2450,2600)", FTDM_TONEMAP_LEN);
 		new_span->trunk_type = FTDM_TRUNK_NONE;
-		new_span->trunk_mode = FTDM_TRUNK_MODE_CPE;
 		new_span->data_type = FTDM_TYPE_SPAN;
 
 		ftdm_mutex_lock(globals.span_mutex);
@@ -2130,21 +2126,6 @@ FT_DECLARE(ftdm_trunk_type_t) ftdm_span_get_trunk_type(const ftdm_span_t *span)
 FT_DECLARE(const char *) ftdm_span_get_trunk_type_str(const ftdm_span_t *span)
 {
 	return ftdm_trunk_type2str(span->trunk_type);
-}
-
-FT_DECLARE(void) ftdm_span_set_trunk_mode(ftdm_span_t *span, ftdm_trunk_mode_t mode)
-{
-	span->trunk_mode = mode;
-}
-
-FT_DECLARE(ftdm_trunk_mode_t) ftdm_span_get_trunk_mode(const ftdm_span_t *span)
-{
-	return span->trunk_mode;
-}
-
-FT_DECLARE(const char *) ftdm_span_get_trunk_mode_str(const ftdm_span_t *span)
-{
-	return ftdm_trunk_mode2str(span->trunk_mode);
 }
 
 FT_DECLARE(uint32_t) ftdm_span_get_id(const ftdm_span_t *span)
@@ -5141,7 +5122,6 @@ static ftdm_status_t load_config(void)
 
 	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS) {
 		span->trunk_type = FTDM_TRUNK_FXS;
-		span->trunk_mode = FTDM_TRUNK_MODE_NET;
 		unsigned chans_configured = 0;
 		chan_config.type = FTDM_CHAN_TYPE_FXS;
 		if (ftdm_configure_span_channels(span, "2-4", &chan_config, &chans_configured) == FTDM_SUCCESS)
