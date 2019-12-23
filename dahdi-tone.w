@@ -6,7 +6,9 @@ Define the standard tone indications (dialing, ringing, busy, etc)
 and load them to `\.{dahdi}' module.
 In freetdm only ringcadence is used on incoming call with \.{DAHDI\_RING}.
 Ringcadence even index is number of ms that ring is on, odd index is number of ms
-that ring is off, end is indicated by number zero.
+that ring is off, end is indicated by number zero; if last parameter before zero
+is odd: if it is the only parameter - OFF time is equal to ON time, if it is
+not the only parameter - check what will be.
 Last four params may be ignored - they are used to generate DTMF.
 
 @d MAX_SIZE 16384
