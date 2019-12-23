@@ -47,9 +47,6 @@
 #define DAHDI_HDLCFCSMODE _IOW (DAHDI_CODE, 37, int)    /* Set a clear channel into HDLC w/ FCS
                                                            mode */
 
-#define         DAHDI_ALARM_YELLOW (1 << 2)     /* channel alarm */
-#define         DAHDI_ALARM_BLUE (1 << 4)       /* channel alarm */
-
 #define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)        /* Specify a channel on /dev/dahdi/chan --- must
                                                            be done before any other ioctl's and is only valid on /dev/dahdi/channel */
 
@@ -1270,11 +1267,9 @@ typedef enum {
   FTDM_CHANNEL_FEATURE_MF_GENERATE = (1 << 10),
 } ftdm_channel_feature_t;
 
-typedef enum {
-  FTDM_CHANNEL_IO_EVENT = (1 << 0),
-  FTDM_CHANNEL_IO_READ = (1 << 1),
-  FTDM_CHANNEL_IO_WRITE = (1 << 2),
-} ftdm_channel_io_flags_t;
+#define FTDM_CHANNEL_IO_EVENT (1 << 0)
+#define FTDM_CHANNEL_IO_READ (1 << 1)
+#define FTDM_CHANNEL_IO_WRITE (1 << 2)
 
 #define FTDM_CHANNEL_OFFHOOK (1ULL << 14)
 #define FTDM_CHANNEL_RINGING (1ULL << 15)

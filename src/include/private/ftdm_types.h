@@ -204,13 +204,6 @@ typedef enum {
 	FTDM_CHANNEL_FEATURE_MF_GENERATE = (1<<10), /*!< Channel can generate R2 MF tones (read-only) */
 } ftdm_channel_feature_t;
 
-/*! \brief Channel IO pending flags */
-typedef enum {
-	FTDM_CHANNEL_IO_EVENT = (1 << 0),
-	FTDM_CHANNEL_IO_READ = (1 << 1),
-	FTDM_CHANNEL_IO_WRITE = (1 << 2),
-} ftdm_channel_io_flags_t;
-
 /*!< Channel flags. This used to be an enum but we reached the 32bit limit for enums, is safer this way */
 #define FTDM_CHANNEL_CONFIGURED    (1ULL << 0)
 #define FTDM_CHANNEL_READY         (1ULL << 1)
