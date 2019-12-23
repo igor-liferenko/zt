@@ -48,7 +48,7 @@ struct {
     0, @/
     "us", @/
     "United States / North America", @/
-    { 400, 200, 400, 2000 }, @/
+    { 4000, 2000 }, @/
     {
       { DAHDI_TONE_DIALTONE, "350+440" }, @/
       { DAHDI_TONE_BUSY, "480+620/500,0/500" },
