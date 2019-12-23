@@ -2885,26 +2885,29 @@ ftdm_status_t zt_poll_event(ftdm_span_t * span, uint32_t ms,
 
   for (i = 1; i <= span->chan_count; i++) {
     _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
+      /* lock channel */
 
-    if (pfds[i-1].revents & 0x008) {
+    if (pfds[i-1].revents & POLLERR) {
       ftdm_log(FTDM_LOG_ERROR, "POLLERR, flags=%d\n", pfds[i-1].events);
       _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
+        /* unlock channel */
       continue;
     }
     if ((pfds[i-1].revents & POLLPRI) || span->channels[i]->io_data) {
       @<Set event pending on the channel |span->channels[i]|@>@;
       k++;
     }
-    if (pfds[i-1].revents & 0x001)
+    if (pfds[i-1].revents & POLLIN)
       span->channels[i]->io_flags |= FTDM_CHANNEL_IO_READ;
-    if (pfds[i-1].revents & 0x004)
+    if (pfds[i-1].revents & POLLOUT)
       span->channels[i]->io_flags |= FTDM_CHANNEL_IO_WRITE;
 
     _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
+      /* unlock channel */
   }
 
   if (!k)
-    snprintf(span->last_error, sizeof(span->last_error), "no matching descriptor");
+    snprintf(span->last_error, sizeof span->last_error, "no matching descriptor");
 
   return k ? FTDM_SUCCESS : FTDM_FAIL;
 }
