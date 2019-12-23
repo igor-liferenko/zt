@@ -1268,8 +1268,6 @@ typedef enum {
 } ftdm_channel_feature_t;
 
 #define FTDM_CHANNEL_IO_EVENT (1 << 0)
-#define FTDM_CHANNEL_IO_READ (1 << 1)
-#define FTDM_CHANNEL_IO_WRITE (1 << 2)
 
 #define FTDM_CHANNEL_OFFHOOK (1ULL << 14)
 #define FTDM_CHANNEL_RINGING (1ULL << 15)
@@ -2854,7 +2852,10 @@ pollagain:
   return FTDM_SUCCESS;
 }
 
-@ @c
+@ @d FTDM_CHANNEL_IO_READ (1 << 1)
+@d FTDM_CHANNEL_IO_WRITE (1 << 2)
+
+@c
 ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
 {
   struct pollfd pfds[FTDM_MAX_CHANNELS];
@@ -2989,7 +2990,7 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** e
   ftdm_span_t *span = ftdmchan->span;
 
   if ((ftdmchan->io_flags & FTDM_CHANNEL_IO_EVENT)) {
-    ftdmchan->io_flags &= ~(FTDM_CHANNEL_IO_EVENT);
+    ftdmchan->io_flags &= ~FTDM_CHANNEL_IO_EVENT;
   }
 
   if (ftdmchan->io_data) {
@@ -3028,7 +3029,7 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
       continue;
     }
 
-    fchan->io_flags &= ~(FTDM_CHANNEL_IO_EVENT);
+    fchan->io_flags &= ~FTDM_CHANNEL_IO_EVENT;
 
     if (fchan->io_data) {
       zt_event_id = (zt_event_t) fchan->io_data;
