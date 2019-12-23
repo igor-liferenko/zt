@@ -311,7 +311,7 @@ static switch_status_t tech_init(private_t *tech_pvt, switch_core_session_t *ses
 	const char *dname = NULL;
 	uint32_t interval = 0, srate = 8000;
 	uint32_t span_id;
-	ftdm_codec_t codec;
+	int codec;
 
 	tech_pvt->ftdmchan = ftdmchan;
 	tech_pvt->read_frame.data = tech_pvt->databuf;

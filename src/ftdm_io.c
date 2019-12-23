@@ -1003,7 +1003,7 @@ FT_DECLARE(ftdm_status_t) ftdm_span_load_tones(ftdm_span_t *span, const char *ma
 
 #define FTDM_SLINEAR_MAX_VALUE 32767
 #define FTDM_SLINEAR_MIN_VALUE -32767
-static void reset_gain_table(uint8_t *gain_table, float new_gain, ftdm_codec_t codec_gain)
+static void reset_gain_table(uint8_t *gain_table, float new_gain, int codec_gain)
 {
 	/* sample value */
 	uint8_t sv = 0;
@@ -1409,7 +1409,7 @@ FT_DECLARE(uint32_t) ftdm_channel_get_type(const ftdm_channel_t *ftdmchan)
 	return ftdmchan->type;
 }
 
-FT_DECLARE(ftdm_codec_t) ftdm_channel_get_codec(const ftdm_channel_t *ftdmchan)
+int ftdm_channel_get_codec(const ftdm_channel_t *ftdmchan)
 {
 	return ftdmchan->effective_codec;
 }

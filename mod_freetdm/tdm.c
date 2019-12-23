@@ -337,7 +337,7 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
     switch_channel_t *channel;
     char name[128];
     const char *dname;
-    ftdm_codec_t codec;
+    int codec;
     uint32_t interval;
     ctdm_private_t *tech_pvt = NULL;
 

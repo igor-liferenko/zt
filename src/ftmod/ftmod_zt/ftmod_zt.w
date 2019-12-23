@@ -738,13 +738,6 @@ struct ftdm_io_interface {
 };
 
 typedef enum {
-  FTDM_CODEC_ULAW = 0,
-  FTDM_CODEC_ALAW = 8,
-  FTDM_CODEC_SLIN = 10,
-  FTDM_CODEC_NONE = (1 << 30)
-} ftdm_codec_t;
-
-typedef enum {
   FTDM_ALARM_NONE = 0,
   FTDM_ALARM_RED = (1 << 0),
   FTDM_ALARM_YELLOW = (1 << 1),
@@ -831,7 +824,6 @@ const char *ftdm_channel_get_token(const ftdm_channel_t * ftdmchan,
 uint32_t ftdm_channel_get_token_count(const ftdm_channel_t * ftdmchan);
 uint32_t ftdm_channel_get_io_interval(const ftdm_channel_t * ftdmchan);
 uint32_t ftdm_channel_get_io_packet_len(const ftdm_channel_t * ftdmchan);
-ftdm_codec_t ftdm_channel_get_codec(const ftdm_channel_t * ftdmchan);
 const char *ftdm_channel_get_last_error(const ftdm_channel_t * ftdmchan);
 ftdm_status_t ftdm_channel_get_alarms(ftdm_channel_t * ftdmchan,
                                       ftdm_alarm_flag_t * alarmbits);
@@ -1991,8 +1983,8 @@ struct ftdm_channel {
   uint8_t io_flags;
   ftdm_alarm_flag_t alarm_flags;
   ftdm_channel_feature_t features;
-  ftdm_codec_t effective_codec;
-  ftdm_codec_t native_codec;
+  int effective_codec;
+  int native_codec;
   uint32_t effective_interval;
   uint32_t native_interval;
   uint32_t packet_len;
@@ -2519,8 +2511,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
     ftdmchan->physical_chan_id = x;
     ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
     ftdmchan->packet_len = blocksize;
-    ftdmchan->effective_interval = ftdmchan->native_interval = blocksize / 8;
-    if (ftdmchan->effective_codec == FTDM_CODEC_SLIN) ftdmchan->packet_len *= 2;
+    ftdmchan->native_interval = ftdmchan->effective_interval = blocksize / 8;
 
     configured++;
   }
@@ -2702,8 +2693,6 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   case FTDM_COMMAND_GET_INTERVAL:
     if ((err = ioctl(ftdmchan->sockfd, DAHDI_GET_BLOCKSIZE, &ftdmchan->packet_len)) != -1) {
       ftdmchan->native_interval = ftdmchan->packet_len / 8;
-      if (ftdmchan->effective_codec == FTDM_CODEC_SLIN)
-        ftdmchan->packet_len *= 2;
       *((int *) obj) = ftdmchan->native_interval;
     }
     break;
@@ -2715,9 +2704,6 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
       if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) != -1) {
         ftdmchan->packet_len = len;
         ftdmchan->effective_interval = ftdmchan->native_interval = ftdmchan->packet_len / 8;
-
-        if (ftdmchan->effective_codec == FTDM_CODEC_SLIN)
-          ftdmchan->packet_len *= 2;
       }
     }
     break;

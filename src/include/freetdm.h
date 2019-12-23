@@ -935,14 +935,6 @@ struct ftdm_io_interface {
 	fio_span_stop_t span_stop; /*!< Stop span I/O */
 };
 
-/*! \brief FreeTDM supported I/O codecs */
-typedef enum {
-	FTDM_CODEC_ULAW = 0,
-	FTDM_CODEC_ALAW = 8,
-	FTDM_CODEC_SLIN = 10,
-	FTDM_CODEC_NONE = (1 << 30)
-} ftdm_codec_t;
-
 /*! \brief FreeTDM supported hardware alarms. */
 typedef enum {
 	FTDM_ALARM_NONE    = 0,
@@ -1245,7 +1237,7 @@ FT_DECLARE(uint32_t) ftdm_channel_get_io_packet_len(const ftdm_channel_t *ftdmch
  *
  * \retval The codec type
  */
-FT_DECLARE(ftdm_codec_t) ftdm_channel_get_codec(const ftdm_channel_t *ftdmchan);
+int ftdm_channel_get_codec(const ftdm_channel_t *ftdmchan);
 
 /*! 
  * \brief Get the last error string for the channel

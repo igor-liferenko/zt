@@ -408,8 +408,8 @@ struct ftdm_channel {
 	uint8_t	 io_flags;
 	ftdm_alarm_flag_t alarm_flags;
 	ftdm_channel_feature_t features;
-	ftdm_codec_t effective_codec;
-	ftdm_codec_t native_codec;
+	int effective_codec;
+	int native_codec;
 	uint32_t effective_interval;
 	uint32_t native_interval;
 	uint32_t packet_len;
