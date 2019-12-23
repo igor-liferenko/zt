@@ -1794,7 +1794,7 @@ FT_DECLARE(ftdm_status_t) ftdm_conf_node_destroy(ftdm_conf_node_t *node);
  * \return FTDM_SUCCESS success
  * \return FTDM_FAIL failure
  */
-FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, const char *str, ftdm_channel_config_t *chan_config, unsigned *configured);
+FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_channel_config_t *chan_config, unsigned *configured);
 
 /*! 
  * \brief Set the trunk type for a span

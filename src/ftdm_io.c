@@ -5052,7 +5052,7 @@ done:
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, const char* str, ftdm_channel_config_t *chan_config, unsigned *configured)
+FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_channel_config_t *chan_config, unsigned *configured)
 {
 	int currindex;
 	unsigned chan_index = 0;
@@ -5065,7 +5065,7 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, const 
 
 	currindex = span->chan_count;
 	*configured = 0;
-	*configured = span->fio->configure_span(span, str, chan_config->type, chan_config->name, chan_config->number);
+	*configured = span->fio->configure_span(span);
 	if (!*configured) {
 		ftdm_log(FTDM_LOG_ERROR, "%d:Failed to configure span\n", span->span_id);
 		return FTDM_FAIL;
@@ -5123,8 +5123,7 @@ static ftdm_status_t load_config(void)
 	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS) {
 		span->trunk_type = FTDM_TRUNK_FXS;
 		unsigned chans_configured = 0;
-		chan_config.type = FTDM_CHAN_TYPE_FXS;
-		if (ftdm_configure_span_channels(span, "2-4", &chan_config, &chans_configured) == FTDM_SUCCESS)
+		if (ftdm_configure_span_channels(span, &chan_config, &chans_configured) == FTDM_SUCCESS)
 			configured += chans_configured;
 	}
 

@@ -2455,10 +2455,7 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
 @ @d FTDM_CODEC_ULAW 0
 
 @c
-static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
-                              unsigned end, ftdm_chan_type_t type,
-                              char *name, char *number,
-                              unsigned char cas_bits)
+static unsigned zt_open_range(ftdm_span_t * span, unsigned start, unsigned end)
 {
   unsigned configured = 0, x;
 
@@ -2471,7 +2468,7 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
       continue;
     }
 
-    if (ftdm_span_add_channel(span, sockfd, type, &ftdmchan) != FTDM_SUCCESS) {
+    if (ftdm_span_add_channel(span, sockfd, FTDM_CHAN_TYPE_FXS, &ftdmchan) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span");
       close(sockfd);
       continue;
@@ -2503,61 +2500,10 @@ static unsigned zt_open_range(ftdm_span_t * span, unsigned start,
   return configured;
 }
 
-static ftdm_status_t zt_configure_span(ftdm_span_t * span, const char *str,
-                                       ftdm_chan_type_t type, char *name,
-                                       char *number)
+static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
-
-  int items, i;
-  char *mydata, *item_list[10];
-  char *ch, *mx;
-  unsigned char cas_bits = 0;
-  int channo;
-  int top = 0;
-  unsigned configured = 0;
-
-  mydata = ftdm_strdup(str);
-
-  items = ftdm_separate_string(mydata, ',', item_list, (sizeof(item_list) / sizeof(item_list[0])));
-
-  for (i = 0; i < items; i++) {
-    ch = item_list[i];
-
-    if (!(ch)) {
-      ftdm_log(FTDM_LOG_ERROR, "Invalid input\n");
-      continue;
-    }
-
-    channo = atoi(ch);
-
-    if (channo < 0) {
-      ftdm_log(FTDM_LOG_ERROR, "Invalid channel number %d\n", channo);
-      continue;
-    }
-
-    if ((mx = strchr(ch, '-'))) {
-      mx++;
-      top = atoi(mx) + 1;
-    }
-    else
-      top = channo + 1;
-
-    if (top < 0) {
-      ftdm_log(FTDM_LOG_ERROR, "Invalid range number %d\n", top);
-      continue;
-    }
-
-    configured += zt_open_range(span, channo, top, type, name, number, cas_bits);
-
-  }
-
-  if (mydata) {
-    g_ftdm_mem_handler.free(g_ftdm_mem_handler.pool, mydata);
-    mydata = (void *) 0;
-  };
-
+  configured += zt_open_range(span, 2, 5);
   return configured;
-
 }
 
 static ftdm_status_t zt_configure(const char *category, const char *var,
