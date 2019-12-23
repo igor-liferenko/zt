@@ -18,59 +18,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <dahdi/user.h>
 
-#define DAHDI_CODE 0xDA
-
-#define DAHDI_GET_BLOCKSIZE @,@,@,@,@, _IOR(DAHDI_CODE, 1, int) /* Get Transfer Block Size */
-#define DAHDI_SET_BLOCKSIZE @,@,@,@,@, _IOW(DAHDI_CODE, 1, int) /* Set Transfer Block Size */
-#define DAHDI_FLUSH @,@,@,@,@, _IOW(DAHDI_CODE, 3, int) /* Flush Buffer(s) and stop I/O */
-#define DAHDI_SYNC @,@,@,@,@, _IO(DAHDI_CODE, 4)        /* Wait for Write to Finish */
-#define DAHDI_GET_PARAMS @,@,@,@,@, _IOR(DAHDI_CODE, 5, struct zt_params)
-  /* Get channel parameters */
-#define DAHDI_SET_PARAMS @,@,@,@,@, _IOW(DAHDI_CODE, 5, struct zt_params)
-  /* Set channel parameters */
-#define DAHDI_HOOK _IOW (DAHDI_CODE, 7, int)    /* Set Hookswitch Status */
-#define DAHDI_GETEVENT _IOR (DAHDI_CODE, 8, int)        /* Get Signalling Event */
-#define DAHDI_IOMUX _IOWR (DAHDI_CODE, 9, int)  /* Wait for something to happen (IO Mux) */
-#define DAHDI_SPANSTAT _IOWR (DAHDI_CODE, 10, struct zt_spaninfo)       /* Get Span Status */
-
-#define DAHDI_GETGAINS _IOR (DAHDI_CODE, 16, struct zt_gains)   /* Get Channel audio gains */
-#define DAHDI_SETGAINS _IOW (DAHDI_CODE, 16, struct zt_gains)   /* Set Channel audio gains */
-#define DAHDI_CHANCONFIG _IOW (DAHDI_CODE, 19, struct zt_chanconfig)
-  /* Set Channel Configuration  */
-#define DAHDI_SET_BUFINFO _IOW (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Set buffer policy */
-#define DAHDI_GET_BUFINFO _IOR (DAHDI_CODE, 27, struct zt_bufferinfo)   /* Get current buffer info */
-#define DAHDI_AUDIOMODE _IOW (DAHDI_CODE, 32, int)      /* Set a clear channel into audio mode */
-#define DAHDI_ECHOCANCEL _IOW (DAHDI_CODE, 33, int)     /* Control Echo Canceller */
-#define DAHDI_HDLCRAWMODE _IOW (DAHDI_CODE, 36, int)    /* Set a clear channel into HDLC w/out FCS
-                                                           checking/calculation mode */
-#define DAHDI_HDLCFCSMODE _IOW (DAHDI_CODE, 37, int)    /* Set a clear channel into HDLC w/ FCS
-                                                           mode */
-
-#define DAHDI_SPECIFY _IOW (DAHDI_CODE, 38, int)        /* Specify a channel on /dev/dahdi/chan --- must
-                                                           be done before any other ioctl's and is only valid on /dev/dahdi/channel */
-
-#define DAHDI_SETLAW     _IOW  (DAHDI_CODE, 39, int)    /* Temporarily set the law on
-                                                           a channel to \.{DAHDI\_LAW\_DEFAULT}, \.{DAHDI\_LAW\_ALAW}, or \.{DAHDI\_LAW\_MULAW}. Is reset
-                                                           on close. */
-
-#define DAHDI_SETLINEAR         _IOW  (DAHDI_CODE, 40, int)     /* Temporarily set the channel
-                                                                   to operate in linear mode when non-zero or default law if 0 */
-
-#define DAHDI_ECHOTRAIN         _IOW  (DAHDI_CODE, 50, int)     /* Control Echo Trainer */
-
-#define DAHDI_SETTXBITS _IOW (DAHDI_CODE, 43, int)      /* set CAS bits */
-#define DAHDI_GETRXBITS _IOR (DAHDI_CODE, 43, int)      /* get CAS bits */
-
-#define DAHDI_SETPOLARITY _IOW (DAHDI_CODE, 92, int)    /* Polarity setting for FXO lines */
-
-#define DAHDI_TONEDETECT _IOW(DAHDI_CODE, 91, int)      /* Enable tone detection --- implemented by low
-                                                           level driver */
-
-#define ELAST 500               /* used by dahdi to indicate there is no data available, but events to read */
+#define ZT_SPANSTAT _IOWR (DAHDI_CODE, 10, struct zt_spaninfo)       /* Get Span Status */
 
 #define FTDM_PRE __FILE__, __func__, __LINE__
-
 #define FTDM_LOG_DEBUG FTDM_PRE, 7
 #define FTDM_LOG_INFO FTDM_PRE, 6
 #define FTDM_LOG_WARNING FTDM_PRE, 4
@@ -2223,37 +2175,6 @@ static __inline__ int16_t ftdm_saturated_add(int16_t sample1,
 
 typedef long ftdm_bitmap_t;
 
-struct zt_params {
-  int chan_no;
-  int span_no;
-  int chan_position;
-  int sig_type;
-  int sig_cap;
-  int receive_offhook;
-  int receive_bits;
-  int transmit_bits;
-  int transmit_hook_sig;
-  int receive_hook_sig;
-  int g711_type;
-  int idlebits;
-  char chan_name[40];
-  int prewink_time;
-  int preflash_time;
-  int wink_time;
-  int flash_time;
-  int start_time;
-  int receive_wink_time;
-  int receive_flash_time;
-  int debounce_time;
-  int pulse_break_time;
-  int pulse_make_time;
-  int pulse_after_time;
-
-  uint32_t chan_alarms;
-};
-
-typedef struct zt_params zt_params_t;
-
 struct zt_confinfo {
   int chan_no;
   int conference_number;
@@ -2657,14 +2578,14 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
 static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
 {
   struct zt_spaninfo info;
-  zt_params_t params;
+  struct dahdi_params params;
 
   memset(&info, 0, sizeof(info));
   info.span_no = ftdmchan->physical_span_id;
 
   memset(&params, 0, sizeof(params));
 
-  if (ioctl(CONTROL_FD, DAHDI_SPANSTAT, &info) == -1) {
+  if (ioctl(CONTROL_FD, ZT_SPANSTAT, &info) == -1) {
     snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "ioctl failed (%m)");
     snprintf(ftdmchan->span->last_error, sizeof ftdmchan->span->last_error, "ioctl failed (%m)");
     return FTDM_FAIL;
