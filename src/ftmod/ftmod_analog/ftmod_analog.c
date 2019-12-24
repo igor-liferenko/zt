@@ -44,18 +44,12 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj);
  * \brief Starts an FXS channel thread (outgoing call)
  * \param ftdmchan Channel to initiate call on
  * \return Success or failure
- *
- * Indicates call waiting if channel is already in use, otherwise runs the channel in a new thread.
  */
 static FIO_CHANNEL_OUTGOING_CALL_FUNCTION(analog_fxs_outgoing_call)
 {
 
-	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_INTHREAD)) {
-		ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_CALLWAITING);
-	} else {
-		ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_GENRING);
-		ftdm_thread_create_detached(ftdm_analog_channel_run, ftdmchan);
-	}
+	ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_GENRING);
+	ftdm_thread_create_detached(ftdm_analog_channel_run, ftdmchan);
 
 	return FTDM_SUCCESS;
 }
@@ -521,38 +515,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					}
 				}
 				break;
-			case FTDM_CHANNEL_STATE_CALLWAITING:
-				{
-					int done = 0;
-					
-					if (ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK] == 1) {
-						send_caller_id(ftdmchan);
-						ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK]++;
-					} else if (state_counter > 600 && !ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK]) {
-						send_caller_id(ftdmchan);
-						ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK]++;
-					} else if (state_counter > 1000 && !ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK]) {
-						done = 1;
-					} else if (state_counter > 10000) {
-						if (ftdmchan->fsk_buffer) {
-							ftdm_buffer_zero(ftdmchan->fsk_buffer);
-						} else {
-							ftdm_buffer_create(&ftdmchan->fsk_buffer, 128, 128, 0);
-						}
-						
-						ts.user_data = ftdmchan->fsk_buffer;
-						teletone_run(&ts, ftdmchan->span->tone_map[FTDM_TONEMAP_CALLWAITING_SAS]);
-						ts.user_data = dt_buffer;
-						done = 1;
-					}
-
-					if (done) {
-						ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_UP);
-						ftdm_clear_flag_locked(ftdmchan->span, FTDM_SPAN_STATE_CHANGE);
-						ftdm_channel_complete_state(ftdmchan);
-						ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK] = 0;
-					}
-				}
 			case FTDM_CHANNEL_STATE_UP:
 			case FTDM_CHANNEL_STATE_RING:
 			case FTDM_CHANNEL_STATE_PROGRESS_MEDIA:
@@ -698,21 +660,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					ftdm_buffer_zero(dt_buffer);
 					teletone_run(&ts, ftdmchan->span->tone_map[FTDM_TONEMAP_DIAL]);
 					indicate = 1;
-				}
-				break;
-			case FTDM_CHANNEL_STATE_CALLWAITING:
-				{
-					ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK] = 0;
-					if (ftdmchan->fsk_buffer) {
-						ftdm_buffer_zero(ftdmchan->fsk_buffer);
-					} else {
-						ftdm_buffer_create(&ftdmchan->fsk_buffer, 128, 128, 0);
-					}
-					
-					ts.user_data = ftdmchan->fsk_buffer;
-					teletone_run(&ts, ftdmchan->span->tone_map[FTDM_TONEMAP_CALLWAITING_SAS]);
-					teletone_run(&ts, ftdmchan->span->tone_map[FTDM_TONEMAP_CALLWAITING_CAS]);
-					ts.user_data = dt_buffer;
 				}
 				break;
 			case FTDM_CHANNEL_STATE_GENRING:
@@ -1020,13 +967,6 @@ static __inline__ ftdm_status_t process_event(ftdm_span_t *span, ftdm_event_t *e
 		break;
 	case FTDM_OOB_FLASH:
 		{
-			if (event->channel->state == FTDM_CHANNEL_STATE_CALLWAITING) {
-				ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_UP);
-				ftdm_clear_flag(event->channel->span, FTDM_SPAN_STATE_CHANGE);
-				ftdm_channel_complete_state(event->channel);
-				event->channel->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK] = 0;
-			} 
-
 			ftdm_channel_rotate_tokens(event->channel);
 			
 			if (ftdm_test_flag(event->channel, FTDM_CHANNEL_HOLD) && event->channel->token_count != 1) {
