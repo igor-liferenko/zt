@@ -1,0 +1,4 @@
+mod_freetdm.la
+mod_freetdm.lo
+mod_freetdm.o
+tdm.o
