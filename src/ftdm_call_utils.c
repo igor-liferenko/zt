@@ -140,22 +140,6 @@ FT_DECLARE(ftdm_status_t) ftdm_set_ton(const char *string, uint8_t *target)
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_set_bearer_layer1(const char *string, uint8_t *target)
-{
-	uint8_t val;
-	ftdm_status_t status = FTDM_SUCCESS;
-
-	val = ftdm_str2ftdm_usr_layer1_prot(string);
-	if (val == FTDM_USER_LAYER1_PROT_INVALID) {
-		ftdm_log(FTDM_LOG_WARNING, "Invalid Bearer Layer 1 Protocol string (%s)\n", string);
-		status = FTDM_FAIL;
-		val = FTDM_USER_LAYER1_PROT_ULAW;
-	}
-
-	*target = val;
-	return status;
-}
-
 FT_DECLARE(ftdm_status_t) ftdm_set_screening_ind(const char *string, uint8_t *target)
 {
 	uint8_t val;
