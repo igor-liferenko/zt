@@ -2313,12 +2313,6 @@ static ftdm_status_t zt_close(ftdm_channel_t * ftdmchan)
   return FTDM_SUCCESS;
 }
 
-@ @d ZT_ONHOOK 0
-@d ZT_OFFHOOK 1
-@d ZT_RING 5
-@d ZT_RINGOFF 6
-
-@c
 static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t command, void *obj)
 {
   int err = 0;
@@ -2339,7 +2333,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_OFFHOOK:
     {
-      int command = ZT_OFFHOOK;
+      int command = DAHDI_OFFHOOK;
       ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_OFFHOOK\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
         ftdm_log(FTDM_LOG_EMERG, "Fail\n");
@@ -2353,7 +2347,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_ONHOOK:
     {
-      int command = ZT_ONHOOK;
+      int command = DAHDI_ONHOOK;
       ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_ONHOOK\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
         ftdm_log(FTDM_LOG_EMERG, "Fail\n");
@@ -2367,7 +2361,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_GENERATE_RING_ON:
     {
-      int command = ZT_RING;
+      int command = DAHDI_RING;
       ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RING\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
         ftdm_log(FTDM_LOG_EMERG, "Fail\n");
@@ -2381,7 +2375,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_GENERATE_RING_OFF:
     {
-      int command = ZT_RINGOFF;
+      int command = DAHDI_RINGOFF;
       ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RINGOFF\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
         ftdm_log(FTDM_LOG_EMERG, "Fail\n");
