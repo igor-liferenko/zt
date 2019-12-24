@@ -2673,10 +2673,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     break;
   case ZT_EVENT_RINGOFFHOOK:
     ftdm_log(FTDM_LOG_EMERG, "OFFHOOK\n");
-    *event_id = FTDM_OOB_NOOP;
-    _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
-    fchan->flags |= FTDM_CHANNEL_OFFHOOK;
-    _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+    @<Set |FTDM_CHANNEL_OFFHOOK| flag to true, channel locked whil doing this@>@;
     *event_id = FTDM_OOB_OFFHOOK;
     break;
   case ZT_EVENT_ALARM:
@@ -2713,6 +2710,12 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
   return FTDM_SUCCESS;
 }
 
+@ @<Set |FTDM_CHANNEL_OFFHOOK| flag to true, channel locked whil doing this@>=
+_ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+fchan->flags |= FTDM_CHANNEL_OFFHOOK;
+_ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+
+@ @c
 ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** event)
 {
   uint32_t event_id = FTDM_OOB_INVALID;
@@ -2822,10 +2825,7 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
       }
 
       ftdm_log(FTDM_LOG_DEBUG, "Deferring event %d to be able to read data", zt_event_id);
-      if (ftdmchan->io_data)
-        ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
-      ftdmchan->io_data = (void *) zt_event_id;
-      @<Set event pending on the channel |ftdmchan|@>@;
+      @<Store channel event@>@;
       break;
     }
 
@@ -2840,6 +2840,12 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
     return FTDM_SUCCESS;
   return r == 0 ? FTDM_TIMEOUT : FTDM_FAIL;
 }
+
+@ @<Store channel event@>=
+if (ftdmchan->io_data)
+  ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
+ftdmchan->io_data = (void *) zt_event_id;
+@<Set event pending on the channel |ftdmchan|@>@;
 
 @ @<Set event pending on the channel |ftdmchan|@>=
 ftdmchan->io_flags |= FTDM_CHANNEL_IO_EVENT;
