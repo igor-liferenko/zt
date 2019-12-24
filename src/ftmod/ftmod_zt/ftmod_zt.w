@@ -1157,7 +1157,7 @@ struct ftdm_channel {
   uint32_t ring_count;
   ftdm_polarity_t polarity;
 
-  void *io_data;
+  int io_data;
 
   void *call_data;
   struct ftdm_caller_data caller_data;
@@ -1224,7 +1224,6 @@ struct ftdm_span {
   ftdm_channel_sig_dtmf_t sig_send_dtmf;
   uint32_t sig_release_guard_time_ms;
   ftdm_channel_state_processor_t state_processor;
-  void *io_data;
   char *type;
   char *dtmf_hangup;
   size_t dtmf_hangup_len;
@@ -1241,29 +1240,27 @@ typedef enum {
   ZT_G711_ALAW = 2
 } zt_g711_t;
 
-typedef enum {
-  ZT_EVENT_NONE = 0,
-  ZT_EVENT_ONHOOK = 1,
-  ZT_EVENT_RINGOFFHOOK = 2,
-  ZT_EVENT_WINKFLASH = 3,
-  ZT_EVENT_ALARM = 4,
-  ZT_EVENT_NOALARM = 5,
-  ZT_EVENT_ABORT = 6,
-  ZT_EVENT_OVERRUN = 7,
-  ZT_EVENT_BADFCS = 8,
-  ZT_EVENT_DIALCOMPLETE = 9,
-  ZT_EVENT_RINGERON = 10,
-  ZT_EVENT_RINGEROFF = 11,
-  ZT_EVENT_HOOKCOMPLETE = 12,
-  ZT_EVENT_BITSCHANGED = 13,
-  ZT_EVENT_PULSE_START = 14,
-  ZT_EVENT_TIMER_EXPIRED = 15,
-  ZT_EVENT_TIMER_PING = 16,
-  ZT_EVENT_POLARITY = 17,
-  ZT_EVENT_RINGBEGIN = 18,
-  ZT_EVENT_DTMFDOWN = (1 << 17),
-  ZT_EVENT_DTMFUP = (1 << 18),
-} zt_event_t;
+#define ZT_EVENT_NONE 0
+#define ZT_EVENT_ONHOOK 1
+#define ZT_EVENT_RINGOFFHOOK 2
+#define ZT_EVENT_WINKFLASH 3
+#define ZT_EVENT_ALARM 4
+#define ZT_EVENT_NOALARM 5
+#define ZT_EVENT_ABORT 6
+#define ZT_EVENT_OVERRUN 7
+#define ZT_EVENT_BADFCS 8
+#define ZT_EVENT_DIALCOMPLETE 9
+#define ZT_EVENT_RINGERON 10
+#define ZT_EVENT_RINGEROFF 11
+#define ZT_EVENT_HOOKCOMPLETE 12
+#define ZT_EVENT_BITSCHANGED 13
+#define ZT_EVENT_PULSE_START 14
+#define ZT_EVENT_TIMER_EXPIRED 15
+#define ZT_EVENT_TIMER_PING 16
+#define ZT_EVENT_POLARITY 17
+#define ZT_EVENT_RINGBEGIN 18
+#define ZT_EVENT_DTMFDOWN (1 << 17)
+#define ZT_EVENT_DTMFUP (1 << 18)
 
 typedef enum {
   ZT_FLUSH_READ = 1,
@@ -1660,8 +1657,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
                                                          fchan,
                                                          ftdm_oob_event_t *
                                                          event_id,
-                                                         zt_event_t
-                                                         zt_event_id)
+                                                         int zt_event_id)
 {
   ftdm_log(FTDM_LOG_DEBUG, "Processing zap hardware event %d", zt_event_id);
   switch (zt_event_id) {
@@ -1734,7 +1730,7 @@ _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
 ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** event)
 {
   uint32_t event_id = FTDM_OOB_INVALID;
-  zt_event_t zt_event_id = 0;
+  int zt_event_id = 0;
   ftdm_span_t *span = ftdmchan->span;
 
   if ((ftdmchan->io_flags & FTDM_CHANNEL_IO_EVENT)) {
@@ -1742,8 +1738,8 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** e
   }
 
   if (ftdmchan->io_data) {
-    zt_event_id = (zt_event_t) ftdmchan->io_data;
-    ftdmchan->io_data = (void *) 0;
+    zt_event_id = ftdmchan->io_data;
+    ftdmchan->io_data = 0;
   }
   else if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
     ftdm_log(FTDM_LOG_ERROR, "Failed retrieving event from channel: %s\n", strerror(errno));
@@ -1766,7 +1762,7 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** e
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
 {
   uint32_t i, event_id = FTDM_OOB_INVALID;
-  zt_event_t zt_event_id = 0;
+  int zt_event_id = 0;
 
   for (i = 1; i <= span->chan_count; i++) {
     ftdm_channel_t *fchan = span->channels[i];
@@ -1780,8 +1776,8 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
     fchan->io_flags &= ~FTDM_CHANNEL_IO_EVENT;
 
     if (fchan->io_data) {
-      zt_event_id = (zt_event_t) fchan->io_data;
-      fchan->io_data = (void *) 0;
+      zt_event_id = fchan->io_data;
+      fchan->io_data = 0;
     }
     else if (ioctl(fchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "Failed to retrieve DAHDI event from channel: %s",
@@ -1831,7 +1827,7 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
       continue;
 
     if (read_errno == ELAST) {
-      zt_event_t zt_event_id = 0;
+      int zt_event_id = 0;
       if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
         ftdm_log(FTDM_LOG_ERROR, "Failed retrieving event after ELAST on read: %s",
           strerror(errno));
@@ -1859,7 +1855,7 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
 @ @<Store channel event@>=
 if (ftdmchan->io_data)
   ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
-ftdmchan->io_data = (void *) zt_event_id;
+ftdmchan->io_data = zt_event_id;
 @<Set event pending on the channel |ftdmchan|@>@;
 
 @ @<Set event pending on the channel |ftdmchan|@>=
@@ -1881,7 +1877,7 @@ tryagain:
   }
 
   if (errno == ELAST) {
-    zt_event_t zt_event_id = 0;
+    int zt_event_id = 0;
     if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "Failed retrieving event after ELAST on write: %s\n",
         strerror(errno));
@@ -1891,7 +1887,7 @@ tryagain:
     ftdm_log(FTDM_LOG_DEBUG, "Deferring event %d to be able to write data", zt_event_id);
     if (ftdmchan->io_data)
       ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
-    ftdmchan->io_data = (void *) zt_event_id;
+    ftdmchan->io_data = zt_event_id;
     @<Set event pending on the channel |ftdmchan|@>@;
 
     goto tryagain;

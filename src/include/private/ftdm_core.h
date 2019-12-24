@@ -449,7 +449,7 @@ struct ftdm_channel {
 	uint32_t ring_count;
 	ftdm_polarity_t polarity;
 	/* Private I/O data. Do not touch unless you are an I/O module */
-	void *io_data;
+	int io_data;
 	/* Private signaling data. Do not touch unless you are a signaling module */
 	void *call_data;
 	struct ftdm_caller_data caller_data;
@@ -513,7 +513,6 @@ struct ftdm_span {
 	ftdm_channel_sig_dtmf_t sig_send_dtmf;
 	uint32_t sig_release_guard_time_ms;
 	ftdm_channel_state_processor_t state_processor; /*!< This guy is called whenever state processing is required */
-	void *io_data; /*!< Private I/O data per span. Do not touch unless you are an I/O module */
 	char *type;
 	char *dtmf_hangup;
 	size_t dtmf_hangup_len;
