@@ -880,16 +880,9 @@ FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, ftdm_span_t **spa
 		ftdm_copy_string(new_span->tone_map[FTDM_TONEMAP_ATTN], "%(100,100,1400,2060,2450,2600)", FTDM_TONEMAP_LEN);
 		new_span->data_type = FTDM_TYPE_SPAN;
 
-		ftdm_mutex_lock(globals.span_mutex);
+		snprintf(buf, sizeof(buf), "span%d", new_span->span_id);
+		char *name = buf; /* used in freeswitch.xml */
 
-		char *name = NULL;
-
-		ftdm_mutex_unlock(globals.span_mutex);
-		
-		if (!name) {
-			snprintf(buf, sizeof(buf), "span%d", new_span->span_id);
-			name = buf;
-		}
 		new_span->name = ftdm_strdup(name);
 		new_span->type = ftdm_strdup(iotype);
 		ftdm_span_add(new_span);
