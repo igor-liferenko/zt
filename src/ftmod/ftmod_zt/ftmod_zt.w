@@ -1176,28 +1176,6 @@ struct ftdm_span {
   struct ftdm_span *next;
 };
 
-typedef enum {
-  ZT_G711_DEFAULT = 0,
-  ZT_G711_MULAW = 1,
-  ZT_G711_ALAW = 2
-} zt_g711_t;
-
-typedef enum {
-  ZT_FLUSH_READ = 1,
-  ZT_FLUSH_WRITE = 2,
-  ZT_FLUSH_BOTH = (ZT_FLUSH_READ | ZT_FLUSH_WRITE),
-  ZT_FLUSH_EVENT = 4,
-  ZT_FLUSH_ALL = (ZT_FLUSH_READ | ZT_FLUSH_WRITE | ZT_FLUSH_EVENT)
-} zt_flush_t;
-
-typedef enum {
-  ZT_IOMUX_READ = 1,
-  ZT_IOMUX_WRITE = 2,
-  ZT_IOMUX_WRITEEMPTY = 4,
-  ZT_IOMUX_SIGEVENT = 8,
-  ZT_IOMUX_NOWAIT = 256
-} zt_iomux_t;
-
 static int CONTROL_FD = -1;
 
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event);
@@ -1385,7 +1363,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_FLUSH_TX_BUFFERS:
     {
-      int flushmode = ZT_FLUSH_WRITE;
+      int flushmode = DAHDI_FLUSH_WRITE;
       err = ioctl(ftdmchan->sockfd, DAHDI_FLUSH, &flushmode);
     }
     break;
@@ -1398,13 +1376,13 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_FLUSH_RX_BUFFERS:
     {
-      int flushmode = ZT_FLUSH_READ;
+      int flushmode = DAHDI_FLUSH_READ;
       err = ioctl(ftdmchan->sockfd, DAHDI_FLUSH, &flushmode);
     }
     break;
   case FTDM_COMMAND_FLUSH_BUFFERS:
     {
-      int flushmode = ZT_FLUSH_BOTH;
+      int flushmode = DAHDI_FLUSH_BOTH;
       err = ioctl(ftdmchan->sockfd, DAHDI_FLUSH, &flushmode);
     }
     break;
