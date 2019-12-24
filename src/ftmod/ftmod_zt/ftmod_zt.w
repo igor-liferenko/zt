@@ -66,49 +66,15 @@ typedef struct ftdm_io_interface ftdm_io_interface_t;
 typedef struct ftdm_stream_handle ftdm_stream_handle_t;
 typedef struct ftdm_queue ftdm_queue_t;
 typedef struct ftdm_memory_handler ftdm_memory_handler_t;
-ftdm_status_t ftdm_set_npi(const char *npi_string, uint8_t * target);
-ftdm_status_t ftdm_set_ton(const char *ton_string, uint8_t * target);
-ftdm_status_t ftdm_set_bearer_capability(const char *bc_string,
-                                         uint8_t * target);
-ftdm_status_t ftdm_set_bearer_layer1(const char *bc_string,
-                                     uint8_t * target);
-ftdm_status_t ftdm_set_screening_ind(const char *string, uint8_t * target);
-ftdm_status_t ftdm_set_presentation_ind(const char *string,
-                                        uint8_t * target);
-ftdm_status_t ftdm_is_number(const char *number);
-ftdm_status_t ftdm_set_calling_party_category(const char *string,
-                                              uint8_t * target);
-char *ftdm_url_encode(const char *url, char *buf, size_t len);
-
-char *ftdm_url_decode(char *s, size_t *len);
 
 typedef struct ftdm_mutex ftdm_mutex_t;
 typedef struct ftdm_thread ftdm_thread_t;
 typedef struct ftdm_interrupt ftdm_interrupt_t;
-typedef void *(*ftdm_thread_function_t)(ftdm_thread_t *, void *);
-
-ftdm_status_t ftdm_thread_create_detached(ftdm_thread_function_t func,
-                                          void *data);
-ftdm_status_t ftdm_thread_create_detached_ex(ftdm_thread_function_t func,
-                                             void *data,
-                                             size_t stack_size);
-void ftdm_thread_override_default_stacksize(size_t size);
-
-ftdm_status_t ftdm_mutex_create(ftdm_mutex_t ** mutex);
-ftdm_status_t ftdm_mutex_destroy(ftdm_mutex_t ** mutex);
 
 ftdm_status_t _ftdm_mutex_lock(const char *file, int line,
                                const char *func, ftdm_mutex_t * mutex);
 ftdm_status_t _ftdm_mutex_unlock(const char *file, int line,
                                  const char *func, ftdm_mutex_t * mutex);
-ftdm_status_t ftdm_interrupt_create(ftdm_interrupt_t ** cond, int device,
-                                    ftdm_wait_flag_t device_flags);
-ftdm_status_t ftdm_interrupt_destroy(ftdm_interrupt_t ** cond);
-ftdm_status_t ftdm_interrupt_signal(ftdm_interrupt_t * cond);
-ftdm_status_t ftdm_interrupt_wait(ftdm_interrupt_t * cond, int ms);
-ftdm_status_t ftdm_interrupt_multiple_wait(ftdm_interrupt_t * interrupts[],
-                                           size_t size, int ms);
-ftdm_wait_flag_t ftdm_interrupt_device_ready(ftdm_interrupt_t * interrupt);
 
 typedef uint64_t ftdm_time_t;
 
@@ -2083,59 +2049,6 @@ void ftdm_channel_rotate_tokens(ftdm_channel_t * ftdmchan);
 int ftdm_load_module(const char *name);
 int ftdm_load_module_assume(const char *name);
 int ftdm_vasprintf(char **ret, const char *fmt, va_list ap);
-
-ftdm_status_t ftdm_span_close_all(void);
-ftdm_status_t ftdm_channel_open_chan(ftdm_channel_t * ftdmchan);
-void ftdm_ack_indication(ftdm_channel_t * ftdmchan,
-                         ftdm_channel_indication_t indication,
-                         ftdm_status_t status);
-
-ftdm_iterator_t *ftdm_get_iterator(ftdm_iterator_type_t type,
-                                   ftdm_iterator_t * iter);
-
-ftdm_status_t ftdm_channel_process_media(ftdm_channel_t * ftdmchan,
-                                         void *data, size_t *datalen);
-
-ftdm_status_t ftdm_raw_read(ftdm_channel_t * ftdmchan, void *data,
-                            size_t *datalen);
-ftdm_status_t ftdm_raw_write(ftdm_channel_t * ftdmchan, void *data,
-                             size_t *datalen);
-ftdm_status_t ftdm_span_next_event(ftdm_span_t * span,
-                                   ftdm_event_t ** event);
-ftdm_status_t ftdm_channel_queue_dtmf(ftdm_channel_t * ftdmchan,
-                                      const char *dtmf);
-
-ftdm_status_t ftdm_span_trigger_signals(const ftdm_span_t * span);
-
-void ftdm_channel_clear_detected_tones(ftdm_channel_t * ftdmchan);
-
-void ftdm_set_echocancel_call_begin(ftdm_channel_t * chan);
-
-void ftdm_set_echocancel_call_end(ftdm_channel_t * chan);
-
-ftdm_status_t ftdm_channel_save_usrmsg(ftdm_channel_t * ftdmchan,
-                                       ftdm_usrmsg_t * usrmsg);
-
-ftdm_status_t ftdm_usrmsg_free(ftdm_usrmsg_t ** usrmsg);
-
-const char *ftdm_usrmsg_get_var(ftdm_usrmsg_t * usrmsg,
-                                const char *var_name);
-ftdm_status_t ftdm_usrmsg_get_raw_data(ftdm_usrmsg_t * usrmsg, void **data,
-                                       size_t *datalen);
-
-ftdm_status_t ftdm_sigmsg_free(ftdm_sigmsg_t ** sigmsg);
-
-ftdm_status_t ftdm_sigmsg_add_var(ftdm_sigmsg_t * sigmsg,
-                                  const char *var_name, const char *value);
-
-ftdm_status_t ftdm_sigmsg_remove_var(ftdm_sigmsg_t * sigmsg,
-                                     const char *var_name);
-ftdm_status_t ftdm_sigmsg_set_raw_data(ftdm_sigmsg_t * sigmsg, void *data,
-                                       size_t datalen);
-
-ftdm_status_t ftdm_get_channel_from_string(const char *string_id,
-                                           ftdm_span_t ** out_span,
-                                           ftdm_channel_t ** out_channel);
 
 typedef enum {
   ZT_G711_DEFAULT = 0,
