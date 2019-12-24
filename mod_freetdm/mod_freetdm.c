@@ -2190,118 +2190,6 @@ static FIO_SIGNAL_CB_FUNCTION(on_common_signal)
 	return FTDM_BREAK;
 }
 
-static FIO_SIGNAL_CB_FUNCTION(on_fxo_signal)
-{
-	switch_core_session_t *session = NULL;
-	switch_channel_t *channel = NULL;
-	ftdm_status_t status = FTDM_SUCCESS;
-	uint32_t spanid;
-	uint32_t chanid;
-	ftdm_caller_data_t *caller_data;
-
-	spanid = ftdm_channel_get_span_id(sigmsg->channel);
-	chanid = ftdm_channel_get_id(sigmsg->channel);
-	caller_data = ftdm_channel_get_caller_data(sigmsg->channel);
-
-	ftdm_log(FTDM_LOG_DEBUG, "got FXO sig %d:%d [%s]\n", spanid, chanid, ftdm_signal_event2str(sigmsg->event_id));
-
-	switch (sigmsg->event_id) {
-	case FTDM_SIGEVENT_PROGRESS_MEDIA:
-		{
-			if ((session = ftdm_channel_get_session(sigmsg->channel, 0))) {
-				channel = switch_core_session_get_channel(session);
-				switch_channel_mark_pre_answered(channel);
-				switch_core_session_rwunlock(session);
-			}
-		}
-		break;
-	case FTDM_SIGEVENT_STOP:
-		{
-			private_t *tech_pvt = NULL;
-			while ((session = ftdm_channel_get_session(sigmsg->channel, 0))) {
-				tech_pvt = switch_core_session_get_private(session);
-				switch_set_flag_locked(tech_pvt, TFLAG_DEAD);
-				ftdm_channel_clear_token(sigmsg->channel, 0);
-				channel = switch_core_session_get_channel(session);
-				switch_channel_hangup(channel, caller_data->hangup_cause);
-				ftdm_channel_clear_token(sigmsg->channel, switch_core_session_get_uuid(session));
-				switch_core_session_rwunlock(session);
-			}
-		}
-		break;
-	case FTDM_SIGEVENT_UP:
-		{
-			if ((session = ftdm_channel_get_session(sigmsg->channel, 0))) {
-				channel = switch_core_session_get_channel(session);
-				switch_channel_mark_answered(channel);
-				ftdm_enable_channel_dtmf(sigmsg->channel, channel);
-				switch_core_session_rwunlock(session);
-			}
-		}
-		break;
-	case FTDM_SIGEVENT_START:
-		{
-			status = ftdm_channel_from_event(sigmsg, &session);
-			if (status != FTDM_SUCCESS) {
-				ftdm_channel_call_hangup(sigmsg->channel);
-			}
-		}
-		break;
-	case FTDM_SIGEVENT_COLLECTED_DIGIT: /* Analog E&M */
-		{
-			int span_id = ftdm_channel_get_span_id(sigmsg->channel);
-			char *dtmf = sigmsg->ev_data.collected.digits;
-			char *regex = SPAN_CONFIG[span_id].dial_regex;
-			char *fail_regex = SPAN_CONFIG[span_id].fail_dial_regex;
-			ftdm_caller_data_t *caller_data = ftdm_channel_get_caller_data(sigmsg->channel);
-
-			if (zstr(regex)) {
-				regex = NULL;
-			}
-
-			if (zstr(fail_regex)) {
-				fail_regex = NULL;
-			}
-
-			ftdm_log(FTDM_LOG_DEBUG, "got DTMF sig [%s]\n", dtmf);
-			switch_set_string(caller_data->collected, dtmf);
-
-			if ((regex || fail_regex) && !zstr(dtmf)) {
-				switch_regex_t *re = NULL;
-				int ovector[30];
-				int match = 0;
-
-				if (fail_regex) {
-					match = switch_regex_perform(dtmf, fail_regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
-					status = match ? FTDM_SUCCESS : FTDM_BREAK;
-					switch_regex_safe_free(re);
-					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs fail regex %s %s\n", dtmf, fail_regex, match ? "matched" : "did not match");
-				}
-
-				if (status == FTDM_SUCCESS && regex) {
-					match = switch_regex_perform(dtmf, regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
-					status = match ? FTDM_BREAK : FTDM_SUCCESS;
-					switch_regex_safe_free(re);
-					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs dial regex %s %s\n", dtmf, regex, match ? "matched" : "did not match");
-				}
-				ftdm_log(FTDM_LOG_DEBUG, "returning %s to COLLECT event with DTMF %s\n", status == FTDM_SUCCESS ? "success" : "break", dtmf);
-			}
-		}
-		break;
-	case FTDM_SIGEVENT_SIGSTATUS_CHANGED:
-		/* span signaling status changed ... nothing to do here .. */
-		break;
-	default:
-		{
-			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Unhandled msg type %d for channel %d:%d\n",
-							  sigmsg->event_id, spanid, chanid);
-		}
-		break;
-	}
-
-	return status;
-}
-
 static FIO_SIGNAL_CB_FUNCTION(on_fxs_signal)
 {
 	switch_core_session_t *session = NULL;
@@ -2748,9 +2636,6 @@ static FIO_SIGNAL_CB_FUNCTION(on_analog_signal)
 {
 	uint32_t spanid, chanid;
 	ftdm_status_t status = FTDM_FAIL;
-
-	spanid = ftdm_channel_get_span_id(sigmsg->channel);
-	chanid = ftdm_channel_get_span_id(sigmsg->channel);
 
 	if (on_common_signal(sigmsg) == FTDM_BREAK) {
 		return FTDM_SUCCESS;
