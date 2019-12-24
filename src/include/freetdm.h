@@ -183,24 +183,6 @@ typedef enum {
 	FTDM_RR_DOWN,
 } ftdm_direction_t;
 
-/*! \brief I/O channel type */
-typedef enum {
-	FTDM_CHAN_TYPE_B, /*!< Bearer channel */
-	FTDM_CHAN_TYPE_DQ921, /*!< DQ921 channel (D-channel) */
-	FTDM_CHAN_TYPE_DQ931, /*!< DQ931 channel */
-	FTDM_CHAN_TYPE_FXS, /*!< FXS analog channel */
-	FTDM_CHAN_TYPE_FXO, /*!< FXO analog channel */
-	FTDM_CHAN_TYPE_EM, /*!< E & M channel */
-	FTDM_CHAN_TYPE_CAS, /*!< CAS channel */
-	FTDM_CHAN_TYPE_COUNT /*!< Count of channel types */
-} ftdm_chan_type_t;
-#define CHAN_TYPE_STRINGS "B", "DQ921", "DQ931", "FXS", "FXO", "EM", "CAS", "INVALID"
-/*! \brief transform from channel type to string and from string to channel type 
- * ftdm_str2ftdm_chan_type transforms a channel string (ie: "FXO" to FTDM_CHAN_TYPE_FXO) 
- * ftdm_chan_type2str transforms a channel type to string (ie: FTDM_CHAN_TYPE_B to "B")
- */
-FTDM_STR2ENUM_P(ftdm_str2ftdm_chan_type, ftdm_chan_type2str, ftdm_chan_type_t)
-
 /*! \brief Test if a channel is a voice channel */
 #define FTDM_IS_VOICE_CHANNEL(fchan) ((fchan)->type != FTDM_CHAN_TYPE_DQ921 && (fchan)->type != FTDM_CHAN_TYPE_DQ931)
 
@@ -480,7 +462,6 @@ typedef struct ftdm_channel_config {
 	char name[FTDM_MAX_NAME_STR_SZ];
 	char number[FTDM_MAX_NUMBER_STR_SZ];
 	char group_name[FTDM_MAX_NAME_STR_SZ];
-	ftdm_chan_type_t type;
 	float rxgain;
 	float txgain;
 	uint8_t debugdtmf;
@@ -1218,15 +1199,6 @@ FT_DECLARE(const char *) ftdm_channel_get_last_error(const ftdm_channel_t *ftdmc
  * \retval FTDM_FAIL failure
  */
 FT_DECLARE(ftdm_status_t) ftdm_channel_get_alarms(ftdm_channel_t *ftdmchan, ftdm_alarm_flag_t *alarmbits);
-
-/*! 
- * \brief Get the channel type
- *
- * \param ftdmchan The channel to get the type from
- *
- * \retval channel type (FXO, FXS, B-channel, D-channel, etc)
- */
-FT_DECLARE(ftdm_chan_type_t) ftdm_channel_get_type(const ftdm_channel_t *ftdmchan);
 
 /*! 
  * \brief Dequeue DTMF from the given channel

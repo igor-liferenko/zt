@@ -336,9 +336,6 @@ FTDM_STR2ENUM(ftdm_str2ftdm_signal_event, ftdm_signal_event2str, ftdm_signal_eve
 FTDM_ENUM_NAMES(MDMF_TYPE_NAMES, MDMF_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_mdmf_type, ftdm_mdmf_type2str, ftdm_mdmf_type_t, MDMF_TYPE_NAMES, MDMF_INVALID)
 
-FTDM_ENUM_NAMES(CHAN_TYPE_NAMES, CHAN_TYPE_STRINGS)
-FTDM_STR2ENUM(ftdm_str2ftdm_chan_type, ftdm_chan_type2str, ftdm_chan_type_t, CHAN_TYPE_NAMES, FTDM_CHAN_TYPE_COUNT)
-
 FTDM_ENUM_NAMES(SIGNALING_STATUS_NAMES, SIGSTATUS_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_signaling_status, ftdm_signaling_status2str, ftdm_signaling_status_t, SIGNALING_STATUS_NAMES, FTDM_SIG_STATE_INVALID)
 
@@ -1393,11 +1390,6 @@ FT_DECLARE(uint32_t) ftdm_channel_get_io_packet_len(const ftdm_channel_t *ftdmch
 	count = ftdmchan->packet_len;
 	ftdm_mutex_unlock(ftdmchan->mutex);
 	return count;
-}
-
-FT_DECLARE(uint32_t) ftdm_channel_get_type(const ftdm_channel_t *ftdmchan)
-{
-	return ftdmchan->type;
 }
 
 int ftdm_channel_get_codec(const ftdm_channel_t *ftdmchan)
@@ -3470,7 +3462,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 	case FTDM_COMMAND_SET_RX_GAIN:
 		{
 			if (!FTDM_IS_VOICE_CHANNEL(ftdmchan)) {
-				ftdm_log(FTDM_LOG_ERROR, "Cannot set rx gain in non-voice channel of type: %s\n", ftdm_chan_type2str(ftdmchan->type));
+				ftdm_log(FTDM_LOG_ERROR, "Cannot set rx gain in non-voice channel\n");
 				GOTO_STATUS(done, FTDM_FAIL);
 			}
 			ftdmchan->rxgain = FTDM_COMMAND_OBJ_FLOAT;
@@ -3492,7 +3484,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 	case FTDM_COMMAND_SET_TX_GAIN:
 		{
 			if (!FTDM_IS_VOICE_CHANNEL(ftdmchan)) {
-				ftdm_log(FTDM_LOG_ERROR, "Cannot set tx gain in non-voice channel of type: %s\n", ftdm_chan_type2str(ftdmchan->type));
+				ftdm_log(FTDM_LOG_ERROR, "Cannot set tx gain in non-voice channel\n");
 				GOTO_STATUS(done, FTDM_FAIL);
 			}
 			ftdmchan->txgain = FTDM_COMMAND_OBJ_FLOAT;

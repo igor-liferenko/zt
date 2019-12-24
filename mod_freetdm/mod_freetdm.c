@@ -515,7 +515,6 @@ static switch_status_t channel_on_hangup(switch_core_session_t *session)
 {
 	switch_channel_t *channel = NULL;
 	private_t *tech_pvt = NULL;
-	ftdm_chan_type_t chantype;
 	const char *name = NULL;
 	int span_id = 0;
 	int chan_id = 0;
@@ -580,7 +579,6 @@ static switch_status_t channel_on_hangup(switch_core_session_t *session)
 
 	ftdm_channel_clear_token(tech_pvt->ftdmchan, switch_core_session_get_uuid(session));
 
-	chantype = ftdm_channel_get_type(tech_pvt->ftdmchan);
 	tokencnt = ftdm_channel_get_token_count(tech_pvt->ftdmchan);
 	if (!ftdm_channel_call_check_busy(tech_pvt->ftdmchan) && !ftdm_channel_call_check_done(tech_pvt->ftdmchan)) {
 		if (tokencnt) {
@@ -2749,12 +2747,10 @@ static FIO_SIGNAL_CB_FUNCTION(on_clear_channel_signal)
 static FIO_SIGNAL_CB_FUNCTION(on_analog_signal)
 {
 	uint32_t spanid, chanid;
-	ftdm_chan_type_t type;
 	ftdm_status_t status = FTDM_FAIL;
 
 	spanid = ftdm_channel_get_span_id(sigmsg->channel);
 	chanid = ftdm_channel_get_span_id(sigmsg->channel);
-	type = ftdm_channel_get_type(sigmsg->channel);
 
 	if (on_common_signal(sigmsg) == FTDM_BREAK) {
 		return FTDM_SUCCESS;
@@ -4205,7 +4201,6 @@ void dump_chan(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *stre
 {
 	uint32_t span_id;
 	uint32_t phspan_id, phchan_id;
-	const char *chan_type;
 	const char *state;
 	const char *last_state;
 	const char *uuid = NULL;
@@ -4227,7 +4222,6 @@ void dump_chan(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *stre
 
 	phspan_id = ftdm_channel_get_ph_span_id(ftdmchan);
 	phchan_id = ftdm_channel_get_ph_id(ftdmchan);
-	chan_type = ftdm_chan_type2str(ftdm_channel_get_type(ftdmchan));
 	state = ftdm_channel_get_state_str(ftdmchan);
 	last_state = ftdm_channel_get_last_state_str(ftdmchan);
 	ftdm_channel_command(ftdmchan, FTDM_COMMAND_GET_RX_GAIN, &rxgain);
@@ -4285,7 +4279,6 @@ void dump_chan(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *stre
 					  	   (alarmflag & FTDM_ALARM_AIS) ? 1 : 0,
 					  	   (alarmflag & FTDM_ALARM_GENERAL) ? 1 : 0,
 						   ftdm_signaling_status2str(sigstatus),
-						   chan_type,
 						   state,
 						   last_state,
 						   txgain,
@@ -4305,7 +4298,6 @@ void dump_chan_xml(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *
 {
 	uint32_t span_id;
 	uint32_t phspan_id, phchan_id;
-	const char *chan_type;
 	const char *state;
 	const char *last_state;
 	float txgain, rxgain;
@@ -4323,7 +4315,6 @@ void dump_chan_xml(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *
 
 	phspan_id = ftdm_channel_get_ph_span_id(ftdmchan);
 	phchan_id = ftdm_channel_get_ph_id(ftdmchan);
-	chan_type = ftdm_chan_type2str(ftdm_channel_get_type(ftdmchan));
 	state = ftdm_channel_get_state_str(ftdmchan);
 	last_state = ftdm_channel_get_last_state_str(ftdmchan);
 	ftdm_channel_command(ftdmchan, FTDM_COMMAND_GET_RX_GAIN, &rxgain);
@@ -4373,7 +4364,6 @@ void dump_chan_xml(ftdm_span_t *span, uint32_t chan_id, switch_stream_handle_t *
 					  	   (alarmflag & FTDM_ALARM_AIS) ? 1 : 0,
 					  	   (alarmflag & FTDM_ALARM_GENERAL) ? 1 : 0,
 						   ftdm_signaling_status2str(sigstatus),
-						   chan_type,
 						   state,
 						   last_state,
 						   txgain,

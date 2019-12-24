@@ -398,7 +398,6 @@ struct ftdm_channel {
 	uint32_t physical_chan_id;
 	uint32_t rate;
 	uint32_t extra_id;
-	ftdm_chan_type_t type;
 	ftdm_socket_t sockfd;
 	uint64_t flags;
 	uint32_t pflags;

@@ -218,20 +218,6 @@ typedef enum {
   FTDM_RR_DOWN,
 } ftdm_direction_t;
 
-typedef enum {
-  FTDM_CHAN_TYPE_B,
-  FTDM_CHAN_TYPE_DQ921,
-  FTDM_CHAN_TYPE_DQ931,
-  FTDM_CHAN_TYPE_FXS,
-  FTDM_CHAN_TYPE_FXO,
-  FTDM_CHAN_TYPE_EM,
-  FTDM_CHAN_TYPE_CAS,
-  FTDM_CHAN_TYPE_COUNT
-} ftdm_chan_type_t;
-
-ftdm_chan_type_t ftdm_str2ftdm_chan_type(const char *name);
-const char *ftdm_chan_type2str(ftdm_chan_type_t type);
-
 typedef void (*ftdm_logger_t)(const char *file, const char *func, int line,
                               int level, const char *fmt, ...)
     __attribute__ ( (format(printf, 5, 6)));
@@ -364,7 +350,6 @@ typedef struct ftdm_channel_config {
   char name[128];
   char number[32];
   char group_name[128];
-  ftdm_chan_type_t type;
   float rxgain;
   float txgain;
   uint8_t debugdtmf;
@@ -755,7 +740,6 @@ uint32_t ftdm_channel_get_io_packet_len(const ftdm_channel_t * ftdmchan);
 const char *ftdm_channel_get_last_error(const ftdm_channel_t * ftdmchan);
 ftdm_status_t ftdm_channel_get_alarms(ftdm_channel_t * ftdmchan,
                                       ftdm_alarm_flag_t * alarmbits);
-ftdm_chan_type_t ftdm_channel_get_type(const ftdm_channel_t * ftdmchan);
 size_t ftdm_channel_dequeue_dtmf(ftdm_channel_t * ftdmchan, char *dtmf,
                                  size_t len);
 
@@ -1885,7 +1869,6 @@ struct ftdm_channel {
   uint32_t physical_chan_id;
   uint32_t rate;
   uint32_t extra_id;
-  ftdm_chan_type_t type;
   int sockfd;
   uint64_t flags;
   uint32_t pflags;
