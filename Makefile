@@ -49,4 +49,7 @@ scp:
 	scp ~/zt/src/ftmod/ftmod_zt/ftmod_zt.w l:zt/src/ftmod/ftmod_zt/
 
 dahdi-tone: dahdi-tone.c
-	gcc -o dahdi-tone dahdi-tone.c -lm
+	gcc -o /bin/dahdi-tone dahdi-tone.c -lm
+
+dahdi-chan: dahdi-chan.c
+        gcc -o /bin/dahdi-chan dahdi-chan.c
