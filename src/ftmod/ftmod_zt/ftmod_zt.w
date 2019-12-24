@@ -2239,13 +2239,6 @@ typedef enum {
 } zt_maintenance_mode_t;
 
 typedef enum {
-  ZT_DBIT = 1,
-  ZT_CBIT = 2,
-  ZT_BBIT = 4,
-  ZT_ABIT = 8
-} zt_cas_bit_t;
-
-typedef enum {
   ZT_TONEDETECT_ON = (1 << 0),
   ZT_TONEDETECT_MUTE = (1 << 1)
 } zt_tone_mode_t;
