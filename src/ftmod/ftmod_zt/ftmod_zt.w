@@ -2238,11 +2238,6 @@ typedef enum {
   ZT_MAINT_LOOPSTOP = 5
 } zt_maintenance_mode_t;
 
-typedef enum {
-  ZT_TONEDETECT_ON = (1 << 0),
-  ZT_TONEDETECT_MUTE = (1 << 1)
-} zt_tone_mode_t;
-
 static int CONTROL_FD = -1;
 
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event);
