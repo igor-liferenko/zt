@@ -59,7 +59,6 @@ typedef struct ftdm_span ftdm_span_t;
 
 typedef struct ftdm_event ftdm_event_t;
 typedef struct ftdm_conf_node ftdm_conf_node_t;
-typedef struct ftdm_group ftdm_group_t;
 typedef struct ftdm_sigmsg ftdm_sigmsg_t;
 typedef struct ftdm_usrmsg ftdm_usrmsg_t;
 typedef struct ftdm_io_interface ftdm_io_interface_t;
@@ -705,28 +704,12 @@ const char *ftdm_span_get_last_error(const ftdm_span_t * span);
 ftdm_status_t ftdm_span_add_channel(ftdm_span_t * span, int sockfd,
                                     ftdm_channel_t ** chan);
 
-ftdm_status_t ftdm_channel_add_to_group(const char *name,
-                                        ftdm_channel_t * ftdmchan);
-
-ftdm_status_t ftdm_channel_remove_from_group(ftdm_group_t * group,
-                                             ftdm_channel_t * ftdmchan);
 ftdm_status_t ftdm_channel_read_event(ftdm_channel_t * ftdmchan,
                                       ftdm_event_t ** event);
-
-ftdm_status_t ftdm_group_find(uint32_t id, ftdm_group_t ** group);
-
-ftdm_status_t ftdm_group_find_by_name(const char *name,
-                                      ftdm_group_t ** group);
-
-ftdm_status_t ftdm_group_create(ftdm_group_t ** group, const char *name);
 
 ftdm_status_t ftdm_span_channel_use_count(ftdm_span_t * span,
                                           uint32_t * count);
 
-ftdm_status_t ftdm_group_channel_use_count(ftdm_group_t * group,
-                                           uint32_t * count);
-
-uint32_t ftdm_group_get_id(const ftdm_group_t * group);
 ftdm_status_t ftdm_channel_open(uint32_t span_id, uint32_t chan_id,
                                 ftdm_channel_t ** ftdmchan);
 ftdm_status_t ftdm_channel_open_ph(uint32_t span_id, uint32_t chan_id,
@@ -1606,16 +1589,6 @@ struct ftdm_span {
   ftdm_queue_t *pendingchans;
   ftdm_queue_t *pendingsignals;
   struct ftdm_span *next;
-};
-
-struct ftdm_group {
-  char *name;
-  uint32_t group_id;
-  uint32_t chan_count;
-  ftdm_channel_t *channels[2048];
-  uint32_t last_used_index;
-  ftdm_mutex_t *mutex;
-  struct ftdm_group *next;
 };
 
 typedef enum {
