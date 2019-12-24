@@ -1177,20 +1177,6 @@ struct ftdm_state_map {
 };
 typedef struct ftdm_state_map ftdm_state_map_t;
 
-ftdm_status_t ftdm_channel_cancel_state(const char *file, const char *func,
-                                        int line,
-                                        ftdm_channel_t * ftdmchan);
-
-ftdm_status_t ftdm_channel_set_state(const char *file, const char *func,
-                                     int line, ftdm_channel_t * ftdmchan,
-                                     ftdm_channel_state_t state, int wait,
-                                     ftdm_usrmsg_t * usrmsg);
-
-typedef enum ftdm_channel_hw_link_status {
-  FTDM_HW_LINK_DISCONNECTED = 0,
-  FTDM_HW_LINK_CONNECTED
-} ftdm_channel_hw_link_status_t;
-
 typedef ftdm_status_t(*ftdm_stream_handle_raw_write_function_t)
  (ftdm_stream_handle_t * handle, uint8_t * data, size_t datalen);
 typedef
@@ -1198,58 +1184,13 @@ ftdm_status_t(*ftdm_stream_handle_write_function_t) (ftdm_stream_handle_t *
                                                      handle,
                                                      const char *fmt, ...);
 
-typedef void (*ftdm_func_ptr_t)(void);
 typedef void *ftdm_dso_lib_t;
 
-ftdm_status_t ftdm_dso_destroy(ftdm_dso_lib_t * lib);
-ftdm_dso_lib_t ftdm_dso_open(const char *path, char **err);
-void *ftdm_dso_func_sym(ftdm_dso_lib_t lib, const char *sym, char **err);
-char *ftdm_build_dso_path(const char *name, char *path, size_t len);
-
-struct ftdm_conf_node {
-
-  char name[50];
-
-  unsigned int t_parameters;
-
-  unsigned int n_parameters;
-
-  ftdm_conf_parameter_t *parameters;
-
-  struct ftdm_conf_node *child;
-
-  struct ftdm_conf_node *last;
-
-  struct ftdm_conf_node *next;
-
-  struct ftdm_conf_node *prev;
-
-  struct ftdm_conf_node *parent;
-};
-
-typedef struct ftdm_module {
-  char name[256];
-  fio_io_load_t io_load;
-  fio_io_unload_t io_unload;
-  fio_sig_load_t sig_load;
-  fio_sig_configure_t sig_configure;
-  fio_sig_unload_t sig_unload;
-  fio_configure_span_signaling_t configure_span_signaling;
-  ftdm_dso_lib_t lib;
-  char path[256];
-} ftdm_module_t;
-
 typedef struct ftdm_fsk_data_state ftdm_fsk_data_state_t;
-typedef int (*ftdm_fsk_data_decoder_t)(ftdm_fsk_data_state_t * state);
 typedef ftdm_status_t(*ftdm_fsk_write_sample_t) (int16_t * buf,
                                                  size_t buflen,
                                                  void *user_data);
-typedef struct hashtable ftdm_hash_t;
-typedef struct hashtable_iterator ftdm_hash_iterator_t;
-typedef struct key ftdm_hash_key_t;
-typedef struct value ftdm_hash_val_t;
-typedef struct ftdm_bitstream ftdm_bitstream_t;
-typedef struct ftdm_fsk_modulator ftdm_fsk_modulator_t;
+
 typedef ftdm_status_t(*ftdm_span_start_t) (ftdm_span_t * span);
 typedef ftdm_status_t(*ftdm_span_stop_t) (ftdm_span_t * span);
 typedef ftdm_status_t(*ftdm_span_destroy_t) (ftdm_span_t * span);
@@ -1263,7 +1204,6 @@ typedef ftdm_status_t(*ftdm_channel_sig_dtmf_t) (ftdm_channel_t * ftdmchan,
 
 typedef double teletone_process_t;
 typedef struct {
-
   teletone_process_t freqs[18];
 } teletone_tone_map_t;
 
@@ -1503,24 +1443,6 @@ struct ftdm_fsk_data_state {
   int checksum;
 };
 
-struct ftdm_fsk_modulator {
-  teletone_dds_state_t dds;
-  ftdm_bitstream_t bs;
-  uint32_t carrier_bits_start;
-  uint32_t carrier_bits_stop;
-  uint32_t chan_sieze_bits;
-  uint32_t bit_factor;
-  uint32_t bit_accum;
-  uint32_t sample_counter;
-  int32_t samples_per_bit;
-  int32_t est_bytes;
-  fsk_modem_types_t modem_type;
-  ftdm_fsk_data_state_t *fsk_data;
-  ftdm_fsk_write_sample_t write_sample_callback;
-  void *user_data;
-  int16_t sample_buffer[64];
-};
-
 typedef enum {
   FTDM_TYPE_NONE,
   FTDM_TYPE_SPAN = 0xFF,
@@ -1698,30 +1620,6 @@ struct ftdm_group {
 
 extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
-size_t ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t * fsk_trans,
-                                       int8_t bit, int16_t * buf,
-                                       size_t buflen);
-int32_t ftdm_fsk_modulator_generate_carrier_bits(ftdm_fsk_modulator_t *
-                                                 fsk_trans, uint32_t bits);
-void ftdm_fsk_modulator_generate_chan_sieze(ftdm_fsk_modulator_t *
-                                            fsk_trans);
-void ftdm_fsk_modulator_send_data(ftdm_fsk_modulator_t * fsk_trans);
-
-ftdm_status_t ftdm_fsk_modulator_init(ftdm_fsk_modulator_t * fsk_trans,
-                                      fsk_modem_types_t modem_type,
-                                      uint32_t sample_rate,
-                                      ftdm_fsk_data_state_t * fsk_data,
-                                      float db_level,
-                                      uint32_t carrier_bits_start,
-                                      uint32_t carrier_bits_stop,
-                                      uint32_t chan_sieze_bits,
-                                      ftdm_fsk_write_sample_t
-                                      write_sample_callback,
-                                      void *user_data);
-int8_t ftdm_bitstream_get_bit(ftdm_bitstream_t * bsp);
-void ftdm_bitstream_init(ftdm_bitstream_t * bsp, uint8_t * data,
-                         uint32_t datalen, ftdm_endian_t endian,
-                         uint8_t ss);
 ftdm_status_t ftdm_fsk_data_parse(ftdm_fsk_data_state_t * state,
                                   size_t *type, char **data, size_t *len);
 ftdm_status_t ftdm_fsk_demod_feed(ftdm_fsk_data_state_t * state,
@@ -2484,7 +2382,17 @@ static ftdm_status_t zt_destroy(void)
   return FTDM_SUCCESS;
 }
 
-ftdm_module_t ftdm_module = {
+struct ftdm_module {
+  char name[256];
+  fio_io_load_t io_load;
+  fio_io_unload_t io_unload;
+  fio_sig_load_t sig_load;
+  fio_sig_configure_t sig_configure;
+  fio_sig_unload_t sig_unload;
+  fio_configure_span_signaling_t configure_span_signaling;
+  ftdm_dso_lib_t lib;
+  char path[256];
+} ftdm_module = {
   "zt",
   zt_init,
   zt_destroy,
