@@ -5017,21 +5017,18 @@ done:
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_channel_config_t *chan_config, unsigned *configured)
+FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_channel_config_t *chan_config)
 {
 	int currindex;
 	unsigned chan_index = 0;
 
 	ftdm_assert_return(span != NULL, FTDM_EINVAL, "span is null\n");
 	ftdm_assert_return(chan_config != NULL, FTDM_EINVAL, "config is null\n");
-	ftdm_assert_return(configured != NULL, FTDM_EINVAL, "configured pointer is null\n");
 	ftdm_assert_return(span->fio != NULL, FTDM_EINVAL, "span with no I/O configured\n");
 	ftdm_assert_return(span->fio->configure_span != NULL, FTDM_NOTIMPL, "span I/O with no channel configuration implemented\n");
 
 	currindex = span->chan_count;
-	*configured = 0;
-	*configured = span->fio->configure_span(span);
-	if (!*configured) {
+	if (!span->fio->configure_span(span)) {
 		ftdm_log(FTDM_LOG_ERROR, "%d:Failed to configure span\n", span->span_id);
 		return FTDM_FAIL;
 	}
@@ -5079,21 +5076,14 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_c
 static ftdm_status_t load_config(void)
 {
 	ftdm_span_t *span = NULL;
-	unsigned configured = 0;
 
 	ftdm_channel_config_t chan_config;
 	memset(&chan_config, 0, sizeof(chan_config));
 	sprintf(chan_config.group_name, "__default");
 
-	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS) {
-		unsigned chans_configured = 0;
-		if (ftdm_configure_span_channels(span, &chan_config, &chans_configured) == FTDM_SUCCESS)
-			configured += chans_configured;
-	}
-
-	ftdm_log(FTDM_LOG_INFO, "Configured %u channel(s)\n", configured);
-	if (!configured)
-		return FTDM_FAIL;
+	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS)
+		if (ftdm_configure_span_channels(span, &chan_config) != FTDM_SUCCESS)
+			return FTDM_FAIL;
 
 	return FTDM_SUCCESS;
 }
