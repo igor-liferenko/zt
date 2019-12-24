@@ -2137,23 +2137,6 @@ ftdm_status_t ftdm_get_channel_from_string(const char *string_id,
                                            ftdm_span_t ** out_span,
                                            ftdm_channel_t ** out_channel);
 
-extern const char *FTDM_LEVEL_NAMES[9];
-
-static __inline__ int16_t ftdm_saturated_add(int16_t sample1,
-                                             int16_t sample2)
-{
-  int addres;
-
-  addres = sample1 + sample2;
-  if (addres > 32767)
-    addres = 32767;
-  else if (addres < -32767)
-    addres = -32767;
-  return (int16_t) addres;
-}
-
-typedef long ftdm_bitmap_t;
-
 typedef enum {
   ZT_G711_DEFAULT = 0,
   ZT_G711_MULAW = 1,
