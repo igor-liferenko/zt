@@ -52,4 +52,4 @@ dahdi-tone: dahdi-tone.c
 	gcc -o /bin/dahdi-tone dahdi-tone.c -lm
 
 dahdi-chan: dahdi-chan.c
-        gcc -o /bin/dahdi-chan dahdi-chan.c
+	gcc -o /bin/dahdi-chan dahdi-chan.c
