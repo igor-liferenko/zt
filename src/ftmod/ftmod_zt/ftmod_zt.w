@@ -68,22 +68,11 @@ typedef struct ftdm_queue ftdm_queue_t;
 typedef struct ftdm_memory_handler ftdm_memory_handler_t;
 
 typedef struct ftdm_mutex ftdm_mutex_t;
-typedef struct ftdm_thread ftdm_thread_t;
 typedef struct ftdm_interrupt ftdm_interrupt_t;
 
-ftdm_status_t _ftdm_mutex_lock(const char *file, int line,
-                               const char *func, ftdm_mutex_t * mutex);
-ftdm_status_t _ftdm_mutex_unlock(const char *file, int line,
-                                 const char *func, ftdm_mutex_t * mutex);
-
+ftdm_status_t _ftdm_mutex_lock(const char *file, int line, const char *func, ftdm_mutex_t *mutex);
+ftdm_status_t _ftdm_mutex_unlock(const char *file, int line, const char *func, ftdm_mutex_t *mutex);
 typedef uint64_t ftdm_time_t;
-
-extern ftdm_memory_handler_t g_ftdm_mem_handler;
-
-char *ftdm_strdup(const char *str);
-
-char *ftdm_strndup(const char *str, size_t inlen);
-
 ftdm_time_t ftdm_current_time_in_ms(void);
 
 typedef enum {
@@ -421,8 +410,6 @@ typedef struct ftdm_conf_parameter {
   const char *val;
   void *ptr;
 } ftdm_conf_parameter_t;
-
-typedef struct ftdm_iterator ftdm_iterator_t;
 
 typedef enum {
   FTDM_COMMAND_NOOP = 0,
@@ -764,8 +751,6 @@ ftdm_status_t ftdm_channel_write(ftdm_channel_t * ftdmchan, void *data,
 
 const char *ftdm_sigmsg_get_var(ftdm_sigmsg_t * sigmsg,
                                 const char *var_name);
-ftdm_iterator_t *ftdm_sigmsg_get_var_iterator(const ftdm_sigmsg_t * sigmsg,
-                                              ftdm_iterator_t * iter);
 ftdm_status_t ftdm_sigmsg_get_raw_data(ftdm_sigmsg_t * sigmsg, void **data,
                                        size_t *datalen);
 ftdm_status_t ftdm_sigmsg_get_raw_data_detached(ftdm_sigmsg_t * sigmsg,
@@ -776,16 +761,6 @@ ftdm_status_t ftdm_usrmsg_add_var(ftdm_usrmsg_t * usrmsg,
                                   const char *var_name, const char *value);
 ftdm_status_t ftdm_usrmsg_set_raw_data(ftdm_usrmsg_t * usrmsg, void *data,
                                        size_t datalen);
-
-void *ftdm_iterator_current(ftdm_iterator_t * iter);
-
-ftdm_status_t ftdm_get_current_var(ftdm_iterator_t * iter,
-                                   const char **var_name,
-                                   const char **var_val);
-
-ftdm_iterator_t *ftdm_iterator_next(ftdm_iterator_t * iter);
-
-ftdm_status_t ftdm_iterator_free(ftdm_iterator_t * iter);
 
 ftdm_span_t *ftdm_channel_get_span(const ftdm_channel_t * ftdmchan);
 
@@ -824,11 +799,6 @@ ftdm_status_t ftdm_span_find_by_name(const char *name,
 uint32_t ftdm_span_get_id(const ftdm_span_t * span);
 
 const char *ftdm_span_get_name(const ftdm_span_t * span);
-
-ftdm_iterator_t *ftdm_span_get_chan_iterator(const ftdm_span_t * span,
-                                             ftdm_iterator_t * iter);
-
-ftdm_iterator_t *ftdm_get_span_iterator(ftdm_iterator_t * iter);
 
 ftdm_status_t ftdm_conf_node_create(const char *name,
                                     ftdm_conf_node_t ** node,
@@ -1290,156 +1260,6 @@ typedef ftdm_status_t(*ftdm_channel_sig_write_t) (ftdm_channel_t *
                                                   size_t size);
 typedef ftdm_status_t(*ftdm_channel_sig_dtmf_t) (ftdm_channel_t * ftdmchan,
                                                  const char *dtmf);
-
-typedef enum {
-  FTDM_ITERATOR_VARS = 1,
-  FTDM_ITERATOR_CHANS,
-  FTDM_ITERATOR_SPANS,
-} ftdm_iterator_type_t;
-
-struct ftdm_iterator {
-  ftdm_iterator_type_t type;
-  unsigned int allocated:1;
-  union {
-    struct {
-      uint32_t index;
-      const ftdm_span_t *span;
-    } chaniter;
-    ftdm_hash_iterator_t *hashiter;
-  } pvt;
-};
-
-struct hashtable;
-struct hashtable_iterator;
-struct hashtable *create_hashtable(unsigned int minsize,
-                                   unsigned int (*hashfunction)(void *),
-                                   int(*key_eq_fn)(void *, void *));
-typedef enum {
-  HASHTABLE_FLAG_NONE = 0,
-  HASHTABLE_FLAG_FREE_KEY = (1 << 0),
-  HASHTABLE_FLAG_FREE_VALUE = (1 << 1)
-} hashtable_flag_t;
-
-int
-hashtable_insert(struct hashtable *h, void *k, void *v,
-                 hashtable_flag_t flags);
-
-void *hashtable_search(struct hashtable *h, void *k);
-
-void *hashtable_remove(struct hashtable *h, void *k);
-
-unsigned int hashtable_count(struct hashtable *h);
-void hashtable_destroy(struct hashtable *h);
-
-struct hashtable_iterator *hashtable_first(struct hashtable *h);
-struct hashtable_iterator *hashtable_next(struct hashtable_iterator *i);
-void hashtable_this(struct hashtable_iterator *i, const void **key,
-                    int *klen, void **val);
-
-int ftdm_config_get_cas_bits(char *strvalue, unsigned char *outbits);
-static __inline__ int top_bit(unsigned int bits)
-{
-  int res;
-
-  __asm__ __volatile__(" movq $-1,%%rdx;\n"
-                       " bsrq %%rax,%%rdx;\n":"=d"(res)
-                       :"a"(bits));
-  return res;
-}
-
-static __inline__ int bottom_bit(unsigned int bits)
-{
-  int res;
-
-  __asm__ __volatile__(" movq $-1,%%rdx;\n"
-                       " bsfq %%rax,%%rdx;\n":"=d"(res)
-                       :"a"(bits));
-  return res;
-}
-
-static __inline__ uint8_t linear_to_ulaw(int linear)
-{
-  uint8_t u_val;
-  int mask;
-  int seg;
-
-  if (linear < 0) {
-    linear = 0x84 - linear;
-    mask = 0x7F;
-  }
-  else {
-    linear = 0x84 + linear;
-    mask = 0xFF;
-  }
-
-  seg = top_bit(linear | 0xFF) - 7;
-
-  if (seg >= 8)
-    u_val = (uint8_t) (0x7F ^ mask);
-  else
-    u_val =
-        (uint8_t) (((seg << 4) | ((linear >> (seg + 3)) & 0xF)) ^ mask);
-
-  return u_val;
-}
-
-static __inline__ int16_t ulaw_to_linear(uint8_t ulaw)
-{
-  int t;
-
-  ulaw = ~ulaw;
-
-  t = (((ulaw & 0x0F) << 3) + 0x84) << (((int) ulaw & 0x70) >> 4);
-  return (int16_t) ((ulaw & 0x80) ? (0x84 - t) : (t - 0x84));
-}
-
-static __inline__ uint8_t linear_to_alaw(int linear)
-{
-  int mask;
-  int seg;
-
-  if (linear >= 0) {
-
-    mask = 0x55 | 0x80;
-  }
-  else {
-
-    mask = 0x55;
-    linear = -linear - 8;
-  }
-
-  seg = top_bit(linear | 0xFF) - 7;
-  if (seg >= 8) {
-    if (linear >= 0) {
-
-      return (uint8_t) (0x7F ^ mask);
-    }
-
-    return (uint8_t) (0x00 ^ mask);
-  }
-
-  return (uint8_t) (((seg << 4) |
-                     ((linear >> ((seg) ? (seg + 3) : 4)) & 0x0F)) ^ mask);
-}
-
-static __inline__ int16_t alaw_to_linear(uint8_t alaw)
-{
-  int i;
-  int seg;
-
-  alaw ^= 0x55;
-  i = ((alaw & 0x0F) << 4);
-  seg = (((int) alaw & 0x70) >> 4);
-  if (seg)
-    i = (i + 0x108) << (seg - 1);
-  else
-    i += 8;
-  return (int16_t) ((alaw & 0x80) ? i : -i);
-}
-
-uint8_t alaw_to_ulaw(uint8_t alaw);
-
-uint8_t ulaw_to_alaw(uint8_t ulaw);
 
 typedef double teletone_process_t;
 typedef struct {
