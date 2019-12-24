@@ -1157,7 +1157,7 @@ struct ftdm_channel {
   uint32_t ring_count;
   ftdm_polarity_t polarity;
 
-  int io_data;
+  int event_id;
 
   void *call_data;
   struct ftdm_caller_data caller_data;
@@ -1567,7 +1567,7 @@ pollagain:
   if (result == 0) return FTDM_TIMEOUT;
   if (inflags & POLLIN) *flags |= FTDM_READ;
   if (inflags & POLLOUT) *flags |= FTDM_WRITE;
-  if ((inflags & POLLPRI) || (ftdmchan->io_data && (*flags & FTDM_EVENTS))) *flags |= FTDM_EVENTS;
+  if ((inflags & POLLPRI) || (ftdmchan->event_id && (*flags & FTDM_EVENTS))) *flags |= FTDM_EVENTS;
 
   return FTDM_SUCCESS;
 }
@@ -1607,7 +1607,7 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
         /* unlock channel */
       continue;
     }
-    if ((pfds[i-1].revents & POLLPRI) || span->channels[i]->io_data) {
+    if ((pfds[i-1].revents & POLLPRI) || span->channels[i]->event_id) {
       @<Set event pending on the channel |span->channels[i]|@>@;
       k++;
     }
@@ -1715,9 +1715,9 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** e
     ftdmchan->io_flags &= ~FTDM_CHANNEL_IO_EVENT;
   }
 
-  if (ftdmchan->io_data) {
-    zt_event_id = ftdmchan->io_data;
-    ftdmchan->io_data = 0;
+  if (ftdmchan->event_id) {
+    zt_event_id = ftdmchan->event_id;
+    ftdmchan->event_id = 0;
   }
   else if (ioctl(ftdmchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
     ftdm_log(FTDM_LOG_ERROR, "Failed retrieving event from channel: %s\n", strerror(errno));
@@ -1753,9 +1753,9 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
 
     fchan->io_flags &= ~FTDM_CHANNEL_IO_EVENT;
 
-    if (fchan->io_data) {
-      zt_event_id = fchan->io_data;
-      fchan->io_data = 0;
+    if (fchan->event_id) {
+      zt_event_id = fchan->event_id;
+      fchan->event_id = 0;
     }
     else if (ioctl(fchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "Failed to retrieve DAHDI event from channel: %s",
@@ -1831,9 +1831,9 @@ static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *data
 }
 
 @ @<Store channel event@>=
-if (ftdmchan->io_data)
+if (ftdmchan->event_id)
   ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
-ftdmchan->io_data = zt_event_id;
+ftdmchan->event_id = zt_event_id;
 @<Set event pending on the channel |ftdmchan|@>@;
 
 @ @<Set event pending on the channel |ftdmchan|@>=
@@ -1863,9 +1863,9 @@ tryagain:
     }
 
     ftdm_log(FTDM_LOG_DEBUG, "Deferring event %d to be able to write data", zt_event_id);
-    if (ftdmchan->io_data)
+    if (ftdmchan->event_id)
       ftdm_log(FTDM_LOG_WARNING, "Dropping event %d, not retrieved on time", zt_event_id);
-    ftdmchan->io_data = zt_event_id;
+    ftdmchan->event_id = zt_event_id;
     @<Set event pending on the channel |ftdmchan|@>@;
 
     goto tryagain;
