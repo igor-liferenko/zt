@@ -310,7 +310,6 @@ static switch_status_t tech_init(private_t *tech_pvt, switch_core_session_t *ses
 {
 	const char *dname = NULL;
 	uint32_t interval = 0, srate = 8000;
-	uint32_t span_id;
 	int codec;
 
 	tech_pvt->ftdmchan = ftdmchan;
@@ -330,8 +329,6 @@ static switch_status_t tech_init(private_t *tech_pvt, switch_core_session_t *ses
 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Failed to retrieve channel interval.\n");
 		return SWITCH_STATUS_GENERR;
 	}
-
-	span_id = ftdm_channel_get_span_id(ftdmchan);
 
 	if (FTDM_SUCCESS != ftdm_channel_command(ftdmchan, FTDM_COMMAND_GET_CODEC, &codec)) {
 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Failed to retrieve channel codec.\n");
@@ -360,8 +357,6 @@ static switch_status_t tech_init(private_t *tech_pvt, switch_core_session_t *ses
 			return SWITCH_STATUS_GENERR;
 		}
 	}
-
-init_codecs:
 
 	if (switch_core_codec_init(&tech_pvt->read_codec,
 							   dname,
