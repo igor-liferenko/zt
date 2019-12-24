@@ -20,8 +20,6 @@
 #include <sys/stat.h>
 #include <dahdi/user.h>
 
-#define ZT_SPANSTAT _IOWR (DAHDI_CODE, 10, struct zt_spaninfo)       /* Get Span Status */
-
 #define FTDM_PRE __FILE__, __func__, __LINE__
 #define FTDM_LOG_DEBUG FTDM_PRE, 7
 #define FTDM_LOG_INFO FTDM_PRE, 6
@@ -2175,82 +2173,6 @@ static __inline__ int16_t ftdm_saturated_add(int16_t sample1,
 
 typedef long ftdm_bitmap_t;
 
-struct zt_confinfo {
-  int chan_no;
-  int conference_number;
-  int conference_mode;
-};
-
-struct zt_gains {
-  int chan_no;
-  unsigned char receive_gain[256];
-  unsigned char transmit_gain[256];
-};
-
-struct zt_spaninfo {
-  int span_no;
-  char name[20];
-  char description[40];
-  int alarms;
-  int transmit_level;
-  int receive_level;
-  int bpv_count;
-  int crc4_count;
-  int ebit_count;
-  int fas_count;
-  int irq_misses;
-  int sync_src;
-  int configured_chan_count;
-  int channel_count;
-  int span_count;
-
-  int lbo;
-  int lineconfig;
-
-  char lboname[40];
-  char location[40];
-  char manufacturer[40];
-  char devicetype[40];
-  int irq;
-  int linecompat;
-  char spantype[6];
-};
-
-struct zt_maintinfo {
-  int span_no;
-  int command;
-};
-
-struct zt_lineconfig {
-
-  int span;
-  char name[20];
-  int lbo;
-  int lineconfig;
-  int sync;
-};
-
-struct zt_chanconfig {
-
-  int chan;
-  char name[40];
-  int sigtype;
-  int deflaw;
-  int master;
-  int idlebits;
-  char netdev_name[16];
-};
-
-struct zt_bufferinfo {
-
-  int txbufpolicy;
-  int rxbufpolicy;
-  int numbufs;
-  int bufsize;
-  int readbufs;
-  int writebufs;
-};
-
 typedef enum {
   ZT_G711_DEFAULT = 0,
   ZT_G711_MULAW = 1,
@@ -2577,15 +2499,15 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
 @c
 static ftdm_status_t zt_get_alarms(ftdm_channel_t * ftdmchan)
 {
-  struct zt_spaninfo info;
+  struct dahdi_spaninfo info;
   struct dahdi_params params;
 
-  memset(&info, 0, sizeof(info));
-  info.span_no = ftdmchan->physical_span_id;
+  memset(&info, 0, sizeof info);
+  info.spanno = ftdmchan->physical_span_id;
 
   memset(&params, 0, sizeof(params));
 
-  if (ioctl(CONTROL_FD, ZT_SPANSTAT, &info) == -1) {
+  if (ioctl(CONTROL_FD, DAHDI_SPANSTAT, &info) == -1) {
     snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "ioctl failed (%m)");
     snprintf(ftdmchan->span->last_error, sizeof ftdmchan->span->last_error, "ioctl failed (%m)");
     return FTDM_FAIL;
