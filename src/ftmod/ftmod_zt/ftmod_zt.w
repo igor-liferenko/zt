@@ -407,10 +407,8 @@ typedef enum {
   FTDM_COMMAND_COUNT,
 } ftdm_command_t;
 
-typedef enum {
-  FTDM_POLARITY_FORWARD = 0,
-  FTDM_POLARITY_REVERSE = 1
-} ftdm_polarity_t;
+#define FTDM_POLARITY_FORWARD 0
+#define FTDM_POLARITY_REVERSE 1
 
 typedef void *(*ftdm_malloc_func_t)(void *pool, size_t len);
 typedef void *(*ftdm_calloc_func_t)(void *pool, size_t elements,
@@ -1097,7 +1095,7 @@ struct ftdm_channel {
   ftdm_fsk_data_state_t fsk;
   uint8_t fsk_buf[80];
   uint32_t ring_count;
-  ftdm_polarity_t polarity;
+  int polarity;
 
   int event_id;
 
@@ -1369,7 +1367,7 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     break;
   case FTDM_COMMAND_SET_POLARITY:
     {
-      ftdm_polarity_t polarity = *((int *) obj);
+      int polarity = *((int *) obj);
       err = ioctl(ftdmchan->sockfd, DAHDI_SETPOLARITY, polarity);
       if (err == 0) ftdmchan->polarity = polarity;
     }

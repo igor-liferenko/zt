@@ -447,7 +447,7 @@ struct ftdm_channel {
 	ftdm_fsk_data_state_t fsk;
 	uint8_t fsk_buf[80];
 	uint32_t ring_count;
-	ftdm_polarity_t polarity;
+	int polarity;
 	/* Private I/O data. Do not touch unless you are an I/O module */
 	int event_id;
 	/* Private signaling data. Do not touch unless you are a signaling module */

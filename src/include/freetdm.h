@@ -709,10 +709,8 @@ typedef enum {
 	FTDM_COMMAND_COUNT,
 } ftdm_command_t;
 
-typedef enum {
-	FTDM_POLARITY_FORWARD = 0,
-	FTDM_POLARITY_REVERSE = 1
-} ftdm_polarity_t;
+#define FTDM_POLARITY_FORWARD 0
+#define FTDM_POLARITY_REVERSE 1
 
 /*! \brief Custom memory handler hooks. Not recommended to use unless you need memory allocation customizations */
 typedef void *(*ftdm_malloc_func_t)(void *pool, ftdm_size_t len);

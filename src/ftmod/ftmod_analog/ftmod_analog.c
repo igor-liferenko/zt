@@ -589,7 +589,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 
 					if (!ftdm_test_flag(ftdmchan, FTDM_CHANNEL_OUTBOUND) &&
 					    ftdm_test_flag(analog_data, FTDM_ANALOG_ANSWER_POLARITY_REVERSE)) {
-						ftdm_polarity_t polarity = FTDM_POLARITY_REVERSE;
+						int polarity = FTDM_POLARITY_REVERSE;
 						if (ftdmchan->polarity == FTDM_POLARITY_FORWARD) {
 							ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Reversing polarity on answer\n");
 							ftdm_channel_command(ftdmchan, FTDM_COMMAND_SET_POLARITY, &polarity);
@@ -627,7 +627,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 				 * some actions (polarity reverse) do not make sense if the device hung up */
 				if (ftdmchan->last_state == FTDM_CHANNEL_STATE_UP &&
 				    ftdm_test_flag(analog_data, FTDM_ANALOG_HANGUP_POLARITY_REVERSE)) {
-					ftdm_polarity_t polarity = ftdmchan->polarity == FTDM_POLARITY_REVERSE 
+					int polarity = ftdmchan->polarity == FTDM_POLARITY_REVERSE 
 						                 ? FTDM_POLARITY_FORWARD : FTDM_POLARITY_REVERSE;
 					ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Reversing polarity on hangup\n");
 					ftdm_channel_command(ftdmchan, FTDM_COMMAND_SET_POLARITY, &polarity);
@@ -914,7 +914,7 @@ static __inline__ ftdm_status_t process_event(ftdm_span_t *span, ftdm_event_t *e
 				ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_DOWN);
 			}
 			/* we always return to forward when the device goes onhook */
-			ftdm_polarity_t forward_polarity = FTDM_POLARITY_FORWARD;
+			int forward_polarity = FTDM_POLARITY_FORWARD;
 			ftdm_channel_command(event->channel, FTDM_COMMAND_SET_POLARITY, &forward_polarity);
 		}
 		break;
