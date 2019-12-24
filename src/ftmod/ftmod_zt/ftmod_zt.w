@@ -989,30 +989,6 @@ typedef struct ftdm_sched ftdm_sched_t;
 typedef void (*ftdm_sched_callback_t)(void *data);
 typedef uint64_t ftdm_timer_id_t;
 
-ftdm_status_t ftdm_sched_create(ftdm_sched_t ** sched, const char *name);
-
-ftdm_status_t ftdm_sched_run(ftdm_sched_t * sched);
-
-ftdm_status_t ftdm_sched_free_run(ftdm_sched_t * sched);
-ftdm_status_t ftdm_sched_timer(ftdm_sched_t * sched, const char *name,
-                               int ms, ftdm_sched_callback_t callback,
-                               void *data, ftdm_timer_id_t * timer);
-ftdm_status_t ftdm_sched_cancel_timer(ftdm_sched_t * sched,
-                                      ftdm_timer_id_t timer);
-
-ftdm_status_t ftdm_sched_destroy(ftdm_sched_t ** sched);
-
-ftdm_status_t ftdm_sched_get_time_to_next_timer(const ftdm_sched_t * sched,
-                                                int32_t * timeto);
-
-ftdm_status_t ftdm_sched_global_init(void);
-
-ftdm_status_t ftdm_sched_global_destroy(void);
-
-ftdm_bool_t ftdm_free_sched_running(void);
-
-ftdm_bool_t ftdm_free_sched_stop(void);
-
 struct ftdm_stream_handle {
   ftdm_stream_handle_write_function_t write_function;
   ftdm_stream_handle_raw_write_function_t raw_write_function;
@@ -1022,40 +998,6 @@ struct ftdm_stream_handle {
   size_t data_len;
   size_t alloc_len;
   size_t alloc_chunk;
-};
-
-ftdm_status_t ftdm_console_stream_raw_write(ftdm_stream_handle_t * handle,
-                                            uint8_t * data,
-                                            size_t datalen);
-ftdm_status_t ftdm_console_stream_write(ftdm_stream_handle_t * handle,
-                                        const char *fmt, ...);
-
-extern ftdm_queue_handler_t g_ftdm_queue_handler;
-
-static __inline__ char *ftdm_clean_string(char *s)
-{
-  char *p;
-
-  for (p = s; p && *p; p++) {
-    uint8_t x = (uint8_t) * p;
-    if (x < 32 || x > 127) {
-      *p = ' ';
-    }
-  }
-
-  return s;
-}
-
-struct ftdm_bitstream {
-  uint8_t *data;
-  uint32_t datalen;
-  uint32_t byte_index;
-  uint8_t bit_index;
-  int8_t endian;
-  uint8_t top;
-  uint8_t bot;
-  uint8_t ss;
-  uint8_t ssv;
 };
 
 struct ftdm_fsk_data_state {
