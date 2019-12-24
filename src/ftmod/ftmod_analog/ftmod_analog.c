@@ -567,10 +567,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					ftdm_channel_clear_needed_tones(ftdmchan);
 					ftdm_channel_flush_dtmf(ftdmchan);
 						
-					if (ftdmchan->type == FTDM_CHAN_TYPE_FXO && !ftdm_test_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK)) {
-						ftdm_channel_command(ftdmchan, FTDM_COMMAND_OFFHOOK, NULL);
-					}
-
 					if (ftdmchan->fsk_buffer && ftdm_buffer_inuse(ftdmchan->fsk_buffer)) {
 						ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Cancel FSK transmit due to early answer.\n");
 						ftdm_buffer_zero(ftdmchan->fsk_buffer);
@@ -617,11 +613,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					ftdm_channel_use(ftdmchan);
 					sig.event_id = FTDM_SIGEVENT_START;
 
-					if (ftdmchan->type == FTDM_CHAN_TYPE_FXO) {
-						ftdm_set_string(ftdmchan->caller_data.dnis.digits, ftdmchan->chan_number);
-					} else {
-						ftdm_set_string(ftdmchan->caller_data.dnis.digits, dtmf);
-					}
+					ftdm_set_string(ftdmchan->caller_data.dnis.digits, dtmf);
 
 					ftdm_span_send_signal(ftdmchan->span, &sig);
 					continue;
@@ -769,31 +761,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 			continue;
 		}
 
-		if (ftdmchan->type == FTDM_CHAN_TYPE_FXO && ftdmchan->detected_tones[0]) {
-			int i;
-			
-			for (i = 1; i < FTDM_TONEMAP_INVALID; i++) {
-				if (ftdmchan->detected_tones[i]) {
-					ftdm_log_chan(ftdmchan, FTDM_LOG_DEBUG, "Detected tone %s on %d:%d\n", ftdm_tonemap2str(i), ftdmchan->span_id, ftdmchan->chan_id);
-				}
-			}
-			
-			if (ftdmchan->detected_tones[FTDM_TONEMAP_BUSY] || 
-				ftdmchan->detected_tones[FTDM_TONEMAP_FAIL1] ||
-				ftdmchan->detected_tones[FTDM_TONEMAP_FAIL2] ||
-				ftdmchan->detected_tones[FTDM_TONEMAP_FAIL3] ||
-				ftdmchan->detected_tones[FTDM_TONEMAP_ATTN]
-				) {
-				ftdm_log_chan_msg(ftdmchan, FTDM_LOG_ERROR, "Failure indication detected!\n");
-				ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_BUSY);
-			} else if (ftdmchan->detected_tones[FTDM_TONEMAP_DIAL]) {
-				analog_dial(ftdmchan, &state_counter, &dial_timeout);
-			} else if (ftdmchan->detected_tones[FTDM_TONEMAP_RING]) {
-				ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_UP);
-			}
-			
-			ftdm_channel_clear_detected_tones(ftdmchan);
-		} else if (!dial_timeout) {
+		if (!dial_timeout) {
 			/* we were requested not to wait for dial tone, we can dial immediately */
 			analog_dial(ftdmchan, &state_counter, &dial_timeout);
 		}
@@ -807,10 +775,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 		
 		if (!indicate) {
 			continue;
-		}
-
-		if (ftdmchan->type == FTDM_CHAN_TYPE_FXO && !ftdm_test_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK)) {
-			ftdm_channel_command(ftdmchan, FTDM_COMMAND_OFFHOOK, NULL);
 		}
 
 		if (ftdmchan->effective_codec != FTDM_CODEC_SLIN) {
@@ -844,11 +808,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 	closed_chan = ftdmchan;
 
 	ftdm_channel_lock(closed_chan);
-
-	if (ftdmchan->type == FTDM_CHAN_TYPE_FXO && ftdm_test_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK)) {
-		ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Going onhook\n");
-		ftdm_channel_command(ftdmchan, FTDM_COMMAND_ONHOOK, NULL);
-	}
 
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_RINGING)) {
 		ftdm_channel_command(ftdmchan, FTDM_COMMAND_GENERATE_RING_OFF, NULL);
@@ -921,11 +880,10 @@ static __inline__ ftdm_status_t process_event(ftdm_span_t *span, ftdm_event_t *e
 	switch(event->enum_id) {
 	case FTDM_OOB_RING_START:
 		{
-			if (event->channel->type != FTDM_CHAN_TYPE_FXO) {
-				ftdm_log_chan_msg(event->channel, FTDM_LOG_ERROR, "Cannot get a RING_START event on a non-fxo channel, please check your config.\n");
-				ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_DOWN);
-				goto end;
-			}
+			ftdm_log_chan_msg(event->channel, FTDM_LOG_ERROR, "Cannot get a RING_START event on a non-fxo channel, please check your config.\n");
+			ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_DOWN);
+			goto end;
+
 			if (!event->channel->ring_count && (event->channel->state == FTDM_CHANNEL_STATE_DOWN && !ftdm_test_flag(event->channel, FTDM_CHANNEL_INTHREAD))) {
 				if (ftdm_test_flag(analog_data, FTDM_ANALOG_CALLERID)) {
 					ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_GET_CALLERID);
@@ -1004,43 +962,8 @@ static __inline__ ftdm_status_t process_event(ftdm_span_t *span, ftdm_event_t *e
 		}
 		break;
 	case FTDM_OOB_POLARITY_REVERSE:
-		{
-			if (event->channel->type != FTDM_CHAN_TYPE_FXO) {
-				ftdm_log_chan_msg(event->channel, FTDM_LOG_WARNING, 
-						"Ignoring polarity reversal, this should not happen in non-FXO channels!\n");
-				break;
-			}
-			if (!ftdm_test_flag(event->channel, FTDM_CHANNEL_INTHREAD) &&
-			     ftdm_test_flag(event->channel, FTDM_CHANNEL_OFFHOOK)) {
-				ftdm_log_chan_msg(event->channel, FTDM_LOG_WARNING, 
-					"Forcing onhook in channel not in thread after polarity reversal\n");
-				ftdm_channel_command(event->channel, FTDM_COMMAND_ONHOOK, NULL);
-				break;
-			}
-			if (!ftdm_test_flag(analog_data, FTDM_ANALOG_ANSWER_POLARITY_REVERSE) 
-			 && !ftdm_test_flag(analog_data, FTDM_ANALOG_HANGUP_POLARITY_REVERSE)) {
-				ftdm_log_chan_msg(event->channel, FTDM_LOG_DEBUG, 
-					"Ignoring polarity reversal because this channel is not configured for it\n");
-				break;
-			}
-			if (event->channel->state == FTDM_CHANNEL_STATE_DOWN) {
-				if (ftdm_test_flag(analog_data, FTDM_ANALOG_CALLERID) 
-				    && ftdm_test_flag(analog_data, FTDM_ANALOG_POLARITY_CALLERID)) {
-					ftdm_log_chan_msg(event->channel, FTDM_LOG_DEBUG, "Polarity reversal detected while down, getting caller id now\n");
-					ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_GET_CALLERID);
-					event->channel->ring_count = 1;
-					ftdm_mutex_unlock(event->channel->mutex);
-					locked = 0;
-					ftdm_thread_create_detached(ftdm_analog_channel_run, event->channel);
-				} else {
-					ftdm_log_chan_msg(event->channel, FTDM_LOG_DEBUG, 
-						"Ignoring polarity reversal because this channel is down\n");
-				}
-				break;
-			}
-			/* we have a good channel, set the polarity flag and let the channel thread deal with it */
-			ftdm_set_sflag(event->channel, AF_POLARITY_REVERSE);
-		}
+		ftdm_log_chan_msg(event->channel, FTDM_LOG_WARNING, 
+		  "Ignoring polarity reversal, this should not happen in non-FXO channels!\n");
 		break;
 	default:
 		{

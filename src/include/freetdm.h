@@ -184,10 +184,10 @@ typedef enum {
 } ftdm_direction_t;
 
 /*! \brief Test if a channel is a voice channel */
-#define FTDM_IS_VOICE_CHANNEL(fchan) ((fchan)->type != FTDM_CHAN_TYPE_DQ921 && (fchan)->type != FTDM_CHAN_TYPE_DQ931)
+#define FTDM_IS_VOICE_CHANNEL(fchan) (1 == 1)
 
 /*! \brief Test if a channel is a D-channel */
-#define FTDM_IS_DCHAN(fchan) ((fchan)->type == FTDM_CHAN_TYPE_DQ921 || (fchan)->type == FTDM_CHAN_TYPE_DQ931)
+#define FTDM_IS_DCHAN(fchan) (1 == 0)
 
 /*! \brief Logging function prototype to be used for all FreeTDM logs 
  *  you should use ftdm_global_set_logger to set your own logger
