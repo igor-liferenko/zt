@@ -1275,132 +1275,35 @@ struct teletone_dds_state {
 };
 typedef struct teletone_dds_state teletone_dds_state_t;
 
-extern int16_t TELETONE_SINES[128];
-
-static __inline__ int32_t teletone_dds_phase_rate(teletone_process_t tone,
-                                                  uint32_t rate)
-{
-  return (int32_t) ((tone * 0x10000 * 0x10000) / rate);
-}
-
-static __inline__ int16_t
-teletone_dds_state_modulate_sample(teletone_dds_state_t * dds,
-                                   uint32_t pindex)
-{
-  int32_t bitmask = dds->phase_accumulator, sine_index =
-      (bitmask >>= 23) & (128 - 1);
-  int16_t sample;
-
-  if (pindex >= 4) {
-    pindex = 0;
-  }
-
-  if (bitmask & 128) {
-    sine_index = (128 - 1) - sine_index;
-  }
-
-  sample = TELETONE_SINES[sine_index];
-
-  if (bitmask & (128 * 2)) {
-    sample *= -1;
-  }
-
-  dds->phase_accumulator += dds->phase_rate[pindex];
-  return (int16_t) (sample * dds->scale_factor >> 15);
-}
-
-static __inline__ void teletone_dds_state_set_tx_level(teletone_dds_state_t
-                                                       * dds,
-                                                       float tx_level)
-{
-  dds->scale_factor =
-      (int) (powf(10.0f, (tx_level - (3.14f + 3.02f)) / 20.0f) *
-             (32767.0f * 1.414214f));
-  dds->tx_level = tx_level;
-}
-
-static __inline__ void teletone_dds_state_reset_accum(teletone_dds_state_t
-                                                      * dds)
-{
-  dds->phase_accumulator = 0;
-}
-
-static __inline__ int teletone_dds_state_set_tone(teletone_dds_state_t *
-                                                  dds,
-                                                  teletone_process_t tone,
-                                                  uint32_t rate,
-                                                  uint32_t pindex)
-{
-  if (pindex < 4) {
-    dds->phase_rate[pindex] = teletone_dds_phase_rate(tone, rate);
-    return 0;
-  }
-
-  return -1;
-}
-
 typedef int16_t teletone_audio_t;
 struct teletone_generation_session;
 typedef int (*tone_handler)(struct teletone_generation_session * ts,
                             teletone_tone_map_t * map);
 
 struct teletone_generation_session {
-
   teletone_tone_map_t TONES[127];
-
   int channels;
-
   int rate;
-
   int duration;
-
   int wait;
-
   int tmp_duration;
-
   int tmp_wait;
-
   int loops;
-
   int LOOPS;
-
   float decay_factor;
-
   int decay_direction;
-
   int decay_step;
-
   float volume;
-
   int debug;
-
   FILE *debug_stream;
-
   void *user_data;
-
   teletone_audio_t *buffer;
-
   int datalen;
-
   int samples;
-
   int dynamic;
   tone_handler handler;
 };
-
 typedef struct teletone_generation_session teletone_generation_session_t;
-int teletone_set_tone(teletone_generation_session_t * ts, int index, ...);
-
-int teletone_set_map(teletone_tone_map_t * map, ...);
-int teletone_init_session(teletone_generation_session_t * ts, int buflen,
-                          tone_handler handler, void *user_data);
-
-int teletone_destroy_session(teletone_generation_session_t * ts);
-
-int teletone_mux_tones(teletone_generation_session_t * ts,
-                       teletone_tone_map_t * map);
-
-int teletone_run(teletone_generation_session_t * ts, const char *cmd);
 
 typedef enum {
   TT_HIT_NONE = 0,
