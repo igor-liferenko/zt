@@ -1240,28 +1240,6 @@ typedef enum {
   ZT_G711_ALAW = 2
 } zt_g711_t;
 
-#define ZT_EVENT_NONE 0
-#define ZT_EVENT_ONHOOK 1
-#define ZT_EVENT_RINGOFFHOOK 2
-#define ZT_EVENT_WINKFLASH 3
-#define ZT_EVENT_ALARM 4
-#define ZT_EVENT_NOALARM 5
-#define ZT_EVENT_ABORT 6
-#define ZT_EVENT_OVERRUN 7
-#define ZT_EVENT_BADFCS 8
-#define ZT_EVENT_DIALCOMPLETE 9
-#define ZT_EVENT_RINGERON 10
-#define ZT_EVENT_RINGEROFF 11
-#define ZT_EVENT_HOOKCOMPLETE 12
-#define ZT_EVENT_BITSCHANGED 13
-#define ZT_EVENT_PULSE_START 14
-#define ZT_EVENT_TIMER_EXPIRED 15
-#define ZT_EVENT_TIMER_PING 16
-#define ZT_EVENT_POLARITY 17
-#define ZT_EVENT_RINGBEGIN 18
-#define ZT_EVENT_DTMFDOWN (1 << 17)
-#define ZT_EVENT_DTMFUP (1 << 18)
-
 typedef enum {
   ZT_FLUSH_READ = 1,
   ZT_FLUSH_WRITE = 2,
@@ -1661,55 +1639,55 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
 {
   ftdm_log(FTDM_LOG_DEBUG, "Processing zap hardware event %d", zt_event_id);
   switch (zt_event_id) {
-  case ZT_EVENT_RINGEROFF:
+  case DAHDI_EVENT_RINGEROFF:
     ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER OFF\n");
     *event_id = FTDM_OOB_NOOP;
     break;
-  case ZT_EVENT_RINGERON:
+  case DAHDI_EVENT_RINGERON:
     ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER ON\n");
     *event_id = FTDM_OOB_NOOP;
     break;
-  case ZT_EVENT_RINGBEGIN:
+  case DAHDI_EVENT_RINGBEGIN:
     *event_id = FTDM_OOB_RING_START;
     break;
-  case ZT_EVENT_ONHOOK:
+  case DAHDI_EVENT_ONHOOK:
     ftdm_log(FTDM_LOG_EMERG, "ONHOOK\n");
     *event_id = FTDM_OOB_ONHOOK;
     break;
-  case ZT_EVENT_WINKFLASH:
+  case DAHDI_EVENT_WINKFLASH:
     if (fchan->state == FTDM_CHANNEL_STATE_DOWN || fchan->state == FTDM_CHANNEL_STATE_DIALING)
       *event_id = FTDM_OOB_WINK;
     else
       *event_id = FTDM_OOB_FLASH;
     break;
-  case ZT_EVENT_RINGOFFHOOK:
+  case DAHDI_EVENT_RINGOFFHOOK:
     ftdm_log(FTDM_LOG_EMERG, "OFFHOOK\n");
     @<Set |FTDM_CHANNEL_OFFHOOK| flag to true, channel locked whil doing this@>@;
     *event_id = FTDM_OOB_OFFHOOK;
     break;
-  case ZT_EVENT_ALARM:
+  case DAHDI_EVENT_ALARM:
     *event_id = FTDM_OOB_ALARM_TRAP;
     break;
-  case ZT_EVENT_NOALARM:
+  case DAHDI_EVENT_NOALARM:
     *event_id = FTDM_OOB_ALARM_CLEAR;
     break;
-  case ZT_EVENT_BADFCS:
-    ftdm_log(FTDM_LOG_ERROR, "Bad frame checksum (ZT_EVENT_BADFCS)\n");
+  case DAHDI_EVENT_BADFCS:
+    ftdm_log(FTDM_LOG_ERROR, "Bad frame checksum (DAHDI_EVENT_BADFCS)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
-  case ZT_EVENT_OVERRUN:
-    ftdm_log(FTDM_LOG_ERROR, "HDLC frame overrun (ZT_EVENT_OVERRUN)\n");
+  case DAHDI_EVENT_OVERRUN:
+    ftdm_log(FTDM_LOG_ERROR, "HDLC frame overrun (DAHDI_EVENT_OVERRUN)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
-  case ZT_EVENT_ABORT:
-    ftdm_log(FTDM_LOG_ERROR, "HDLC abort frame received (ZT_EVENT_ABORT)\n");
+  case DAHDI_EVENT_ABORT:
+    ftdm_log(FTDM_LOG_ERROR, "HDLC abort frame received (DAHDI_EVENT_ABORT)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
-  case ZT_EVENT_POLARITY:
-    ftdm_log(FTDM_LOG_ERROR, "Got polarity reverse (ZT_EVENT_POLARITY)\n");
+  case DAHDI_EVENT_POLARITY:
+    ftdm_log(FTDM_LOG_ERROR, "Got polarity reverse (DAHDI_EVENT_POLARITY)\n");
     *event_id = FTDM_OOB_POLARITY_REVERSE;
     break;
-  case ZT_EVENT_NONE:
+  case DAHDI_EVENT_NONE:
     ftdm_log(FTDM_LOG_DEBUG, "No event\n");
     *event_id = FTDM_OOB_NOOP;
     break;
