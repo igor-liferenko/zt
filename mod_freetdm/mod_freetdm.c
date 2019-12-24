@@ -3667,7 +3667,6 @@ static switch_status_t load_config(void)
 			const char *hangup_polarity = "false";
 			const char *polarity_callerid = "false";
 			int polarity_delay = 600;
-			int callwaiting = 1;
 			int dialtone_timeout = 5000;
 
 			uint32_t span_id = 0, to = 0, max = 0;
@@ -3757,8 +3756,6 @@ static switch_status_t load_config(void)
 					max_digits = val;
 				} else if (!strcasecmp(var, "hotline")) {
 					hotline = val;
-				} else if (!strcasecmp(var, "callwaiting")) {
-					callwaiting = switch_true(val) ? 1 : 0;
 				} else if (!strcasecmp(var, "enable-analog-option")) {
 					analog_options = enable_analog_option(val, analog_options);
 				}
@@ -3813,7 +3810,6 @@ static switch_status_t load_config(void)
 								   "hangup_polarity_reverse", hangup_polarity,
 								   "polarity_callerid", polarity_callerid,
 								   "polarity_delay", &polarity_delay,
-								   "callwaiting", &callwaiting,
 								   "wait_dialtone_timeout", &dialtone_timeout,
 								   FTDM_TAG_END) != FTDM_SUCCESS) {
 				LOAD_ERROR("Error configuring FreeTDM analog span %s\n", ftdm_span_get_name(span));

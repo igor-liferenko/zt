@@ -161,7 +161,6 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 	const char *var, *val;
 	int *intval;
 	uint32_t flags = FTDM_ANALOG_CALLERID;
-	int callwaiting = 1;
 	unsigned int i = 0;
 
 	assert(sig_cb != NULL);
@@ -230,11 +229,6 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
                 		break;
             		}
 			polarity_delay = *intval;
-		} else if (!strcasecmp(var, "callwaiting")) {
-			if (!(intval = va_arg(ap, int *))) {
-                		break;
-            		}
-			callwaiting = *intval;
 		} else if (!strcasecmp(var, "max_dialstr")) {
 			if (!(intval = va_arg(ap, int *))) {
 				break;
@@ -259,21 +253,12 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 		}			
 	}
 
-	if (digit_timeout < 2000 || digit_timeout > 10000) {
+	if (digit_timeout < 2000 || digit_timeout > 10000)
 		digit_timeout = 2000;
-	}
 
-	if ((max_dialstr < 1 && !strlen(hotline)) || max_dialstr > MAX_DTMF) {
+	if ((max_dialstr < 1 && !strlen(hotline)) || max_dialstr > MAX_DTMF)
 		max_dialstr = MAX_DTMF;
-	}
 
-	if (callwaiting) {
-		for (i = 1; i <= span->chan_count; i++) {
-			ftdm_log_chan_msg(span->channels[i], FTDM_LOG_DEBUG, "Enabled call waiting\n");
-			ftdm_channel_set_feature(span->channels[i], FTDM_CHANNEL_FEATURE_CALLWAITING);
-		}
-	}
-	
 	span->start = ftdm_analog_start;
 	span->stop = ftdm_analog_stop;
 	analog_data->flags = flags;

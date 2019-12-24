@@ -1990,13 +1990,6 @@ static ftdm_status_t _ftdm_channel_open(uint32_t span_id, uint32_t chan_id, ftdm
 		goto openchan;
 	}
 
-	/* if it's an FXS device with a call active and has callwaiting enabled, we allow to open it twice */
-	if (check->type == FTDM_CHAN_TYPE_FXS 
-	    && check->token_count == 1 
-	    && ftdm_channel_test_feature(check, FTDM_CHANNEL_FEATURE_CALLWAITING)) {
-		goto openchan;
-	}
-
 	/* if channel is available, time to open it */
 	if (chan_is_avail(check)) {
 		goto openchan;
