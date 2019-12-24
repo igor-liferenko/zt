@@ -581,55 +581,16 @@ static switch_status_t channel_on_hangup(switch_core_session_t *session)
 	ftdm_channel_clear_token(tech_pvt->ftdmchan, switch_core_session_get_uuid(session));
 
 	chantype = ftdm_channel_get_type(tech_pvt->ftdmchan);
-	switch (chantype) {
-	case FTDM_CHAN_TYPE_FXO:
-	case FTDM_CHAN_TYPE_EM:
-		{
+	tokencnt = ftdm_channel_get_token_count(tech_pvt->ftdmchan);
+	if (!ftdm_channel_call_check_busy(tech_pvt->ftdmchan) && !ftdm_channel_call_check_done(tech_pvt->ftdmchan)) {
+		if (tokencnt) {
+			cycle_foreground(tech_pvt->ftdmchan, 0, NULL);
+		} else {
 			ftdm_channel_call_hangup(tech_pvt->ftdmchan);
 		}
-		break;
-	case FTDM_CHAN_TYPE_FXS:
-		{
-			tokencnt = ftdm_channel_get_token_count(tech_pvt->ftdmchan);
-			if (!ftdm_channel_call_check_busy(tech_pvt->ftdmchan) && !ftdm_channel_call_check_done(tech_pvt->ftdmchan)) {
-				if (tokencnt) {
-					cycle_foreground(tech_pvt->ftdmchan, 0, NULL);
-				} else {
-					ftdm_channel_call_hangup(tech_pvt->ftdmchan);
-				}
-			}
-		}
-		break;
-	case FTDM_CHAN_TYPE_CAS:
-	case FTDM_CHAN_TYPE_B:
-		{
-			const char *var = NULL;
-			switch_call_cause_t ccause = switch_channel_get_cause_q850(channel);
-			ftdm_call_cause_t hcause;
-			if (ccause  < 1 || ccause > 127) {
-				hcause = FTDM_CAUSE_DESTINATION_OUT_OF_ORDER;
-			} else {
-				hcause = (ftdm_call_cause_t)ccause;
-			}
-			var = switch_channel_get_variable(channel, "ss7_rel_loc");
-			if (var) {
-				ftdm_usrmsg_t usrmsg;
-				memset(&usrmsg, 0, sizeof(ftdm_usrmsg_t));
-				ftdm_usrmsg_add_var(&usrmsg, "ss7_rel_loc", var);
-				ftdm_channel_call_hangup_with_cause_ex(tech_pvt->ftdmchan, hcause, &usrmsg);
-			} else {
-				ftdm_channel_call_hangup_with_cause(tech_pvt->ftdmchan, hcause);
-			}
-		}
-		break;
-	default:
-		{
-			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Unhandled channel type %d for channel %s\n", chantype, switch_channel_get_name(channel));
-		}
-		break;
 	}
 
- end:
+end:
 
 	switch_mutex_lock(globals.mutex);
 	globals.calls--;
@@ -1151,24 +1112,7 @@ static switch_status_t channel_receive_message(switch_core_session_t *session, s
 		break;
 	}
 
-	switch (ftdm_channel_get_type(tech_pvt->ftdmchan)) {
-	case FTDM_CHAN_TYPE_FXS:
-	case FTDM_CHAN_TYPE_EM:
-		status = channel_receive_message_fxs(session, msg);
-		break;
-	case FTDM_CHAN_TYPE_FXO:
-		status = channel_receive_message_fxo(session, msg);
-		break;
-	case FTDM_CHAN_TYPE_B:
-		status = channel_receive_message_b(session, msg);
-		break;
-	case FTDM_CHAN_TYPE_CAS:
-		status = channel_receive_message_cas(session, msg);
-		break;
-	default:
-		status = SWITCH_STATUS_FALSE;
-		break;
-	}
+	status = channel_receive_message_fxs(session, msg);
 
 	return status;
 }
@@ -2816,25 +2760,7 @@ static FIO_SIGNAL_CB_FUNCTION(on_analog_signal)
 		return FTDM_SUCCESS;
 	}
 
-	switch (type) {
-	case FTDM_CHAN_TYPE_FXO:
-	case FTDM_CHAN_TYPE_EM:
-		{
-			status = on_fxo_signal(sigmsg);
-		}
-		break;
-	case FTDM_CHAN_TYPE_FXS:
-		{
-			status = on_fxs_signal(sigmsg);
-		}
-		break;
-	default:
-		{
-			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Unhandled analog channel type %d for channel %d:%d\n",
-							  type, spanid, chanid);
-		}
-		break;
-	}
+	status = on_fxs_signal(sigmsg);
 
 	return status;
 }

@@ -767,7 +767,6 @@ const char *ftdm_span_get_last_error(const ftdm_span_t * span);
 ftdm_status_t ftdm_span_create(const char *iotype, const char *name,
                                ftdm_span_t ** span);
 ftdm_status_t ftdm_span_add_channel(ftdm_span_t * span, int sockfd,
-                                    ftdm_chan_type_t type,
                                     ftdm_channel_t ** chan);
 
 ftdm_status_t ftdm_channel_add_to_group(const char *name,
@@ -2243,7 +2242,7 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
       continue;
     }
 
-    if (ftdm_span_add_channel(span, sockfd, FTDM_CHAN_TYPE_FXS, &ftdmchan) != FTDM_SUCCESS) {
+    if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
       close(sockfd);
       continue;

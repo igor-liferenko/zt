@@ -1310,7 +1310,7 @@ FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name,
  * \retval FTDM_SUCCESS success (the channel was created)
  * \retval FTDM_FAIL failure (span was not created)
  */
-FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t sockfd, ftdm_chan_type_t type, ftdm_channel_t **chan);
+FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t sockfd, ftdm_channel_t **chan);
 
 /*! \brief Add the channel to a hunt group */
 FT_DECLARE(ftdm_status_t) ftdm_channel_add_to_group(const char* name, ftdm_channel_t* ftdmchan);

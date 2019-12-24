@@ -1051,7 +1051,7 @@ static void reset_gain_table(uint8_t *gain_table, float new_gain, int codec_gain
 	}
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t sockfd, ftdm_chan_type_t type, ftdm_channel_t **chan)
+FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t sockfd, ftdm_channel_t **chan)
 {
 	unsigned char i = 0;
 	if (span->chan_count < FTDM_MAX_CHANNELS_SPAN) {
