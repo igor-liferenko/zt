@@ -1081,7 +1081,6 @@ FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t
 			span->channels[span->chan_count] = new_chan;
 		}
 
-		new_chan->type = type;
 		new_chan->sockfd = sockfd;
 		new_chan->fio = span->fio;
 		new_chan->span_id = span->span_id;
