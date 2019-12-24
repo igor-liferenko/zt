@@ -2286,25 +2286,25 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
     int sockfd;
 
     if ((sockfd = open("/dev/dahdi/channel", O_RDWR)) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel");
+      ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel\n");
       continue;
     }
 
     if (ftdm_span_add_channel(span, sockfd, FTDM_CHAN_TYPE_FXS, &ftdmchan) != FTDM_SUCCESS) {
-      ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span");
+      ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
       close(sockfd);
       continue;
     }
 
     if (ioctl(sockfd, DAHDI_SPECIFY, &channel) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SPECIFY failed");
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SPECIFY failed\n");
       close(sockfd);
       continue;
     }
 
     int blocksize = 160;              /* each 20ms */
     if (ioctl(sockfd, DAHDI_SET_BLOCKSIZE, &blocksize) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_BLOCKSIZE failed");
+      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_BLOCKSIZE failed\n");
       close(sockfd);
       continue;
     }
@@ -2350,7 +2350,7 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
        Test this parameter separately from freeswitch when you factor-out teletone from freetdm
        and see oslec page - there was tool to analyze ec graphically. */
   if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
-    ftdm_log(FTDM_LOG_EMERG, "DAHDI_ECHOCANCEL failed");
+    ftdm_log(FTDM_LOG_EMERG, "DAHDI_ECHOCANCEL failed\n");
   
   return FTDM_SUCCESS;
 }
@@ -2381,9 +2381,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   case FTDM_COMMAND_OFFHOOK:
     {
       int command = ZT_OFFHOOK;
-      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_OFFHOOK");
+      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_OFFHOOK\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
-        ftdm_log(FTDM_LOG_EMERG, "Fail");
+        ftdm_log(FTDM_LOG_EMERG, "Fail\n");
         return FTDM_FAIL;
       }
 
@@ -2395,9 +2395,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   case FTDM_COMMAND_ONHOOK:
     {
       int command = ZT_ONHOOK;
-      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_ONHOOK");
+      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_ONHOOK\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
-        ftdm_log(FTDM_LOG_EMERG, "Fail");
+        ftdm_log(FTDM_LOG_EMERG, "Fail\n");
         return FTDM_FAIL;
       }
 
@@ -2409,9 +2409,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   case FTDM_COMMAND_GENERATE_RING_ON:
     {
       int command = ZT_RING;
-      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RING");
+      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RING\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
-        ftdm_log(FTDM_LOG_EMERG, "Fail");
+        ftdm_log(FTDM_LOG_EMERG, "Fail\n");
         return FTDM_FAIL;
       }
 
@@ -2423,9 +2423,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   case FTDM_COMMAND_GENERATE_RING_OFF:
     {
       int command = ZT_RINGOFF;
-      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RINGOFF");
+      ftdm_log(FTDM_LOG_EMERG, "ioctl DAHDI_HOOK - DAHDI_RINGOFF\n");
       if (ioctl(ftdmchan->sockfd, DAHDI_HOOK, &command) == -1) {
-        ftdm_log(FTDM_LOG_EMERG, "Fail");
+        ftdm_log(FTDM_LOG_EMERG, "Fail\n");
         return FTDM_FAIL;
       }
 
@@ -2557,12 +2557,12 @@ pollagain:
   *flags = FTDM_NO_FLAGS;
 
   if (result < 0 && errno == EINTR) {
-    ftdm_log(FTDM_LOG_DEBUG, "DAHDI wait got interrupted, trying again");
+    ftdm_log(FTDM_LOG_DEBUG, "DAHDI wait got interrupted, trying again\n");
     goto pollagain;
   }
 
   if (pfds[0].revents & POLLERR) {
-    ftdm_log(FTDM_LOG_ERROR, "DAHDI device got POLLERR");
+    ftdm_log(FTDM_LOG_ERROR, "DAHDI device got POLLERR\n");
     result = -1;
   }
 
@@ -2651,18 +2651,18 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
   ftdm_log(FTDM_LOG_DEBUG, "Processing zap hardware event %d", zt_event_id);
   switch (zt_event_id) {
   case ZT_EVENT_RINGEROFF:
-    ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER OFF");
+    ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER OFF\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   case ZT_EVENT_RINGERON:
-    ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER ON");
+    ftdm_log(FTDM_LOG_DEBUG, "ZT RINGER ON\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   case ZT_EVENT_RINGBEGIN:
     *event_id = FTDM_OOB_RING_START;
     break;
   case ZT_EVENT_ONHOOK:
-    ftdm_log(FTDM_LOG_EMERG, "ONHOOK");
+    ftdm_log(FTDM_LOG_EMERG, "ONHOOK\n");
     *event_id = FTDM_OOB_ONHOOK;
     break;
   case ZT_EVENT_WINKFLASH:
@@ -2672,7 +2672,7 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
       *event_id = FTDM_OOB_FLASH;
     break;
   case ZT_EVENT_RINGOFFHOOK:
-    ftdm_log(FTDM_LOG_EMERG, "OFFHOOK");
+    ftdm_log(FTDM_LOG_EMERG, "OFFHOOK\n");
     *event_id = FTDM_OOB_NOOP;
     _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
     fchan->flags |= FTDM_CHANNEL_OFFHOOK;
@@ -2686,23 +2686,23 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *
     *event_id = FTDM_OOB_ALARM_CLEAR;
     break;
   case ZT_EVENT_BADFCS:
-    ftdm_log(FTDM_LOG_ERROR, "Bad frame checksum (ZT_EVENT_BADFCS)");
+    ftdm_log(FTDM_LOG_ERROR, "Bad frame checksum (ZT_EVENT_BADFCS)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   case ZT_EVENT_OVERRUN:
-    ftdm_log(FTDM_LOG_ERROR, "HDLC frame overrun (ZT_EVENT_OVERRUN)");
+    ftdm_log(FTDM_LOG_ERROR, "HDLC frame overrun (ZT_EVENT_OVERRUN)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   case ZT_EVENT_ABORT:
-    ftdm_log(FTDM_LOG_ERROR, "HDLC abort frame received (ZT_EVENT_ABORT)");
+    ftdm_log(FTDM_LOG_ERROR, "HDLC abort frame received (ZT_EVENT_ABORT)\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   case ZT_EVENT_POLARITY:
-    ftdm_log(FTDM_LOG_ERROR, "Got polarity reverse (ZT_EVENT_POLARITY)");
+    ftdm_log(FTDM_LOG_ERROR, "Got polarity reverse (ZT_EVENT_POLARITY)\n");
     *event_id = FTDM_OOB_POLARITY_REVERSE;
     break;
   case ZT_EVENT_NONE:
-    ftdm_log(FTDM_LOG_DEBUG, "No event");
+    ftdm_log(FTDM_LOG_DEBUG, "No event\n");
     *event_id = FTDM_OOB_NOOP;
     break;
   default:
