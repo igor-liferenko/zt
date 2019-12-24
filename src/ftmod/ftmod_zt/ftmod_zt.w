@@ -1167,20 +1167,12 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
 @c
 static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
-  unsigned configured = 0;
+  unsigned configured = 0; // ??????????????????????????
 
   for (int channel = 2; channel <= 4; channel++) {
-    ftdm_channel_t *ftdmchan;
     int sockfd;
-
     if ((sockfd = open("/dev/dahdi/channel", O_RDWR)) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel\n");
-      continue;
-    }
-
-    if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
-      ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
-      close(sockfd);
       continue;
     }
 
@@ -1197,6 +1189,12 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
       continue;
     }
 
+    ftdm_channel_t *ftdmchan;
+    if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
+      ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
+      close(sockfd);
+      continue;
+    }
     ftdmchan->rate = 8000;
     ftdmchan->physical_span_id = 1;
     ftdmchan->physical_chan_id = channel;
@@ -1210,12 +1208,14 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
   return configured;
 }
 
+/* purge this func from everywhere */
 static ftdm_status_t zt_configure(const char *category, const char *var,
                                   const char *val, int lineno)
 {
   return FTDM_SUCCESS;
 }
 
+/* !!!!!!!!???????????!!!!!!!!!!!!!!! */
 static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 {
   ftdmchan->features =
@@ -1223,8 +1223,8 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 
   int blocksize = 160;        /* each 20ms */
   int err;
-  if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize))) {
-    snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%m");
+  if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize)) == -1) {
+    snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "%m");
     return FTDM_FAIL;
   }
   else {
