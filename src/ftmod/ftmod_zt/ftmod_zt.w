@@ -1618,59 +1618,6 @@ struct ftdm_group {
   struct ftdm_group *next;
 };
 
-extern ftdm_crash_policy_t g_ftdm_crash_policy;
-
-ftdm_status_t ftdm_fsk_data_parse(ftdm_fsk_data_state_t * state,
-                                  size_t *type, char **data, size_t *len);
-ftdm_status_t ftdm_fsk_demod_feed(ftdm_fsk_data_state_t * state,
-                                  int16_t * data, size_t samples);
-ftdm_status_t ftdm_fsk_demod_destroy(ftdm_fsk_data_state_t * state);
-int ftdm_fsk_demod_init(ftdm_fsk_data_state_t * state, int rate,
-                        uint8_t * buf, size_t bufsize);
-ftdm_status_t ftdm_fsk_data_init(ftdm_fsk_data_state_t * state,
-                                 uint8_t * data, uint32_t datalen);
-ftdm_status_t ftdm_fsk_data_add_mdmf(ftdm_fsk_data_state_t * state,
-                                     ftdm_mdmf_type_t type,
-                                     const uint8_t * data,
-                                     uint32_t datalen);
-ftdm_status_t ftdm_fsk_data_add_checksum(ftdm_fsk_data_state_t * state);
-ftdm_status_t ftdm_fsk_data_add_sdmf(ftdm_fsk_data_state_t * state,
-                                     const char *date, char *number);
-ftdm_status_t ftdm_channel_send_fsk_data(ftdm_channel_t * ftdmchan,
-                                         ftdm_fsk_data_state_t * fsk_data,
-                                         float db_level);
-
-ftdm_status_t ftdm_span_load_tones(ftdm_span_t * span,
-                                   const char *mapname);
-
-ftdm_status_t ftdm_channel_use(ftdm_channel_t * ftdmchan);
-
-void ftdm_generate_sln_silence(int16_t * data, uint32_t samples,
-                               uint32_t divisor);
-
-uint32_t ftdm_separate_string(char *buf, char delim, char **array,
-                              int arraylen);
-void print_bits(uint8_t * b, int bl, char *buf, int blen, int e,
-                uint8_t ss);
-void print_hex_bytes(uint8_t * data, size_t dlen, char *buf, size_t blen);
-
-int ftdm_hash_equalkeys(void *k1, void *k2);
-uint32_t ftdm_hash_hashfromstring(void *ky);
-
-int ftdm_load_modules(void);
-
-ftdm_status_t ftdm_unload_modules(void);
-
-ftdm_status_t ftdm_span_send_signal(ftdm_span_t * span,
-                                    ftdm_sigmsg_t * sigmsg);
-
-void ftdm_channel_clear_needed_tones(ftdm_channel_t * ftdmchan);
-void ftdm_channel_rotate_tokens(ftdm_channel_t * ftdmchan);
-
-int ftdm_load_module(const char *name);
-int ftdm_load_module_assume(const char *name);
-int ftdm_vasprintf(char **ret, const char *fmt, va_list ap);
-
 typedef enum {
   ZT_G711_DEFAULT = 0,
   ZT_G711_MULAW = 1,
