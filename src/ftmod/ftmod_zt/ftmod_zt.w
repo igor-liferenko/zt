@@ -2229,15 +2229,6 @@ typedef enum {
   ZT_RINGOFF = 6
 } zt_hookstate_t;
 
-typedef enum {
-  ZT_MAINT_NONE = 0,
-  ZT_MAINT_LOCALLOOP = 1,
-  ZT_MAINT_REMOTELOOP = 2,
-  ZT_MAINT_LOOPUP = 3,
-  ZT_MAINT_LOOPDOWN = 4,
-  ZT_MAINT_LOOPSTOP = 5
-} zt_maintenance_mode_t;
-
 static int CONTROL_FD = -1;
 
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event);
