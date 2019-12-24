@@ -2239,22 +2239,6 @@ typedef enum {
 } zt_maintenance_mode_t;
 
 typedef enum {
-  ZT_SIG_NONE = 0,
-  ZT_SIG_FXSLS = ((1 << 0) | (1 << 13)),
-  ZT_SIG_FXSGS = ((1 << 1) | (1 << 13)),
-  ZT_SIG_FXSKS = ((1 << 2) | (1 << 13)),
-  ZT_SIG_FXOLS = ((1 << 3) | (1 << 12)),
-  ZT_SIG_FXOGS = ((1 << 4) | (1 << 12)),
-  ZT_SIG_FXOKS = ((1 << 5) | (1 << 12)),
-  ZT_SIG_EM = (1 << 6),
-  ZT_SIG_CLEAR = (1 << 7),
-  ZT_SIG_HDLCRAW = ((1 << 8) | ZT_SIG_CLEAR),
-  ZT_SIG_HDLCFCS = ((1 << 9) | ZT_SIG_HDLCRAW),
-  ZT_SIG_CAS = (1 << 15),
-  ZT_SIG_HARDHDLC = ((1 << 19) | ZT_SIG_CLEAR),
-} zt_sigtype_t;
-
-typedef enum {
   ZT_DBIT = 1,
   ZT_CBIT = 2,
   ZT_BBIT = 4,
