@@ -357,12 +357,6 @@ FTDM_STR2ENUM(ftdm_str2ftdm_presentation, ftdm_presentation2str, ftdm_presentati
 FTDM_ENUM_NAMES(SCREENING_NAMES, SCREENING_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_screening, ftdm_screening2str, ftdm_screening_t, SCREENING_NAMES, FTDM_SCREENING_INVALID)
 
-FTDM_ENUM_NAMES(BEARER_CAP_NAMES, BEARER_CAP_STRINGS)
-FTDM_STR2ENUM(ftdm_str2ftdm_bearer_cap, ftdm_bearer_cap2str, ftdm_bearer_cap_t, BEARER_CAP_NAMES, FTDM_BEARER_CAP_INVALID)
-
-FTDM_ENUM_NAMES(USER_LAYER1_PROT_NAMES, USER_LAYER1_PROT_STRINGS)
-FTDM_STR2ENUM(ftdm_str2ftdm_usr_layer1_prot, ftdm_user_layer1_prot2str, ftdm_user_layer1_prot_t, USER_LAYER1_PROT_NAMES, FTDM_USER_LAYER1_PROT_INVALID)
-
 FTDM_ENUM_NAMES(CALLING_PARTY_CATEGORY_NAMES, CALLING_PARTY_CATEGORY_STRINGS)
 FTDM_STR2ENUM(ftdm_str2ftdm_calling_party_category, ftdm_calling_party_category2str, ftdm_calling_party_category_t, CALLING_PARTY_CATEGORY_NAMES, FTDM_CPC_INVALID)
 

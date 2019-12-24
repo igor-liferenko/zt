@@ -115,24 +115,6 @@ typedef struct ftdm_queue_handler {
 } ftdm_queue_handler_t;
 
 typedef enum {
-  FTDM_BEARER_CAP_SPEECH = 0x00,
-  FTDM_BEARER_CAP_UNRESTRICTED,
-  FTDM_BEARER_CAP_RESTRICTED,
-  FTDM_BEARER_CAP_3_1KHZ_AUDIO,
-  FTDM_BEARER_CAP_7KHZ_AUDIO,
-  FTDM_BEARER_CAP_15KHZ_AUDIO,
-  FTDM_BEARER_CAP_VIDEO,
-  FTDM_BEARER_CAP_INVALID
-} ftdm_bearer_cap_t;
-
-typedef enum {
-  FTDM_USER_LAYER1_PROT_V110 = 0x01,
-  FTDM_USER_LAYER1_PROT_ULAW = 0x02,
-  FTDM_USER_LAYER1_PROT_ALAW = 0x03,
-  FTDM_USER_LAYER1_PROT_INVALID
-} ftdm_user_layer1_prot_t;
-
-typedef enum {
   FTDM_CPC_UNKNOWN,
   FTDM_CPC_OPERATOR,
   FTDM_CPC_OPERATOR_FRENCH,
@@ -177,8 +159,6 @@ typedef struct ftdm_caller_data {
   uint8_t pres;
   char collected[64];
   int hangup_cause;
-  ftdm_bearer_cap_t bearer_capability;
-  ftdm_user_layer1_prot_t bearer_layer1;
   ftdm_calling_party_category_t cpc;
   uint32_t call_reference;
   ftdm_channel_t *fchan;
