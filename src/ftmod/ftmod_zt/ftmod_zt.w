@@ -2219,16 +2219,6 @@ typedef enum {
   ZT_IOMUX_NOWAIT = 256
 } zt_iomux_t;
 
-typedef enum {
-  ZT_ONHOOK = 0,
-  ZT_OFFHOOK = 1,
-  ZT_WINK = 2,
-  ZT_FLASH = 3,
-  ZT_START = 4,
-  ZT_RING = 5,
-  ZT_RINGOFF = 6
-} zt_hookstate_t;
-
 static int CONTROL_FD = -1;
 
 ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event);
@@ -2323,6 +2313,12 @@ static ftdm_status_t zt_close(ftdm_channel_t * ftdmchan)
   return FTDM_SUCCESS;
 }
 
+@ @d ZT_ONHOOK 0
+@d ZT_OFFHOOK 1
+@d ZT_RING 5
+@d ZT_RINGOFF 6
+
+@c
 static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t command, void *obj)
 {
   int err = 0;
