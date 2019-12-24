@@ -65,17 +65,6 @@ FT_DECLARE(ftdm_status_t) ftdm_set_npi(const char *npi_string, uint8_t *target);
 FT_DECLARE(ftdm_status_t) ftdm_set_ton(const char *ton_string, uint8_t *target);
 
 /*! 
- * \brief Set the Bearer Capability from a string
- *
- * \param bc_string string value
- * \param target the target to set value to
- *
- * \retval FTDM_SUCCESS success
- * \retval FTDM_FAIL failure
- */
-FT_DECLARE(ftdm_status_t) ftdm_set_bearer_capability(const char *bc_string, uint8_t *target);
-
-/*! 
  * \brief Set the Bearer Capability - Layer 1 from a string
  *
  * \param bc_string string value

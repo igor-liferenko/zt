@@ -140,22 +140,6 @@ FT_DECLARE(ftdm_status_t) ftdm_set_ton(const char *string, uint8_t *target)
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_set_bearer_capability(const char *string, uint8_t *target)
-{
-	uint8_t val;
-	ftdm_status_t status = FTDM_SUCCESS;
-
-	val = ftdm_str2ftdm_bearer_cap(string);
-	if (val == FTDM_NPI_INVALID) {
-		ftdm_log(FTDM_LOG_WARNING, "Invalid Bearer-Capability string (%s)\n", string);
-		status = FTDM_FAIL;
-		val = FTDM_BEARER_CAP_SPEECH;
-	}
-
-	*target = val;
-	return status;
-}
-
 FT_DECLARE(ftdm_status_t) ftdm_set_bearer_layer1(const char *string, uint8_t *target)
 {
 	uint8_t val;

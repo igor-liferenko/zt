@@ -332,14 +332,6 @@ static switch_status_t tech_init(private_t *tech_pvt, switch_core_session_t *ses
 	}
 
 	span_id = ftdm_channel_get_span_id(ftdmchan);
-	if (caller_data->bearer_capability == FTDM_BEARER_CAP_UNRESTRICTED
-	    && SPAN_CONFIG[span_id].digital_codec) {
-		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Initializing digital call with codec %s at %dhz.\n",
-				SPAN_CONFIG[span_id].digital_codec, SPAN_CONFIG[span_id].digital_sampling_rate);
-		dname = SPAN_CONFIG[span_id].digital_codec;
-		srate = SPAN_CONFIG[span_id].digital_sampling_rate;
-		goto init_codecs;
-	}
 
 	if (FTDM_SUCCESS != ftdm_channel_command(ftdmchan, FTDM_COMMAND_GET_CODEC, &codec)) {
 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Failed to retrieve channel codec.\n");
@@ -1420,14 +1412,6 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
 		ftdm_usrmsg_add_var(&usrmsg, "iam_fwd_ind_isdn_access_ind", var);
 	}
 
-	if ((var = channel_get_variable(session, var_event, "freetdm_bearer_capability"))) {
-		caller_data.bearer_capability = (uint8_t)atoi(var);
-	}
-
-	if ((var = channel_get_variable(session, var_event, "freetdm_bearer_layer1"))) {
-		caller_data.bearer_layer1 = (uint8_t)atoi(var);
-	}
-
 	if ((var = channel_get_variable(session, var_event, "freetdm_screening_ind"))) {
 		ftdm_set_screening_ind(var, &caller_data.screen);
 	}
@@ -1701,8 +1685,6 @@ ftdm_status_t ftdm_channel_from_event(ftdm_sigmsg_t *sigmsg, switch_core_session
 	switch_channel_set_variable(channel, "freetdm_span_name", ftdm_channel_get_span_name(sigmsg->channel));
 	switch_channel_set_variable_printf(channel, "freetdm_span_number", "%d", spanid);
 	switch_channel_set_variable_printf(channel, "freetdm_chan_number", "%d", chanid);
-	switch_channel_set_variable_printf(channel, "freetdm_bearer_capability", "%d", channel_caller_data->bearer_capability);
-	switch_channel_set_variable_printf(channel, "freetdm_bearer_layer1", "%d", channel_caller_data->bearer_layer1);
 	switch_channel_set_variable_printf(channel, "freetdm_calling_party_category", ftdm_calling_party_category2str(channel_caller_data->cpc));
 	switch_channel_set_variable_printf(channel, "screening_ind", ftdm_screening2str(channel_caller_data->screen));
 	switch_channel_set_variable_printf(channel, "presentation_ind", ftdm_presentation2str(channel_caller_data->pres));

@@ -447,22 +447,7 @@ static __inline__ void ftdm_std_free(void *pool, void *ptr)
 
 FT_DECLARE(void) ftdm_set_echocancel_call_begin(ftdm_channel_t *chan)
 {
-	ftdm_caller_data_t *caller_data = ftdm_channel_get_caller_data(chan);
-	if (ftdm_channel_test_feature(chan, FTDM_CHANNEL_FEATURE_HWEC)) {
-		if (ftdm_channel_test_feature(chan, FTDM_CHANNEL_FEATURE_HWEC_DISABLED_ON_IDLE)) {
-			/* If the ec is disabled on idle, we need to enable it unless is a digital call */
-			if (caller_data->bearer_capability != FTDM_BEARER_CAP_UNRESTRICTED) {
-				ftdm_log_chan(chan, FTDM_LOG_DEBUG, "Enabling ec for call in channel state %s\n", ftdm_channel_state2str(chan->state));
-				ftdm_channel_command(chan, FTDM_COMMAND_ENABLE_ECHOCANCEL, NULL);
-			}
-		} else {
-			/* If the ec is enabled on idle, we do nothing unless is a digital call that needs it disabled */
-			if (caller_data->bearer_capability == FTDM_BEARER_CAP_UNRESTRICTED) {
-				ftdm_log_chan(chan, FTDM_LOG_DEBUG, "Disabling ec for digital call in channel state %s\n", ftdm_channel_state2str(chan->state));
-				ftdm_channel_command(chan, FTDM_COMMAND_DISABLE_ECHOCANCEL, NULL);
-			}
-		}
-	}
+  return;
 }
 
 FT_DECLARE(void) ftdm_set_echocancel_call_end(ftdm_channel_t *chan)
@@ -528,14 +513,6 @@ static ftdm_status_t ftdm_set_caller_data(ftdm_span_t *span, ftdm_caller_data_t 
 		caller_data->rdnis.type = span->default_caller_data.rdnis.type;
 	}
 
-	if (caller_data->bearer_capability >= FTDM_BEARER_CAP_INVALID) {
-		caller_data->bearer_capability = span->default_caller_data.bearer_capability;
-	}
-
-	if (caller_data->bearer_layer1 >= FTDM_USER_LAYER1_PROT_INVALID) {
-		caller_data->bearer_layer1 = span->default_caller_data.bearer_layer1;
-	}
-
 	if (FTDM_FAIL == ftdm_is_number(caller_data->cid_num.digits)) {
 		ftdm_log(FTDM_LOG_DEBUG, "dropping caller id number %s since we only accept digits\n", caller_data->cid_num.digits);
 		caller_data->cid_num.digits[0] = '\0';
@@ -555,9 +532,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_set_caller_data(ftdm_channel_t *ftdmchan,
 		return err; 
 	}
 	ftdmchan->caller_data = *caller_data;
-	if (ftdmchan->caller_data.bearer_capability == FTDM_BEARER_CAP_UNRESTRICTED) {
-		ftdm_set_flag(ftdmchan, FTDM_CHANNEL_DIGITAL_MEDIA);
-	}
 	return FTDM_SUCCESS;
 }
 
@@ -5789,9 +5763,6 @@ FT_DECLARE(ftdm_status_t) ftdm_span_send_signal(ftdm_span_t *span, ftdm_sigmsg_t
 			 * doing it during SIGEVENT_START, but now that flags are private they can't, wonder if
 			 * is needed at all? */
 			ftdm_clear_flag(sigmsg->channel, FTDM_CHANNEL_HOLD);
-			if (sigmsg->channel->caller_data.bearer_capability == FTDM_BEARER_CAP_UNRESTRICTED) {
-				ftdm_set_flag(sigmsg->channel, FTDM_CHANNEL_DIGITAL_MEDIA);
-			}
 		}
 		break;
 
