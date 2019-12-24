@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 modprobe dahdi
-/root/zt/dahdi-tone
+dahdi-tone
 modprobe wctdm24xxp
-/root/zt/dahdi-chan
+dahdi-chan
