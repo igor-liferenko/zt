@@ -840,7 +840,7 @@ done:
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name, ftdm_span_t **span)
+FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, ftdm_span_t **span)
 {
 	ftdm_span_t *new_span = NULL;
 	ftdm_io_interface_t *fio = NULL;
@@ -848,7 +848,6 @@ FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name,
 	char buf[128] = "";
 
 	ftdm_assert_return(iotype != NULL, FTDM_FAIL, "No IO type provided\n");
-	ftdm_assert_return(name != NULL, FTDM_FAIL, "No span name provided\n");
 	
 	*span = NULL;
 
@@ -882,10 +881,9 @@ FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name,
 		new_span->data_type = FTDM_TYPE_SPAN;
 
 		ftdm_mutex_lock(globals.span_mutex);
-		if (!ftdm_strlen_zero(name) && hashtable_search(globals.span_hash, (void *)name)) {
-			ftdm_log(FTDM_LOG_WARNING, "name %s is already used, substituting 'span%d' as the name\n", name, new_span->span_id);
-			name = NULL;
-		}
+
+		char *name = NULL;
+
 		ftdm_mutex_unlock(globals.span_mutex);
 		
 		if (!name) {
@@ -5081,7 +5079,7 @@ static ftdm_status_t load_config(void)
 	memset(&chan_config, 0, sizeof(chan_config));
 	sprintf(chan_config.group_name, "__default");
 
-	if (ftdm_span_create("zt", "FXS", &span) == FTDM_SUCCESS)
+	if (ftdm_span_create("zt", &span) == FTDM_SUCCESS)
 		if (ftdm_configure_span_channels(span, &chan_config) != FTDM_SUCCESS)
 			return FTDM_FAIL;
 

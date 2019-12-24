@@ -1269,7 +1269,7 @@ FT_DECLARE(const char *) ftdm_span_get_last_error(const ftdm_span_t *span);
  * \retval FTDM_SUCCESS success (the span was created)
  * \retval FTDM_FAIL failure (span was not created)
  */
-FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, const char *name, ftdm_span_t **span);
+FT_DECLARE(ftdm_status_t) ftdm_span_create(const char *iotype, ftdm_span_t **span);
 
 /*! 
  * \brief Add a new channel to a span

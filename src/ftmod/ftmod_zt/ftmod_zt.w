@@ -748,8 +748,7 @@ ftdm_status_t ftdm_span_poll_event(ftdm_span_t * span, uint32_t ms,
                                    short *poll_events);
 ftdm_status_t ftdm_span_find(uint32_t id, ftdm_span_t ** span);
 const char *ftdm_span_get_last_error(const ftdm_span_t * span);
-ftdm_status_t ftdm_span_create(const char *iotype, const char *name,
-                               ftdm_span_t ** span);
+
 ftdm_status_t ftdm_span_add_channel(ftdm_span_t * span, int sockfd,
                                     ftdm_channel_t ** chan);
 
