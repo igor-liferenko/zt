@@ -46,7 +46,7 @@ install:
 	/usr/bin/install -c -m 644 freetdm.pc '/usr/lib/pkgconfig'
 
 scp:
-	scp ~/zt/src/ftmod/ftmod_zt/ftmod_zt.w l:zt/src/ftmod/ftmod_zt/
+	scp -r ~/zt/* l:zt/
 
 dahdi-tone: dahdi-tone.c
 	gcc -o /bin/dahdi-tone dahdi-tone.c -lm
