@@ -5025,11 +5025,6 @@ static ftdm_status_t load_config(void)
 	return FTDM_SUCCESS;
 }
 
-static ftdm_status_t process_module_config(ftdm_io_interface_t *fio)
-{ /* TODO: purge this function from everywhere */
-	return FTDM_SUCCESS;
-}
-
 FT_DECLARE(ftdm_status_t) ftdm_global_add_io_interface(ftdm_io_interface_t *interface1)
 {
 	ftdm_status_t ret = FTDM_SUCCESS;
@@ -5092,10 +5087,7 @@ FT_DECLARE(int) ftdm_load_module(const char *name)
 			ftdm_log(FTDM_LOG_ERROR, "Error loading %s\n", path);
 			load_proceed = FTDM_FALSE;
 		} else {
-			ftdm_log(FTDM_LOG_INFO, "Loading IO from %s [%s]\n", path, interface1->name);
-			if (ftdm_global_add_io_interface(interface1) == FTDM_SUCCESS) {
-				process_module_config(interface1);
-			}
+			ftdm_log(FTDM_LOG_INFO, "Loading IO from %s [%s]\n", path, interface1->name);			ftdm_global_add_io_interface(interface1);
 		}
 	}
 
