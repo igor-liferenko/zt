@@ -86,8 +86,6 @@ typedef enum {
 	MDMF_ALT_ROUTE = 9,
 	MDMF_INVALID = 10
 } ftdm_mdmf_type_t;
-#define MDMF_STRINGS "X", "DATETIME", "PHONE_NUM", "DDN", "NO_NUM", "X", "X", "PHONE_NAME", "NO_NAME", "ALT_ROUTE", "INVALID"
-FTDM_STR2ENUM_P(ftdm_str2ftdm_mdmf_type, ftdm_mdmf_type2str, ftdm_mdmf_type_t)
 
 #define FTDM_TONEMAP_LEN 128
 typedef enum {

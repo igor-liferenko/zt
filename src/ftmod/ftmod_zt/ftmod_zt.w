@@ -569,24 +569,6 @@ typedef enum {
 } ftdm_endian_t;
 
 typedef enum {
-  FTDM_CID_TYPE_SDMF = 0x04,
-  FTDM_CID_TYPE_MDMF = 0x80
-} ftdm_cid_type_t;
-
-typedef enum {
-  MDMF_DATETIME = 1,
-  MDMF_PHONE_NUM = 2,
-  MDMF_DDN = 3,
-  MDMF_NO_NUM = 4,
-  MDMF_PHONE_NAME = 7,
-  MDMF_NO_NAME = 8,
-  MDMF_ALT_ROUTE = 9,
-  MDMF_INVALID = 10
-} ftdm_mdmf_type_t;
-ftdm_mdmf_type_t ftdm_str2ftdm_mdmf_type(const char *name);
-const char *ftdm_mdmf_type2str(ftdm_mdmf_type_t type);
-
-typedef enum {
   FTDM_TONEMAP_NONE,
   FTDM_TONEMAP_DIAL,
   FTDM_TONEMAP_RING,
