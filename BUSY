@@ -1,13 +1,19 @@
-If we pickup incomin call, when the other party hangs up, we hear busy signals.
-But if we receive from the phone which is ringing, when the other side hangs up, we don't hear
-busy signals, and the following stuff appears in log in addition to first case:
+PROBLEM: we do not always hear busy signals after the other side hangs up.
 
-2019-12-25 20:07:16.766915 [DEBUG] ftmod_analog.c:643 [s1c3][1:4] Changed state from BUSY to DOWN
-2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:513 [s1c3][1:4] Completed state change from BUSY to DOWN in 20 ms
-2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:519 [s1c3][1:4] Executing state handler on 1:3 for DOWN
-2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:5464 [s1c3][1:4] Ignoring SIGEVENT_STOP since user already requested hangup
-2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:3036 [s1c3][1:4] No need to disable input dump
-2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:3067 [s1c3][1:4] No need to disable output dump
-2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:6126 Cleared call with id 2
-2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:2880 [s1c3][1:4] channel done
-2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:782 [s1c3][1:4] ANALOG CHANNEL 1:3 thread ended.
+When I make a call and the other side hangs up (e.g., *0), the call ends with this:
+
+2019-12-26 05:32:24.740827 [DEBUG] ftmod_analog.c:519 [s1c2][1:3] Executing state handler on 1:2 for BUSY
+
+When the other side originates a call and I accept the call on the phone which rings (i.e., not from another
+phone via pickup) and the other side hangs up (e.g., via call-file from 10.0.0.1), the call ends with this:
+
+2019-12-26 05:34:18.240819 [DEBUG] ftmod_analog.c:519 [s1c2][1:3] Executing state handler on 1:2 for BUSY
+2019-12-26 05:34:18.240819 [DEBUG] ftmod_analog.c:643 [s1c2][1:3] Changed state from BUSY to DOWN
+2019-12-26 05:34:18.260819 [DEBUG] ftmod_analog.c:513 [s1c2][1:3] Completed state change from BUSY to DOWN in 20 ms
+2019-12-26 05:34:18.260819 [DEBUG] ftmod_analog.c:519 [s1c2][1:3] Executing state handler on 1:2 for DOWN
+2019-12-26 05:34:18.260819 [DEBUG] ftdm_io.c:5464 [s1c2][1:3] Ignoring SIGEVENT_STOP since user already requested hangup
+2019-12-26 05:34:18.260819 [DEBUG] ftdm_io.c:3036 [s1c2][1:3] No need to disable input dump
+2019-12-26 05:34:18.260819 [DEBUG] ftdm_io.c:3067 [s1c2][1:3] No need to disable output dump
+2019-12-26 05:34:18.260819 [DEBUG] ftdm_io.c:6126 Cleared call with id 18
+2019-12-26 05:34:18.260819 [DEBUG] ftdm_io.c:2880 [s1c2][1:3] channel done
+2019-12-26 05:34:18.260819 [DEBUG] ftmod_analog.c:782 [s1c2][1:3] ANALOG CHANNEL 1:2 thread ended.
