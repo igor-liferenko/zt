@@ -1205,12 +1205,8 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
   return configured;
 }
 
-/* !!!!!!!!???????????!!!!!!!!!!!!!!! */
 static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 {
-  ftdmchan->features =
-      (ftdm_channel_feature_t) (ftdmchan->features | FTDM_CHANNEL_FEATURE_INTERVAL);
-
   int echo_cancel_level = 16; /* number of samples of echo cancellation (0--256); 0 = disabled */
     /* The problem is that if ec is disabled, keys are not always recognized.
        Test this parameter separately from freeswitch when you factor-out teletone from freetdm

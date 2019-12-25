@@ -3208,14 +3208,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 		}
 		break;
 
-	case FTDM_COMMAND_GET_INTERVAL:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_INTERVAL)) {
-				FTDM_COMMAND_OBJ_INT = ftdmchan->effective_interval;
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
 	case FTDM_COMMAND_SET_CODEC:
 		{
 			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CODECS)) {
