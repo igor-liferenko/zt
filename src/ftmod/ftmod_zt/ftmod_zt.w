@@ -560,9 +560,6 @@ typedef struct {
   int conscutive_state_bits;
 } dsp_fsk_handle_t;
 
-typedef ssize_t ftdm_ssize_t;
-typedef int ftdm_filehandle_t;
-
 typedef enum {
   FTDM_ENDIAN_BIG = 1,
   FTDM_ENDIAN_LITTLE = -1
@@ -1043,7 +1040,7 @@ struct ftdm_channel {
   uint32_t token_count;
   char chan_name[128];
   char chan_number[32];
-  ftdm_filehandle_t fds[2];
+  int fds[2];
   ftdm_fsk_data_state_t fsk;
   uint8_t fsk_buf[80];
   uint32_t ring_count;
@@ -1613,7 +1610,7 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
 
 static ftdm_status_t zt_read(ftdm_channel_t * ftdmchan, void *data, size_t *datalen)
 {
-  ftdm_ssize_t r = 0;
+  ssize_t r = 0;
   int read_errno = 0;
   int errs = 0;
 
@@ -1670,7 +1667,7 @@ ftdmchan->last_event_time = ftdm_current_time_in_ms();
 @ @c
 static ftdm_status_t zt_write(ftdm_channel_t * ftdmchan, void *data, size_t *datalen)
 {
-  ftdm_ssize_t w = 0;
+  ssize_t w = 0;
   size_t bytes = *datalen;
 
 tryagain:

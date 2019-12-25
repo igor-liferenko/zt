@@ -43,16 +43,9 @@
 
 #include "fsk.h"
 
-#ifdef WIN32
-typedef intptr_t ftdm_ssize_t;
-typedef int ftdm_filehandle_t;
-#else
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <stdarg.h>
-typedef ssize_t ftdm_ssize_t;
-typedef int ftdm_filehandle_t;
-#endif
 
 #ifdef __cplusplus
 extern "C" {

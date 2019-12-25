@@ -443,7 +443,7 @@ struct ftdm_channel {
 	uint32_t token_count;
 	char chan_name[128];
 	char chan_number[32];
-	ftdm_filehandle_t fds[2];
+	int fds[2];
 	ftdm_fsk_data_state_t fsk;
 	uint8_t fsk_buf[80];
 	uint32_t ring_count;
