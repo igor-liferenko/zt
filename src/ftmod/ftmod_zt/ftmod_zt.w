@@ -221,23 +221,6 @@ typedef struct {
   ftdm_signaling_status_t status;
 } ftdm_event_sigstatus_t;
 
-typedef enum {
-  FTDM_TRACE_DIR_INCOMING,
-  FTDM_TRACE_DIR_OUTGOING,
-  FTDM_TRACE_DIR_INVALID,
-} ftdm_trace_dir_t;
-
-typedef enum {
-  FTDM_TRACE_TYPE_Q931,
-  FTDM_TRACE_TYPE_Q921,
-  FTDM_TRACE_TYPE_INVALID,
-} ftdm_trace_type_t;
-
-typedef struct {
-  ftdm_trace_dir_t dir;
-  ftdm_trace_type_t type;
-} ftdm_event_trace_t;
-
 typedef struct {
   char digits[64];
 } ftdm_event_collected_t;
@@ -282,7 +265,6 @@ struct ftdm_sigmsg {
   ftdm_variable_container_t variables;
   union {
     ftdm_event_sigstatus_t sigstatus;
-    ftdm_event_trace_t trace;
     ftdm_event_collected_t collected;
     ftdm_event_indication_completed_t indication_completed;
     ftdm_event_transfer_completed_t transfer_completed;

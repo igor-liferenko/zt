@@ -467,35 +467,6 @@ typedef struct {
 	ftdm_signaling_status_t status;
 } ftdm_event_sigstatus_t;
 
-typedef enum {
-	/* This is an received frame */
-	FTDM_TRACE_DIR_INCOMING,
-	/* This is a transmitted frame */
-	FTDM_TRACE_DIR_OUTGOING,
-	/* Invalid */
- 	FTDM_TRACE_DIR_INVALID,
-} ftdm_trace_dir_t;
-#define TRACE_DIR_STRINGS "INCOMING", "OUTGOING", "INVALID"
-
-/*! \brief Move string to ftdm_trace_dir_t and viceversa */
-FTDM_STR2ENUM_P(ftdm_str2ftdm_trace_dir, ftdm_trace_dir2str, ftdm_trace_dir_t)
-
-typedef enum {
-	FTDM_TRACE_TYPE_Q931,
-	FTDM_TRACE_TYPE_Q921,
-	FTDM_TRACE_TYPE_INVALID,
-} ftdm_trace_type_t;
-#define TRACE_TYPE_STRINGS "Q931", "Q921", "INVALID"
-
-/*! \brief Move string to ftdm_trace_type_t and viceversa */
-FTDM_STR2ENUM_P(ftdm_str2ftdm_trace_type, ftdm_trace_type2str, ftdm_trace_type_t)
-
-typedef struct {
-	/* Direction - incoming or outgoing */
-	ftdm_trace_dir_t dir;
-	ftdm_trace_type_t type;
-} ftdm_event_trace_t;
-
 typedef struct {
 	/* Digits collected */
 	char digits[FTDM_DIGITS_LIMIT];
@@ -551,7 +522,6 @@ struct ftdm_sigmsg {
 	ftdm_variable_container_t variables;
 	union {
 		ftdm_event_sigstatus_t sigstatus; /*!< valid if event_id is FTDM_SIGEVENT_SIGSTATUS_CHANGED */
-		ftdm_event_trace_t trace;	/*!< valid if event_id is FTDM_SIGEVENT_TRACE or FTDM_SIGEVENT_TRACE_RAW */
 		ftdm_event_collected_t collected; /*!< valid if event_id is FTDM_SIGEVENT_COLLECTED_DIGIT */
 		ftdm_event_indication_completed_t indication_completed; /*!< valid if the event_id is FTDM_SIGEVENT_INDICATION_COMPLETED */
 		ftdm_event_transfer_completed_t transfer_completed;
