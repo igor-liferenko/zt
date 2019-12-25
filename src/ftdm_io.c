@@ -4050,19 +4050,11 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 
 			if ((hit = teletone_dtmf_detect(&ftdmchan->dtmf_detect, sln, (int)slen)) == TT_HIT_END) {
 				teletone_dtmf_get(&ftdmchan->dtmf_detect, &digit_char, &dur);
-
-				if (ftdmchan->state == FTDM_CHANNEL_STATE_CALLWAITING && (digit_char == 'D' || digit_char == 'A')) {
-					ftdmchan->detected_tones[FTDM_TONEMAP_CALLWAITING_ACK]++;
-				} else {
-					char digit_str[2] = { 0 };
-
-					digit_str[0] = digit_char;
-
-					ftdm_channel_queue_dtmf(ftdmchan, digit_str);
-
-					if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF)) {
-						ftdmchan->skip_read_frames = 20;
-					}
+				char digit_str[2] = { 0 };
+				digit_str[0] = digit_char;
+				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
+				if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF)) {
+					ftdmchan->skip_read_frames = 20;
 				}
 			}
 		}
