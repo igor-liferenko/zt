@@ -46,7 +46,7 @@ install:
 	/usr/bin/install -c -m 644 freetdm.pc '/usr/lib/pkgconfig'
 
 scp:
-	scp -r ~/zt/* l:zt/
+	rsync -aR `git status|sed -n 's/^\tmodified:   //p'` l:zt/
 
 dahdi-tone: dahdi-tone.c
 	gcc -o /bin/dahdi-tone dahdi-tone.c -lm
