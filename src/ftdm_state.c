@@ -332,7 +332,6 @@ static ftdm_status_t ftdm_core_set_state(const char *file, const char *func, int
 			case FTDM_CHANNEL_STATE_PROGRESS_MEDIA:
 			case FTDM_CHANNEL_STATE_PROGRESS:				
 			case FTDM_CHANNEL_STATE_IDLE:				
-			case FTDM_CHANNEL_STATE_GET_CALLERID:
 			case FTDM_CHANNEL_STATE_GENRING:
 				ok = 1;
 				break;

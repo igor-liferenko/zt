@@ -143,7 +143,6 @@ static ftdm_status_t ftdm_analog_stop(ftdm_span_t *span)
  * \return Success or failure
  */
 static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
-//ftdm_status_t ftdm_analog_configure_span(ftdm_span_t *span, char *tonemap, uint32_t digit_timeout, uint32_t max_dialstr, fio_signal_cb_t sig_cb)
 {
 	ftdm_analog_data_t *analog_data;
 	const char *tonemap = "us";
@@ -154,7 +153,7 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 	uint32_t polarity_delay = 600;
 	const char *var, *val;
 	int *intval;
-	uint32_t flags = FTDM_ANALOG_CALLERID;
+	uint32_t flags = 0;
 
 	assert(sig_cb != NULL);
 	ftdm_log(FTDM_LOG_DEBUG, "Configuring span %s for analog signaling ...\n", span->name);
@@ -189,16 +188,6 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 			}
 			wait_dialtone_timeout = ftdm_max(0, *intval);
 			ftdm_log(FTDM_LOG_DEBUG, "Wait dial tone ms = %d\n", wait_dialtone_timeout);
-		} else if (!strcasecmp(var, "enable_callerid")) {
-			if (!(val = va_arg(ap, char *))) {
-                		break;
-            		}
-			
-			if (ftdm_true(val)) {
-				flags |= FTDM_ANALOG_CALLERID;
-			} else {
-				flags &= ~FTDM_ANALOG_CALLERID;
-			}
 		} else if (!strcasecmp(var, "answer_polarity_reverse")) {
 			if (!(val = va_arg(ap, char *))) {
                 		break;
@@ -232,15 +221,6 @@ static FIO_SIG_CONFIGURE_FUNCTION(ftdm_analog_configure_span)
 				break;
 			}
 			hotline = val;
-		} else if (!strcasecmp(var, "polarity_callerid")) {
-			if (!(val = va_arg(ap, char *))) {
-				break;
-			}
-			if (ftdm_true(val)) {
-				flags |= FTDM_ANALOG_POLARITY_CALLERID;
-			} else {
-				flags &= ~FTDM_ANALOG_POLARITY_CALLERID;
-			}
 		} else {
 			ftdm_log(FTDM_LOG_ERROR, "Unknown parameter %s in span %s\n", var, span->name);
 		}			
@@ -439,14 +419,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 		
 		if (!ftdm_test_flag(ftdmchan, FTDM_CHANNEL_STATE_CHANGE)) {
 			switch(ftdmchan->state) {
-			case FTDM_CHANNEL_STATE_GET_CALLERID:
-				{
-					if (state_counter > 5000 || !ftdm_test_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT)) {
-						ftdm_channel_command(ftdmchan, FTDM_COMMAND_DISABLE_CALLERID_DETECT, NULL);
-						ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_RING);
-					}
-				}
-				break;
 			case FTDM_CHANNEL_STATE_DIALING:
 				{
 					if (state_counter > dial_timeout) {
@@ -667,16 +639,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					
 				}
 				break;
-			case FTDM_CHANNEL_STATE_GET_CALLERID:
-				{
-					memset(&ftdmchan->caller_data, 0, sizeof(ftdmchan->caller_data));
-					ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Initializing cid data!\n");
-					ftdm_set_string(ftdmchan->caller_data.ani.digits, "unknown");
-					ftdm_set_string(ftdmchan->caller_data.cid_name, ftdmchan->caller_data.ani.digits);
-					ftdm_channel_command(ftdmchan, FTDM_COMMAND_ENABLE_CALLERID_DETECT, NULL);
-					continue;
-				}
-				break;
 			case FTDM_CHANNEL_STATE_RINGING:
 				{
 					ftdm_buffer_zero(dt_buffer);
@@ -885,11 +847,7 @@ static __inline__ ftdm_status_t process_event(ftdm_span_t *span, ftdm_event_t *e
 			goto end;
 
 			if (!event->channel->ring_count && (event->channel->state == FTDM_CHANNEL_STATE_DOWN && !ftdm_test_flag(event->channel, FTDM_CHANNEL_INTHREAD))) {
-				if (ftdm_test_flag(analog_data, FTDM_ANALOG_CALLERID)) {
-					ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_GET_CALLERID);
-				} else {
-					ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_RING);
-				}
+				ftdm_set_state(event->channel, FTDM_CHANNEL_STATE_RING);
 				event->channel->ring_count = 1;
 				ftdm_mutex_unlock(event->channel->mutex);
 				locked = 0;

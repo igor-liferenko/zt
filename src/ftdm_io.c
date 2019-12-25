@@ -86,7 +86,6 @@ static val_str_t channel_flag_strs[] =  {
 	{ "off-hook",  FTDM_CHANNEL_OFFHOOK},
 	{ "ringing",  FTDM_CHANNEL_RINGING},
 	{ "progress-detect",  FTDM_CHANNEL_PROGRESS_DETECT},
-	{ "callerid-detect",  FTDM_CHANNEL_CALLERID_DETECT},
 	{ "outbound",  FTDM_CHANNEL_OUTBOUND},
 	{ "suspended",  FTDM_CHANNEL_SUSPENDED},
 	{ "3-way",  FTDM_CHANNEL_3WAY},
@@ -2826,7 +2825,6 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_RINGING);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
-	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_3WAY);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_MEDIA);
@@ -3009,28 +3007,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 	ftdm_channel_lock(ftdmchan);
 
 	switch (command) {
-
-	case FTDM_COMMAND_ENABLE_CALLERID_DETECT:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CALLERID)) {
-				if (ftdm_fsk_demod_init(&ftdmchan->fsk, ftdmchan->rate, ftdmchan->fsk_buf, sizeof(ftdmchan->fsk_buf)) != FTDM_SUCCESS) {
-					snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", strerror(errno));
-					GOTO_STATUS(done, FTDM_FAIL);
-				}
-				ftdm_set_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-	case FTDM_COMMAND_DISABLE_CALLERID_DETECT:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CALLERID)) {
-				ftdm_fsk_demod_destroy(&ftdmchan->fsk);
-				ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
 	case FTDM_COMMAND_TRACE_INPUT:
 		{
 			char *path = FTDM_COMMAND_OBJ_CHAR_P;
@@ -4017,8 +3993,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 	}
 
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT) ||
-		ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT) ||
-		ftdm_test_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT)) {
+		ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT)) {
 
 		uint8_t sln_buf[1024] = {0};
 		int16_t *sln;
@@ -4051,62 +4026,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 			}
 			sln = (int16_t *) sln_buf;
 			slen = len;
-		}
-
-		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_CALLERID_DETECT)) {
-			if (ftdm_fsk_demod_feed(&ftdmchan->fsk, sln, slen) != FTDM_SUCCESS) {
-				ftdm_size_t type, mlen;
-				char str[128], *sp;
-				
-				while(ftdm_fsk_data_parse(&ftdmchan->fsk, &type, &sp, &mlen) == FTDM_SUCCESS) {
-					*(str+mlen) = '\0';
-					ftdm_copy_string(str, sp, ++mlen);
-					ftdm_clean_string(str);
-
-					ftdm_log(FTDM_LOG_DEBUG, "FSK: TYPE %s LEN %"FTDM_SIZE_FMT" VAL [%s]\n",
-						ftdm_mdmf_type2str(type), mlen-1, str);
-					
-					switch(type) {
-					case MDMF_DDN:
-					case MDMF_PHONE_NUM:
-						{
-							if (mlen > sizeof(ftdmchan->caller_data.ani)) {
-								mlen = sizeof(ftdmchan->caller_data.ani);
-							}
-							ftdm_set_string(ftdmchan->caller_data.ani.digits, str);
-							ftdm_set_string(ftdmchan->caller_data.cid_num.digits, ftdmchan->caller_data.ani.digits);
-						}
-						break;
-					case MDMF_NO_NUM:
-						{
-							ftdm_set_string(ftdmchan->caller_data.ani.digits, *str == 'P' ? "private" : "unknown");
-							ftdm_set_string(ftdmchan->caller_data.cid_name, ftdmchan->caller_data.ani.digits);
-						}
-						break;
-					case MDMF_PHONE_NAME:
-						{
-							if (mlen > sizeof(ftdmchan->caller_data.cid_name)) {
-								mlen = sizeof(ftdmchan->caller_data.cid_name);
-							}
-							ftdm_set_string(ftdmchan->caller_data.cid_name, str);
-						}
-						break;
-					case MDMF_NO_NAME:
-						{
-							ftdm_set_string(ftdmchan->caller_data.cid_name, *str == 'P' ? "private" : "unknown");
-						}
-					case MDMF_DATETIME:
-						{
-							if (mlen > sizeof(ftdmchan->caller_data.cid_date)) {
-								mlen = sizeof(ftdmchan->caller_data.cid_date);
-							}
-							ftdm_set_string(ftdmchan->caller_data.cid_date, str);
-						}
-						break;
-					}
-				}
-				ftdm_channel_command(ftdmchan, FTDM_COMMAND_DISABLE_CALLERID_DETECT, NULL);
-			}
 		}
 
 		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT) && !ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_PROGRESS)) {

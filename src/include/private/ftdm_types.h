@@ -194,7 +194,6 @@ typedef enum {
 typedef enum {
 	FTDM_CHANNEL_FEATURE_DTMF_GENERATE = (1 << 1), /*!< Channel can generate DTMF (read-only) */
 	FTDM_CHANNEL_FEATURE_CODECS = (1 << 2), /*!< Channel can do transcoding (read-only) */
-	FTDM_CHANNEL_FEATURE_CALLERID = (1 << 4), /*!< Channel can detect caller id (read-only) */
 	FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5), /*!< Channel can detect inband progress (read-only) */
 	FTDM_CHANNEL_FEATURE_HWEC = (1<<7), /*!< Channel has a hardware echo canceller */
 	FTDM_CHANNEL_FEATURE_HWEC_DISABLED_ON_IDLE  = (1<<8), /*!< hardware echo canceller is disabled when there are no calls on this channel */
@@ -223,7 +222,6 @@ typedef enum {
 #define FTDM_CHANNEL_OFFHOOK       (1ULL << 14)
 #define FTDM_CHANNEL_RINGING       (1ULL << 15)
 #define FTDM_CHANNEL_PROGRESS_DETECT (1ULL << 16)
-#define FTDM_CHANNEL_CALLERID_DETECT (1ULL << 17)
 #define FTDM_CHANNEL_OUTBOUND        (1ULL << 18)
 #define FTDM_CHANNEL_SUSPENDED       (1ULL << 19)
 #define FTDM_CHANNEL_3WAY            (1ULL << 20)
