@@ -3208,20 +3208,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 		}
 		break;
 
-	case FTDM_COMMAND_SET_INTERVAL:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_INTERVAL)) {
-				ftdmchan->effective_interval = FTDM_COMMAND_OBJ_INT;
-				if (ftdmchan->effective_interval == ftdmchan->native_interval) {
-					ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_BUFFER);
-				} else {
-					ftdm_set_flag(ftdmchan, FTDM_CHANNEL_BUFFER);
-				}
-				ftdmchan->packet_len = ftdmchan->native_interval * (ftdmchan->effective_codec == FTDM_CODEC_SLIN ? 16 : 8);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
 	case FTDM_COMMAND_GET_INTERVAL:
 		{
 			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_INTERVAL)) {

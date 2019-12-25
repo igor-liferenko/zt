@@ -1211,18 +1211,6 @@ static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
   ftdmchan->features =
       (ftdm_channel_feature_t) (ftdmchan->features | FTDM_CHANNEL_FEATURE_INTERVAL);
 
-  int blocksize = 160;        /* each 20ms */
-  int err;
-  if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &blocksize)) == -1) {
-    snprintf(ftdmchan->last_error, sizeof ftdmchan->last_error, "%m");
-    return FTDM_FAIL;
-  }
-  else {
-    ftdmchan->effective_interval = ftdmchan->native_interval;
-    ftdmchan->packet_len = blocksize;
-    ftdmchan->native_codec = ftdmchan->effective_codec;
-  }
-
   int echo_cancel_level = 16; /* number of samples of echo cancellation (0--256); 0 = disabled */
     /* The problem is that if ec is disabled, keys are not always recognized.
        Test this parameter separately from freeswitch when you factor-out teletone from freetdm
@@ -1316,17 +1304,6 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
     if ((err = ioctl(ftdmchan->sockfd, DAHDI_GET_BLOCKSIZE, &ftdmchan->packet_len)) == 0) {
       ftdmchan->native_interval = ftdmchan->packet_len / 8;
       *((int *) obj) = ftdmchan->native_interval;
-    }
-    break;
-  case FTDM_COMMAND_SET_INTERVAL:
-    {
-      int interval = *((int *) obj);
-      int len = interval * 8;
-
-      if ((err = ioctl(ftdmchan->sockfd, DAHDI_SET_BLOCKSIZE, &len)) == 0) {
-        ftdmchan->packet_len = len;
-        ftdmchan->effective_interval = ftdmchan->native_interval = ftdmchan->packet_len / 8;
-      }
     }
     break;
   case FTDM_COMMAND_FLUSH_TX_BUFFERS:
