@@ -1164,33 +1164,28 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
 @c
 static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
-  unsigned configured = 0; // ??????????????????????????
-
   for (int channel = 2; channel <= 4; channel++) {
     int sockfd;
     if ((sockfd = open("/dev/dahdi/channel", O_RDWR)) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel\n");
-      continue;
+      return 0;
     }
 
     if (ioctl(sockfd, DAHDI_SPECIFY, &channel) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "DAHDI_SPECIFY failed\n");
-      close(sockfd);
-      continue;
+      return 0;
     }
 
     int blocksize = 160;              /* each 20ms */
     if (ioctl(sockfd, DAHDI_SET_BLOCKSIZE, &blocksize) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_BLOCKSIZE failed\n");
-      close(sockfd);
-      continue;
+      return 0;
     }
 
     ftdm_channel_t *ftdmchan;
     if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
-      close(sockfd);
-      continue;
+      return 0;
     }
     ftdmchan->rate = 8000;
     ftdmchan->physical_span_id = 1;
@@ -1198,11 +1193,9 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
     ftdmchan->native_codec = ftdmchan->effective_codec = FTDM_CODEC_ULAW;
     ftdmchan->packet_len = blocksize;
     ftdmchan->native_interval = ftdmchan->effective_interval = blocksize / 8;
-
-    configured++;
   }
 
-  return configured;
+  return 1;
 }
 
 static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
