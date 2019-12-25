@@ -711,7 +711,6 @@ struct ftdm_memory_handler {
 #define FIO_SIGNAL_CB_ARGS (ftdm_sigmsg_t *sigmsg)
 #define FIO_EVENT_CB_ARGS (ftdm_channel_t *ftdmchan, ftdm_event_t *event)
 #define FIO_CONFIGURE_SPAN_ARGS (ftdm_span_t *span)
-#define FIO_CONFIGURE_ARGS (const char *category, const char *var, const char *val, int lineno)
 #define FIO_OPEN_ARGS (ftdm_channel_t *ftdmchan)
 #define FIO_CLOSE_ARGS (ftdm_channel_t *ftdmchan)
 #define FIO_CHANNEL_DESTROY_ARGS (ftdm_channel_t *ftdmchan)
@@ -759,7 +758,6 @@ typedef ftdm_status_t (*fio_signal_cb_t) FIO_SIGNAL_CB_ARGS ;
 
 typedef ftdm_status_t (*fio_event_cb_t) FIO_EVENT_CB_ARGS ;
 typedef ftdm_status_t (*fio_configure_span_t) FIO_CONFIGURE_SPAN_ARGS ;
-typedef ftdm_status_t (*fio_configure_t) FIO_CONFIGURE_ARGS ;
 typedef ftdm_status_t (*fio_open_t) FIO_OPEN_ARGS ;
 typedef ftdm_status_t (*fio_close_t) FIO_CLOSE_ARGS ;
 typedef ftdm_status_t (*fio_channel_destroy_t) FIO_CHANNEL_DESTROY_ARGS ;
@@ -795,7 +793,6 @@ typedef ftdm_status_t (*fio_span_stop_t) FIO_SPAN_STOP_ARGS ;
 #define FIO_SIGNAL_CB_FUNCTION(name) ftdm_status_t name FIO_SIGNAL_CB_ARGS
 #define FIO_EVENT_CB_FUNCTION(name) ftdm_status_t name FIO_EVENT_CB_ARGS
 #define FIO_CONFIGURE_SPAN_FUNCTION(name) ftdm_status_t name FIO_CONFIGURE_SPAN_ARGS
-#define FIO_CONFIGURE_FUNCTION(name) ftdm_status_t name FIO_CONFIGURE_ARGS
 #define FIO_OPEN_FUNCTION(name) ftdm_status_t name FIO_OPEN_ARGS
 #define FIO_CLOSE_FUNCTION(name) ftdm_status_t name FIO_CLOSE_ARGS
 #define FIO_CHANNEL_DESTROY_FUNCTION(name) ftdm_status_t name FIO_CHANNEL_DESTROY_ARGS
@@ -820,7 +817,6 @@ typedef ftdm_status_t (*fio_span_stop_t) FIO_SPAN_STOP_ARGS ;
 struct ftdm_io_interface {
 	const char *name; /*!< I/O module name */
 	fio_configure_span_t configure_span; /*!< Configure span I/O */
-	fio_configure_t configure; /*!< Configure the module */
 	fio_open_t open; /*!< Open I/O channel */
 	fio_close_t close; /*!< Close I/O channel */
 	fio_channel_destroy_t channel_destroy; /*!< Destroy I/O channel */

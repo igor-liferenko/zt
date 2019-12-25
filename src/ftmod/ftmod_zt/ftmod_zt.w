@@ -442,9 +442,7 @@ typedef ftdm_status_t(*fio_signal_cb_t) (ftdm_sigmsg_t * sigmsg);
 typedef ftdm_status_t(*fio_event_cb_t) (ftdm_channel_t * ftdmchan,
                                         ftdm_event_t * event);
 typedef ftdm_status_t(*fio_configure_span_t) (ftdm_span_t * span);
-typedef ftdm_status_t(*fio_configure_t) (const char *category,
-                                         const char *var, const char *val,
-                                         int lineno);
+
 typedef ftdm_status_t(*fio_open_t) (ftdm_channel_t * ftdmchan);
 typedef ftdm_status_t(*fio_close_t) (ftdm_channel_t * ftdmchan);
 typedef ftdm_status_t(*fio_channel_destroy_t) (ftdm_channel_t * ftdmchan);
@@ -478,7 +476,6 @@ typedef ftdm_status_t(*fio_span_stop_t) (ftdm_span_t * span);
 struct ftdm_io_interface {
   const char *name;
   fio_configure_span_t configure_span;
-  fio_configure_t configure;
   fio_open_t open;
   fio_close_t close;
   fio_channel_destroy_t channel_destroy;
@@ -1208,13 +1205,6 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
   return configured;
 }
 
-/* purge this func from everywhere */
-static ftdm_status_t zt_configure(const char *category, const char *var,
-                                  const char *val, int lineno)
-{
-  return FTDM_SUCCESS;
-}
-
 /* !!!!!!!!???????????!!!!!!!!!!!!!!! */
 static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 {
@@ -1793,7 +1783,6 @@ static ftdm_status_t zt_init(ftdm_io_interface_t ** fio)
   }
 
   zt_interface.name = "zt";
-  zt_interface.configure = zt_configure;
   zt_interface.configure_span = zt_configure_span;
   zt_interface.open = zt_open;
   zt_interface.close = zt_close;

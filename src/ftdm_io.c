@@ -5048,32 +5048,7 @@ static ftdm_status_t load_config(void)
 }
 
 static ftdm_status_t process_module_config(ftdm_io_interface_t *fio)
-{
-	ftdm_config_t cfg;
-	char *var, *val;
-	char filename[256] = "";
-	
-	ftdm_assert_return(fio != NULL, FTDM_FAIL, "fio argument is null\n");
-
-	snprintf(filename, sizeof(filename), "%s.conf", fio->name);
-
-	if (!fio->configure) {
-		ftdm_log(FTDM_LOG_DEBUG, "Module %s does not support configuration.\n", fio->name);	
-		return FTDM_FAIL;
-	}
-
-	if (!ftdm_config_open_file(&cfg, filename)) {
-		/* This is normal if the user did not provide a configuration for this module */
-		ftdm_log(FTDM_LOG_DEBUG, "File %s is not available\n", filename);
-		return FTDM_FAIL;
-	}
-
-	while (ftdm_config_next_pair(&cfg, &var, &val)) {
-		fio->configure(cfg.category, var, val, cfg.lineno);
-	}
-
-	ftdm_config_close_file(&cfg);	
-
+{ /* TODO: purge this function from everywhere */
 	return FTDM_SUCCESS;
 }
 
