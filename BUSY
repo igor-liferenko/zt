@@ -1,0 +1,13 @@
+If we pickup incomin call, when the other party hangs up, we hear busy signals.
+But if we receive from the phone which is ringing, when the other side hangs up, we don't hear
+busy signals, and the following stuff appears in log in addition to first case:
+
+2019-12-25 20:07:16.766915 [DEBUG] ftmod_analog.c:643 [s1c3][1:4] Changed state from BUSY to DOWN
+2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:513 [s1c3][1:4] Completed state change from BUSY to DOWN in 20 ms
+2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:519 [s1c3][1:4] Executing state handler on 1:3 for DOWN
+2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:5464 [s1c3][1:4] Ignoring SIGEVENT_STOP since user already requested hangup
+2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:3036 [s1c3][1:4] No need to disable input dump
+2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:3067 [s1c3][1:4] No need to disable output dump
+2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:6126 Cleared call with id 2
+2019-12-25 20:07:16.786925 [DEBUG] ftdm_io.c:2880 [s1c3][1:4] channel done
+2019-12-25 20:07:16.786925 [DEBUG] ftmod_analog.c:782 [s1c3][1:4] ANALOG CHANNEL 1:3 thread ended.
