@@ -5012,16 +5012,16 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_c
 
 static ftdm_status_t load_config(void)
 {
-	ftdm_span_t *span = NULL;
-
-	ftdm_channel_config_t chan_config;
-	memset(&chan_config, 0, sizeof(chan_config));
-	sprintf(chan_config.group_name, "__default");
-
-	if (ftdm_span_create("zt", &span) == FTDM_SUCCESS)
+        ftdm_span_t *span = NULL;
+	if (ftdm_span_create("zt", &span) == FTDM_SUCCESS) {
+	        ftdm_channel_config_t chan_config;
+        	memset(&chan_config, 0, sizeof(chan_config));
+	        sprintf(chan_config.group_name, "__default");
+        	chan_config.debugdtmf = FTDM_TRUE;
+		// ftdm_set_string(globals.dtmfdebug_directory, "...");
 		if (ftdm_configure_span_channels(span, &chan_config) != FTDM_SUCCESS)
 			return FTDM_FAIL;
-
+	}
 	return FTDM_SUCCESS;
 }
 
