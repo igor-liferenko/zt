@@ -324,23 +324,8 @@ static void send_caller_id(ftdm_channel_t *ftdmchan)
 
 static void analog_dial(ftdm_channel_t *ftdmchan, uint32_t *state_counter, uint32_t *dial_timeout)
 {
-	if (ftdm_strlen_zero(ftdmchan->caller_data.dnis.digits)) {
-		ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "No digits to send, moving to UP!\n");
-		ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_UP);
-	} else {
-		if (ftdm_channel_command(ftdmchan, FTDM_COMMAND_SEND_DTMF, ftdmchan->caller_data.dnis.digits) != FTDM_SUCCESS) {
-			ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "Send Digits Failed [%s]\n", ftdmchan->last_error);
-			ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_BUSY);
-		} else {
-			*state_counter = 0;
-			ftdmchan->needed_tones[FTDM_TONEMAP_RING] = 1;
-			ftdmchan->needed_tones[FTDM_TONEMAP_BUSY] = 1;
-			ftdmchan->needed_tones[FTDM_TONEMAP_FAIL1] = 1;
-			ftdmchan->needed_tones[FTDM_TONEMAP_FAIL2] = 1;
-			ftdmchan->needed_tones[FTDM_TONEMAP_FAIL3] = 1;
-			*dial_timeout = (uint32_t)((ftdmchan->dtmf_on + ftdmchan->dtmf_off) * strlen(ftdmchan->caller_data.dnis.digits)) + 2000;
-		}
-	}
+	ftdm_log_chan_msg(ftdmchan, FTDM_LOG_ERROR, "Can this function be ever called?\n"); // No digits to send, moving to UP!
+	ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_UP);
 }
 
 /**

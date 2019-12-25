@@ -425,13 +425,10 @@ struct ftdm_channel {
 	fio_event_cb_t event_callback;
 	uint32_t skip_read_frames;
 	ftdm_buffer_t *dtmf_buffer;
-	ftdm_buffer_t *gen_dtmf_buffer;
 	ftdm_buffer_t *pre_buffer;
 	ftdm_buffer_t *digit_buffer;
 	ftdm_buffer_t *fsk_buffer;
 	ftdm_mutex_t *pre_buffer_mutex;
-	uint32_t dtmf_on;
-	uint32_t dtmf_off;
 	char *dtmf_hangup_buf;
 	teletone_generation_session_t tone_session;
 	ftdm_time_t last_event_time;
@@ -509,8 +506,6 @@ struct ftdm_span {
 	ftdm_span_destroy_t destroy;
 	ftdm_channel_sig_read_t sig_read;
 	ftdm_channel_sig_write_t sig_write;
-	ftdm_channel_sig_dtmf_t sig_queue_dtmf;
-	ftdm_channel_sig_dtmf_t sig_send_dtmf;
 	uint32_t sig_release_guard_time_ms;
 	ftdm_channel_state_processor_t state_processor; /*!< This guy is called whenever state processing is required */
 	char *type;

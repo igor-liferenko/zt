@@ -593,11 +593,6 @@ typedef enum {
 	FTDM_COMMAND_GET_NATIVE_CODEC = 6,
 	FTDM_COMMAND_ENABLE_DTMF_DETECT = 7,
 	FTDM_COMMAND_DISABLE_DTMF_DETECT = 8,
-	FTDM_COMMAND_SEND_DTMF = 9,
-	FTDM_COMMAND_SET_DTMF_ON_PERIOD = 10,
-	FTDM_COMMAND_GET_DTMF_ON_PERIOD = 11,
-	FTDM_COMMAND_SET_DTMF_OFF_PERIOD = 12,
-	FTDM_COMMAND_GET_DTMF_OFF_PERIOD = 13,
 	FTDM_COMMAND_GENERATE_RING_ON = 14,
 	FTDM_COMMAND_GENERATE_RING_OFF = 15,
 	FTDM_COMMAND_OFFHOOK = 16,
@@ -1165,7 +1160,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_get_alarms(ftdm_channel_t *ftdmchan, ftdm
 
 /*! 
  * \brief Dequeue DTMF from the given channel
- * \note To transmit DTMF use ftdm_channel_command with command FTDM_COMMAND_SEND_DTMF
  *
  * \param ftdmchan The channel to dequeue DTMF from
  * \param dtmf DTMF buffer to store the dtmf (you are responsible for its allocation and deallocation)

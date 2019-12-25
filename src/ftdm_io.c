@@ -608,7 +608,6 @@ static ftdm_status_t ftdm_channel_destroy(ftdm_channel_t *ftdmchan)
 		ftdm_mutex_unlock(ftdmchan->pre_buffer_mutex);
 
 		ftdm_buffer_destroy(&ftdmchan->digit_buffer);
-		ftdm_buffer_destroy(&ftdmchan->gen_dtmf_buffer);
 		ftdm_buffer_destroy(&ftdmchan->dtmf_buffer);
 		ftdm_buffer_destroy(&ftdmchan->fsk_buffer);
 		ftdmchan->pre_buffer_size = 0;
@@ -1041,19 +1040,11 @@ FT_DECLARE(ftdm_status_t) ftdm_span_add_channel(ftdm_span_t *span, ftdm_socket_t
 		new_chan->fds[FTDM_READ_TRACE_INDEX] = -1;
 		new_chan->fds[FTDM_WRITE_TRACE_INDEX] = -1;
 		new_chan->data_type = FTDM_TYPE_CHANNEL;
-		if (!new_chan->dtmf_on) {
-			new_chan->dtmf_on = FTDM_DEFAULT_DTMF_ON;
-		}
-
-		if (!new_chan->dtmf_off) {
-			new_chan->dtmf_off = FTDM_DEFAULT_DTMF_OFF;
-		}
 
 		ftdm_mutex_create(&new_chan->mutex);
 		ftdm_mutex_create(&new_chan->pre_buffer_mutex);
 
 		ftdm_buffer_create(&new_chan->digit_buffer, 128, 128, 0);
-		ftdm_buffer_create(&new_chan->gen_dtmf_buffer, 128, 128, 0);
 
 		new_chan->dtmf_hangup_buf = ftdm_calloc (span->dtmf_hangup_len + 1, sizeof (char));
 
@@ -2872,24 +2863,12 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 
 	ftdm_channel_flush_dtmf(ftdmchan);
 
-	if (ftdmchan->gen_dtmf_buffer) {
-		ftdm_buffer_zero(ftdmchan->gen_dtmf_buffer);
-	}
-
 	if (ftdmchan->dtmf_buffer) {
 		ftdm_buffer_zero(ftdmchan->dtmf_buffer);
 	}
 
 	if (ftdmchan->digit_buffer) {
 		ftdm_buffer_zero(ftdmchan->digit_buffer);
-	}
-
-	if (!ftdmchan->dtmf_on) {
-		ftdmchan->dtmf_on = FTDM_DEFAULT_DTMF_ON;
-	}
-
-	if (!ftdmchan->dtmf_off) {
-		ftdmchan->dtmf_off = FTDM_DEFAULT_DTMF_OFF;
 	}
 
 	memset(ftdmchan->dtmf_hangup_buf, '\0', ftdmchan->span->dtmf_hangup_len);
@@ -2943,55 +2922,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_close(ftdm_channel_t **ftdmchan)
 	}
 	
 	return status;
-}
-
-static ftdm_status_t ftdmchan_activate_dtmf_buffer(ftdm_channel_t *ftdmchan)
-{
-	if (!ftdmchan->dtmf_buffer) {
-		if (ftdm_buffer_create(&ftdmchan->dtmf_buffer, 1024, 3192, 0) != FTDM_SUCCESS) {
-			ftdm_log(FTDM_LOG_ERROR, "Failed to allocate DTMF Buffer!\n");
-			return FTDM_FAIL;
-		} else {
-			ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Created DTMF buffer\n");
-		}
-	}
-
-	
-	if (!ftdmchan->tone_session.buffer) {
-		memset(&ftdmchan->tone_session, 0, sizeof(ftdmchan->tone_session));
-		teletone_init_session(&ftdmchan->tone_session, 0, NULL, NULL);
-	}
-
-	ftdmchan->tone_session.rate = ftdmchan->rate;
-	ftdmchan->tone_session.duration = ftdmchan->dtmf_on * (ftdmchan->tone_session.rate / 1000);
-	ftdmchan->tone_session.wait = ftdmchan->dtmf_off * (ftdmchan->tone_session.rate / 1000);
-	ftdmchan->tone_session.volume = -7;
-
-	/*
-	  ftdmchan->tone_session.debug = 1;
-	  ftdmchan->tone_session.debug_stream = stdout;
-	*/
-
-	return FTDM_SUCCESS;
-}
-
-/*
- * ftdmchan_activate_dtmf_buffer to initialize ftdmchan->dtmf_buffer should be called prior to
- * calling ftdm_insert_dtmf_pause
- */
-static ftdm_status_t ftdm_insert_dtmf_pause(ftdm_channel_t *ftdmchan, ftdm_size_t pausems)
-{
-	void *data = NULL;
-	ftdm_size_t datalen = pausems * sizeof(uint16_t);
-
-	data = ftdm_malloc(datalen);
-	ftdm_assert(data, "Failed to allocate memory\n");
-
-	memset(data, FTDM_SILENCE_VALUE(ftdmchan), datalen);
-
-	ftdm_buffer_write(ftdmchan->dtmf_buffer, data, datalen);
-	ftdm_safe_free(data);
-	return FTDM_SUCCESS;
 }
 
 FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_command_t command, void *obj)
@@ -3297,69 +3227,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 
 		}
 		break;
-	case FTDM_COMMAND_GET_DTMF_ON_PERIOD:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_GENERATE)) {
-				FTDM_COMMAND_OBJ_INT = ftdmchan->dtmf_on;
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-	case FTDM_COMMAND_GET_DTMF_OFF_PERIOD:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_GENERATE)) {
-				FTDM_COMMAND_OBJ_INT = ftdmchan->dtmf_on;
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-	case FTDM_COMMAND_SET_DTMF_ON_PERIOD:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_GENERATE)) {
-				int val = FTDM_COMMAND_OBJ_INT;
-				if (val > 10 && val < 1000) {
-					ftdmchan->dtmf_on = val;
-					GOTO_STATUS(done, FTDM_SUCCESS);
-				} else {
-					ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "invalid value %d range 10-1000", val);
-					GOTO_STATUS(done, FTDM_FAIL);
-				}
-			}
-		}
-		break;
-	case FTDM_COMMAND_SET_DTMF_OFF_PERIOD:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_GENERATE)) {
-				int val = FTDM_COMMAND_OBJ_INT;
-				if (val > 10 && val < 1000) {
-					ftdmchan->dtmf_off = val;
-					GOTO_STATUS(done, FTDM_SUCCESS);
-				} else {
-					ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "invalid value %d range 10-1000", val);
-					GOTO_STATUS(done, FTDM_FAIL);
-				}
-			}
-		}
-		break;
-	case FTDM_COMMAND_SEND_DTMF:
-		{
-			char *digits = FTDM_COMMAND_OBJ_CHAR_P;
-			if (ftdmchan->span->sig_send_dtmf) {
-				status = ftdmchan->span->sig_send_dtmf(ftdmchan, digits);
-				GOTO_STATUS(done, status);
-			} else if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_DTMF_GENERATE)) {
-				
-				if ((status = ftdmchan_activate_dtmf_buffer(ftdmchan)) != FTDM_SUCCESS) {
-					GOTO_STATUS(done, status);
-				}
-				
-				ftdm_buffer_write(ftdmchan->gen_dtmf_buffer, digits, strlen(digits));
-				
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-
 	case FTDM_COMMAND_DISABLE_ECHOCANCEL:
 		{
 			ftdm_mutex_lock(ftdmchan->pre_buffer_mutex);
@@ -3658,11 +3525,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_queue_dtmf(ftdm_channel_t *ftdmchan, cons
 
 	ftdm_log_chan(ftdmchan, FTDM_LOG_DEBUG, "Queuing DTMF %s (debug = %d)\n", dtmf, ftdmchan->dtmfdbg.enabled);
 
-	if (ftdmchan->span->sig_queue_dtmf && (ftdmchan->span->sig_queue_dtmf(ftdmchan, dtmf) == FTDM_BREAK)) {
-		/* Signalling module wants to absorb this DTMF event */
-		return FTDM_SUCCESS;
-	}
-
 	if (!ftdmchan->dtmfdbg.enabled) {
 		goto skipdebug;
 	}
@@ -3834,50 +3696,11 @@ static ftdm_status_t handle_tone_generation(ftdm_channel_t *ftdmchan)
 	 * datalen: size in bytes of the chunk of data the user requested to read (this function 
 	 *          is called from the ftdm_channel_read function)
 	 * dblen: size currently in use in any of the tone generation buffers (data available in the buffer)
-	 * gen_dtmf_buffer: buffer holding the raw ASCII digits that the user requested to generate
 	 * dtmf_buffer: raw linear tone data generated by teletone to be written to the devices
 	 * fsk_buffer: raw linear FSK modulated data for caller id
 	 */
 	ftdm_buffer_t *buffer = NULL;
 	ftdm_size_t dblen = 0;
-	int wrote = 0;
-
-	if (ftdmchan->gen_dtmf_buffer && (dblen = ftdm_buffer_inuse(ftdmchan->gen_dtmf_buffer))) {
-		char digits[128] = "";
-		char *cur;
-		int x = 0;				 
-		
-		if (dblen > sizeof(digits) - 1) {
-			dblen = sizeof(digits) - 1;
-		}
-
-		if (ftdm_buffer_read(ftdmchan->gen_dtmf_buffer, digits, dblen) && !ftdm_strlen_zero_buf(digits)) {
-			ftdm_log_chan(ftdmchan, FTDM_LOG_DEBUG, "Generating DTMF [%s]\n", digits);
-
-			cur = digits;
-
-			for (; *cur; cur++) {
-				if (*cur == 'F') {
-					ftdm_channel_command(ftdmchan, FTDM_COMMAND_FLASH, NULL);
-				} else if (*cur == 'w') {
-					ftdm_insert_dtmf_pause(ftdmchan, FTDM_HALF_DTMF_PAUSE);
-				} else if (*cur == 'W') {
-					ftdm_insert_dtmf_pause(ftdmchan, FTDM_FULL_DTMF_PAUSE);
-				} else {
-					if ((wrote = teletone_mux_tones(&ftdmchan->tone_session, &ftdmchan->tone_session.TONES[(int)*cur]))) {
-						ftdm_buffer_write(ftdmchan->dtmf_buffer, ftdmchan->tone_session.buffer, wrote * 2);
-						x++;
-					} else {
-						ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "Problem adding DTMF sequence [%s]\n", digits);
-						return FTDM_FAIL;
-					}
-				}
-				if (x) {
-					ftdmchan->skip_read_frames = (wrote / (ftdmchan->effective_interval * 8)) + 4;
-				}
-			}
-		}
-	}
 
 	if (!ftdmchan->buffer_delay || --ftdmchan->buffer_delay == 0) {
 		/* time to pick a buffer, either the dtmf or fsk buffer */
@@ -4906,12 +4729,6 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_c
 		span->channels[chan_index]->dtmfdetect.duration_ms = chan_config->dtmfdetect_ms;
 		if (chan_config->dtmf_on_start) {
 			span->channels[chan_index]->dtmfdetect.trigger_on_start = 1;
-		}
-		if (chan_config->dtmf_time_on) {
-			ftdm_channel_command(span->channels[chan_index], FTDM_COMMAND_SET_DTMF_ON_PERIOD, &chan_config->dtmf_time_on);
-		}
-		if (chan_config->dtmf_time_off) {
-			ftdm_channel_command(span->channels[chan_index], FTDM_COMMAND_SET_DTMF_OFF_PERIOD, &chan_config->dtmf_time_off);
 		}
 	}
 

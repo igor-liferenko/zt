@@ -316,11 +316,6 @@ typedef enum {
   FTDM_COMMAND_GET_NATIVE_CODEC = 6,
   FTDM_COMMAND_ENABLE_DTMF_DETECT = 7,
   FTDM_COMMAND_DISABLE_DTMF_DETECT = 8,
-  FTDM_COMMAND_SEND_DTMF = 9,
-  FTDM_COMMAND_SET_DTMF_ON_PERIOD = 10,
-  FTDM_COMMAND_GET_DTMF_ON_PERIOD = 11,
-  FTDM_COMMAND_SET_DTMF_OFF_PERIOD = 12,
-  FTDM_COMMAND_GET_DTMF_OFF_PERIOD = 13,
   FTDM_COMMAND_GENERATE_RING_ON = 14,
   FTDM_COMMAND_GENERATE_RING_OFF = 15,
   FTDM_COMMAND_OFFHOOK = 16,
@@ -655,7 +650,6 @@ typedef enum {
 } ftdm_span_flag_t;
 
 typedef enum {
-  FTDM_CHANNEL_FEATURE_DTMF_GENERATE = (1 << 1),
   FTDM_CHANNEL_FEATURE_CODECS = (1 << 2),
   FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5),
   FTDM_CHANNEL_FEATURE_HWEC = (1 << 7),
@@ -773,9 +767,6 @@ typedef ftdm_status_t(*ftdm_channel_sig_read_t) (ftdm_channel_t * ftdmchan,
 typedef ftdm_status_t(*ftdm_channel_sig_write_t) (ftdm_channel_t *
                                                   ftdmchan, void *data,
                                                   size_t size);
-typedef ftdm_status_t(*ftdm_channel_sig_dtmf_t) (ftdm_channel_t * ftdmchan,
-                                                 const char *dtmf);
-
 typedef double teletone_process_t;
 typedef struct {
   teletone_process_t freqs[18];
@@ -1022,13 +1013,10 @@ struct ftdm_channel {
   fio_event_cb_t event_callback;
   uint32_t skip_read_frames;
   ftdm_buffer_t *dtmf_buffer;
-  ftdm_buffer_t *gen_dtmf_buffer;
   ftdm_buffer_t *pre_buffer;
   ftdm_buffer_t *digit_buffer;
   ftdm_buffer_t *fsk_buffer;
   ftdm_mutex_t *pre_buffer_mutex;
-  uint32_t dtmf_on;
-  uint32_t dtmf_off;
   char *dtmf_hangup_buf;
   teletone_generation_session_t tone_session;
   ftdm_time_t last_event_time;
@@ -1109,8 +1097,6 @@ struct ftdm_span {
   ftdm_span_destroy_t destroy;
   ftdm_channel_sig_read_t sig_read;
   ftdm_channel_sig_write_t sig_write;
-  ftdm_channel_sig_dtmf_t sig_queue_dtmf;
-  ftdm_channel_sig_dtmf_t sig_send_dtmf;
   uint32_t sig_release_guard_time_ms;
   ftdm_channel_state_processor_t state_processor;
   char *type;

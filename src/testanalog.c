@@ -9,8 +9,6 @@ static void *test_call(ftdm_thread_t *me, void *obj)
 	ftdm_channel_t *chan = (ftdm_channel_t *) obj;
 	uint8_t frame[1024];
 	ftdm_size_t len;
-	char *number = ftdm_strdup("5551212");
-
 	ftdm_unused_arg(me);
 
 	ftdm_sleep(10 * 1000);
@@ -18,7 +16,6 @@ static void *test_call(ftdm_thread_t *me, void *obj)
 	ftdm_log(FTDM_LOG_DEBUG, "answer call and start echo test\n");
 
 	ftdm_channel_call_answer(chan);
-	ftdm_channel_command(chan, FTDM_COMMAND_SEND_DTMF, number);
 
 	while (ftdm_channel_call_check_answered(chan)) {
 		ftdm_wait_flag_t flags = FTDM_READ;
@@ -42,7 +39,6 @@ static void *test_call(ftdm_thread_t *me, void *obj)
 	}
 
 	ftdm_log(FTDM_LOG_DEBUG, "call over\n");
-	ftdm_safe_free(number);
 	return NULL;
 }
 

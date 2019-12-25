@@ -628,20 +628,6 @@ static switch_status_t channel_on_soft_execute(switch_core_session_t *session)
 
 static switch_status_t channel_send_dtmf(switch_core_session_t *session, const switch_dtmf_t *dtmf)
 {
-	private_t *tech_pvt = NULL;
-	char tmp[2] = "";
-
-	tech_pvt = switch_core_session_get_private(session);
-	assert(tech_pvt != NULL);
-
-	if (switch_test_flag(tech_pvt, TFLAG_DEAD)) {
-		switch_channel_hangup(switch_core_session_get_channel(session), SWITCH_CAUSE_LOSE_RACE);
-		return SWITCH_STATUS_FALSE;
-	}
-
-	tmp[0] = dtmf->digit;
-	ftdm_channel_command(tech_pvt->ftdmchan, FTDM_COMMAND_SEND_DTMF, tmp);
-
 	return SWITCH_STATUS_SUCCESS;
 }
 

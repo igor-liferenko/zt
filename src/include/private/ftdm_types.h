@@ -56,8 +56,6 @@ extern "C" {
 #define FTDM_COMMAND_OBJ_CHAR_P (char *)obj
 #define FTDM_COMMAND_OBJ_FLOAT *(float *)obj
 #define FTDM_FSK_MOD_FACTOR 0x10000
-#define FTDM_DEFAULT_DTMF_ON 250
-#define FTDM_DEFAULT_DTMF_OFF 50
 
 typedef enum {
 	FTDM_ENDIAN_BIG = 1,
@@ -183,7 +181,6 @@ typedef enum {
 
 /*! \brief Channel supported features */
 typedef enum {
-	FTDM_CHANNEL_FEATURE_DTMF_GENERATE = (1 << 1), /*!< Channel can generate DTMF (read-only) */
 	FTDM_CHANNEL_FEATURE_CODECS = (1 << 2), /*!< Channel can do transcoding (read-only) */
 	FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5), /*!< Channel can detect inband progress (read-only) */
 	FTDM_CHANNEL_FEATURE_HWEC = (1<<7), /*!< Channel has a hardware echo canceller */
@@ -324,7 +321,6 @@ typedef ftdm_status_t (*ftdm_span_stop_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_span_destroy_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_channel_sig_read_t)(ftdm_channel_t *ftdmchan, void *data, ftdm_size_t size);
 typedef ftdm_status_t (*ftdm_channel_sig_write_t)(ftdm_channel_t *ftdmchan, void *data, ftdm_size_t size);
-typedef ftdm_status_t (*ftdm_channel_sig_dtmf_t)(ftdm_channel_t *ftdmchan, const char *dtmf);
 
 typedef enum {
 	FTDM_ITERATOR_VARS = 1,
