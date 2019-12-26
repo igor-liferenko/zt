@@ -35,8 +35,6 @@ libfreetdm_la-ftdm_call_utils.lo
 libfreetdm_la-ftdm_call_utils.o
 libfreetdm_la-ftdm_config.lo
 libfreetdm_la-ftdm_config.o
-libfreetdm_la-ftdm_cpu_monitor.lo
-libfreetdm_la-ftdm_cpu_monitor.o
 libfreetdm_la-ftdm_dso.lo
 libfreetdm_la-ftdm_dso.o
 libfreetdm_la-ftdm_io.lo

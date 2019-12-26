@@ -46,7 +46,6 @@
 #ifdef FTDM_PIKA_SUPPORT
 #include "ftdm_pika.h"
 #endif
-#include "ftdm_cpu_monitor.h"
 
 #ifndef localtime_r
 struct tm *localtime_r(const time_t *clock, struct tm *result);
@@ -283,17 +282,6 @@ static ftdm_status_t disable_dtmf_debug(ftdm_channel_t *ftdmchan)
 	return FTDM_SUCCESS;
 }
 
-typedef struct {
-	uint8_t 	enabled;
-	uint8_t         running;
-	uint8_t         alarm;
-	uint32_t        interval;
-	uint8_t         alarm_action_flags;
-	uint8_t         set_alarm_threshold;
-	uint8_t         clear_alarm_threshold;
-	ftdm_interrupt_t *interrupt;
-} cpu_monitor_t;
-
 static struct {
 	ftdm_hash_t *interface_hash;
 	ftdm_hash_t *module_hash;
@@ -308,7 +296,6 @@ static struct {
 	uint32_t running;
 	ftdm_span_t *spans;
 	ftdm_group_t *groups;
-	cpu_monitor_t cpu_monitor;
 	
 	ftdm_caller_data_t *call_ids[MAX_CALLIDS+1];
 	ftdm_mutex_t *call_id_mutex;
@@ -1763,14 +1750,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_open_chan(ftdm_channel_t *ftdmchan)
 		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_IN_ALARM) && !ftdm_test_flag(ftdmchan->span, FTDM_SPAN_PWR_SAVING)) {
 			snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", "Channel is alarmed\n");
 			ftdm_log_chan_msg(ftdmchan, FTDM_LOG_WARNING, "Cannot open channel when is alarmed\n");
-			goto done;
-		}
-		
-		if (globals.cpu_monitor.alarm &&
-				  globals.cpu_monitor.alarm_action_flags & FTDM_CPU_ALARM_ACTION_REJECT) {
-			snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "%s", "CPU usage alarm is on - refusing to open channel\n");
-			ftdm_log_chan_msg(ftdmchan, FTDM_LOG_WARNING, "CPU usage alarm is on - refusing to open channel\n");
-			ftdmchan->caller_data.hangup_cause = FTDM_CAUSE_SWITCH_CONGESTION;
 			goto done;
 		}
 	}
@@ -5358,87 +5337,6 @@ done:
 	return status;
 }
 
-static void *ftdm_cpu_monitor_run(ftdm_thread_t *me, void *obj)
-{
-	cpu_monitor_t *monitor = (cpu_monitor_t *)obj;
-	struct ftdm_cpu_monitor_stats *cpu_stats = ftdm_new_cpu_monitor();
-
-	ftdm_log(FTDM_LOG_DEBUG, "CPU monitor thread is now running\n");
-	if (!cpu_stats) {
-		goto done;
-	}
-	monitor->running = 1;
-
-	while (ftdm_running()) {
-		double idle_time = 0.0;
-		int cpu_usage = 0;
-
-		if (ftdm_cpu_get_system_idle_time(cpu_stats, &idle_time)) {
-			break;
-		}
-
-		cpu_usage = (int)(100 - idle_time);
-		if (monitor->alarm) {
-			if (cpu_usage <= monitor->clear_alarm_threshold) {
-				ftdm_log(FTDM_LOG_DEBUG, "CPU alarm is now OFF (cpu usage: %d)\n", cpu_usage);
-				monitor->alarm = 0;
-			} else if (monitor->alarm_action_flags & FTDM_CPU_ALARM_ACTION_WARN) {
-				ftdm_log(FTDM_LOG_WARNING, "CPU alarm is still ON (cpu usage: %d)\n", cpu_usage);
-			}
-		} else {
-			if (cpu_usage >= monitor->set_alarm_threshold) {
-				ftdm_log(FTDM_LOG_WARNING, "CPU alarm is now ON (cpu usage: %d)\n", cpu_usage);
-				monitor->alarm = 1;
-			}
-		}
-		ftdm_interrupt_wait(monitor->interrupt, monitor->interval);
-	}
-
-	ftdm_delete_cpu_monitor(cpu_stats);
-	monitor->running = 0;
-
-done:
-	ftdm_unused_arg(me);
-	ftdm_log(FTDM_LOG_DEBUG, "CPU monitor thread is now terminating\n");
-	return NULL;
-}
-
-static ftdm_status_t ftdm_cpu_monitor_start(void)
-{
-	if (ftdm_interrupt_create(&globals.cpu_monitor.interrupt, FTDM_INVALID_SOCKET, FTDM_NO_FLAGS) != FTDM_SUCCESS) {
-		ftdm_log(FTDM_LOG_CRIT, "Failed to create CPU monitor interrupt\n");
-		return FTDM_FAIL;
-	}
-
-	if (ftdm_thread_create_detached(ftdm_cpu_monitor_run, &globals.cpu_monitor) != FTDM_SUCCESS) {
-		ftdm_log(FTDM_LOG_CRIT, "Failed to create cpu monitor thread!!\n");
-		return FTDM_FAIL;
-	}
-	return FTDM_SUCCESS;
-}
-
-static void ftdm_cpu_monitor_stop(void)
-{
-	if (!globals.cpu_monitor.interrupt) {
-		return;
-	}
-
-	if (!globals.cpu_monitor.running) {
-		return;
-	}
-
-	if (ftdm_interrupt_signal(globals.cpu_monitor.interrupt) != FTDM_SUCCESS) {
-		ftdm_log(FTDM_LOG_CRIT, "Failed to interrupt the CPU monitor\n");
-		return;
-	}
-
-	while (globals.cpu_monitor.running) {
-		ftdm_sleep(10);
-	}
-
-	ftdm_interrupt_destroy(&globals.cpu_monitor.interrupt);
-}
-
 FT_DECLARE(ftdm_status_t) ftdm_global_init(void)
 {
 	memset(&globals, 0, sizeof(globals));
@@ -5495,29 +5393,11 @@ FT_DECLARE(ftdm_status_t) ftdm_global_configuration(void)
 
 	ftdm_log(FTDM_LOG_NOTICE, "Modules configured: %d \n", modcount);
 
-	globals.cpu_monitor.enabled = 0;
-	globals.cpu_monitor.interval = 1000;
-	globals.cpu_monitor.alarm_action_flags = 0;
-	globals.cpu_monitor.set_alarm_threshold = 92;
-	globals.cpu_monitor.clear_alarm_threshold = 82;
-
 	if (load_config() != FTDM_SUCCESS) {
 		globals.running = 0;
 		ftdm_log(FTDM_LOG_ERROR, "FreeTDM global configuration failed!\n");
 		return FTDM_FAIL;
 	}
-
-	if (globals.cpu_monitor.enabled) {
-		ftdm_log(FTDM_LOG_INFO, "CPU Monitor is running interval:%d set-thres:%d clear-thres:%d\n", 
-					globals.cpu_monitor.interval, 
-					globals.cpu_monitor.set_alarm_threshold, 
-					globals.cpu_monitor.clear_alarm_threshold);
-
-		if (ftdm_cpu_monitor_start() != FTDM_SUCCESS) {
-			return FTDM_FAIL;
-		}
-	}
-
 
 	return FTDM_SUCCESS;
 }
@@ -5566,9 +5446,6 @@ FT_DECLARE(ftdm_status_t) ftdm_global_destroy(void)
 
 	/* stop the scheduling thread */
 	ftdm_free_sched_stop();
-
-	/* stop the cpu monitor thread */
-	ftdm_cpu_monitor_stop();
 
 	/* now destroy channels and spans */
 	globals.span_index = 0;
