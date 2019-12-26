@@ -180,7 +180,6 @@ typedef enum {
 
 /*! \brief Channel supported features */
 typedef enum {
-	FTDM_CHANNEL_FEATURE_CODECS = (1 << 2), /*!< Channel can do transcoding (read-only) */
 	FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5), /*!< Channel can detect inband progress (read-only) */
 	FTDM_CHANNEL_FEATURE_IO_STATS = (1<<9), /*!< Channel supports IO statistics (HDLC channels only) */
 	FTDM_CHANNEL_FEATURE_MF_GENERATE = (1<<10), /*!< Channel can generate R2 MF tones (read-only) */
@@ -196,7 +195,6 @@ typedef enum {
 #define FTDM_CHANNEL_OPEN          (1ULL << 2)
 #define FTDM_CHANNEL_DTMF_DETECT   (1ULL << 3)
 #define FTDM_CHANNEL_SUPRESS_DTMF  (1ULL << 4)
-#define FTDM_CHANNEL_TRANSCODE     (1ULL << 5)
 #define FTDM_CHANNEL_BUFFER        (1ULL << 6)
 #define FTDM_CHANNEL_INTHREAD      (1ULL << 8)
 #define FTDM_CHANNEL_WINK          (1ULL << 9)

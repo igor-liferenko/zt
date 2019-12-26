@@ -74,7 +74,6 @@ static val_str_t channel_flag_strs[] =  {
 	{ "open",  FTDM_CHANNEL_OPEN},
 	{ "dtmf-detect",  FTDM_CHANNEL_DTMF_DETECT},
 	{ "suppress-dtmf",  FTDM_CHANNEL_SUPRESS_DTMF},
-	{ "transcode",  FTDM_CHANNEL_TRANSCODE},
 	{ "buffer",  FTDM_CHANNEL_BUFFER},
 	{ "in-thread",  FTDM_CHANNEL_INTHREAD},
 	{ "wink",  FTDM_CHANNEL_WINK},
@@ -2714,12 +2713,6 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 
 	memset(ftdmchan->dtmf_hangup_buf, '\0', ftdmchan->span->dtmf_hangup_len);
 
-	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE)) {
-		ftdmchan->effective_codec = ftdmchan->native_codec;
-		ftdmchan->packet_len = ftdmchan->native_interval * (ftdmchan->effective_codec == FTDM_CODEC_SLIN ? 16 : 8);
-		ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE);
-	}
-
 	if (ftdmchan->span->sig_release_guard_time_ms) {
 		ftdmchan->last_release_time = ftdm_current_time_in_ms();
 	}
@@ -2950,49 +2943,14 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 			GOTO_STATUS(done, FTDM_SUCCESS);
 		}
 		break;
-
-	case FTDM_COMMAND_SET_CODEC:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CODECS)) {
-				ftdmchan->effective_codec = FTDM_COMMAND_OBJ_INT;
-				
-				if (ftdmchan->effective_codec == ftdmchan->native_codec) {
-					ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE);
-				} else {
-					ftdm_set_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE);
-				}
-				ftdmchan->packet_len = ftdmchan->native_interval * (ftdmchan->effective_codec == FTDM_CODEC_SLIN ? 16 : 8);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-
 	case FTDM_COMMAND_SET_NATIVE_CODEC:
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CODECS)) {
-				ftdmchan->effective_codec = ftdmchan->native_codec;
-				ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE);
-				ftdmchan->packet_len = ftdmchan->native_interval * (ftdmchan->effective_codec == FTDM_CODEC_SLIN ? 16 : 8);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
+		ftdmchan->effective_codec = ftdmchan->native_codec;
+		ftdmchan->packet_len = ftdmchan->native_interval * (ftdmchan->effective_codec == FTDM_CODEC_SLIN ? 16 : 8);
+		GOTO_STATUS(done, FTDM_SUCCESS);
 		break;
-
 	case FTDM_COMMAND_GET_CODEC: 
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CODECS)) {
-				FTDM_COMMAND_OBJ_INT = ftdmchan->effective_codec;
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
-		break;
-	case FTDM_COMMAND_GET_NATIVE_CODEC: 
-		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_CODECS)) {
-				FTDM_COMMAND_OBJ_INT = ftdmchan->native_codec;
-				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
-		}
+		FTDM_COMMAND_OBJ_INT = ftdmchan->effective_codec;
+		GOTO_STATUS(done, FTDM_SUCCESS);
 		break;
 	case FTDM_COMMAND_ENABLE_PROGRESS_DETECT:
 		{
@@ -3543,30 +3501,8 @@ FT_DECLARE(void) ftdm_generate_sln_silence(int16_t *data, uint32_t samples, uint
 
 FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, void *data, ftdm_size_t *datalen)
 {
-	fio_codec_t codec_func = NULL;
-	ftdm_size_t max = *datalen;
-
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DIGITAL_MEDIA)) {
 		goto done;
-	}
-
-	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE) && ftdmchan->effective_codec != ftdmchan->native_codec) {
-		if (ftdmchan->native_codec == FTDM_CODEC_ULAW && ftdmchan->effective_codec == FTDM_CODEC_SLIN) {
-			codec_func = fio_ulaw2slin;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ULAW && ftdmchan->effective_codec == FTDM_CODEC_ALAW) {
-			codec_func = fio_ulaw2alaw;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ALAW && ftdmchan->effective_codec == FTDM_CODEC_SLIN) {
-			codec_func = fio_alaw2slin;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ALAW && ftdmchan->effective_codec == FTDM_CODEC_ULAW) {
-			codec_func = fio_alaw2ulaw;
-		}
-
-		if (codec_func) {
-			codec_func(data, max, datalen);
-		} else {
-			snprintf(ftdmchan->last_error, sizeof(ftdmchan->last_error), "codec error!");
-			ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "no codec function to perform transcoding from %d to %d\n", ftdmchan->native_codec, ftdmchan->effective_codec);
-		}
 	}
 
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT) ||
@@ -3720,8 +3656,6 @@ done:
 FT_DECLARE(ftdm_status_t) ftdm_channel_write(ftdm_channel_t *ftdmchan, void *data, ftdm_size_t datasize, ftdm_size_t *datalen)
 {
 	ftdm_status_t status = FTDM_SUCCESS;
-	fio_codec_t codec_func = NULL;
-	ftdm_size_t max = datasize;
 	unsigned int i = 0;
 
 	ftdm_assert_return(ftdmchan != NULL, FTDM_FAIL, "null channel on write!\n");
@@ -3743,27 +3677,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_write(ftdm_channel_t *ftdmchan, void *dat
 
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DIGITAL_MEDIA)) {
 		goto do_write;
-	}
-	
-	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_TRANSCODE) && ftdmchan->effective_codec != ftdmchan->native_codec) {
-		if (ftdmchan->native_codec == FTDM_CODEC_ULAW && ftdmchan->effective_codec == FTDM_CODEC_SLIN) {
-			codec_func = fio_slin2ulaw;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ULAW && ftdmchan->effective_codec == FTDM_CODEC_ALAW) {
-			codec_func = fio_alaw2ulaw;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ALAW && ftdmchan->effective_codec == FTDM_CODEC_SLIN) {
-			codec_func = fio_slin2alaw;
-		} else if (ftdmchan->native_codec == FTDM_CODEC_ALAW && ftdmchan->effective_codec == FTDM_CODEC_ULAW) {
-			codec_func = fio_ulaw2alaw;
-		}
-
-		if (codec_func) {
-			status = codec_func(data, max, datalen);
-		} else {
-			ftdm_log_chan(ftdmchan, FTDM_LOG_ERROR, "Do not know how to handle transcoding from %d to %d\n", 
-					ftdmchan->effective_codec, ftdmchan->native_codec);			
-			status = FTDM_FAIL;
-			goto done;
-		}
 	}
 	
 	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_USE_TX_GAIN) 
