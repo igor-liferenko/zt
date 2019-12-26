@@ -4705,46 +4705,6 @@ end:
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_STANDARD_APP(enable_dtmf_function)
-{
-	private_t *tech_pvt;
-
-	if (!switch_core_session_check_interface(session, freetdm_endpoint_interface)) {
-		ftdm_log(FTDM_LOG_ERROR, "This application is only for FreeTDM channels.\n");
-		return;
-	}
-
-	tech_pvt = switch_core_session_get_private(session);
-
-	if (switch_test_flag(tech_pvt, TFLAG_DEAD)) {
-        	switch_channel_hangup(switch_core_session_get_channel(session), SWITCH_CAUSE_LOSE_RACE);
-		return;
-	}
-
-	ftdm_channel_command(tech_pvt->ftdmchan, FTDM_COMMAND_ENABLE_DTMF_DETECT, NULL);
-	ftdm_log(FTDM_LOG_INFO, "DTMF detection enabled in channel %d:%d\n", ftdm_channel_get_id(tech_pvt->ftdmchan), ftdm_channel_get_span_id(tech_pvt->ftdmchan));
-}
-
-SWITCH_STANDARD_APP(disable_dtmf_function)
-{
-	private_t *tech_pvt;
-
-	if (!switch_core_session_check_interface(session, freetdm_endpoint_interface)) {
-		ftdm_log(FTDM_LOG_ERROR, "This application is only for FreeTDM channels.\n");
-		return;
-	}
-
-	tech_pvt = switch_core_session_get_private(session);
-
-	if (switch_test_flag(tech_pvt, TFLAG_DEAD)) {
-        	switch_channel_hangup(switch_core_session_get_channel(session), SWITCH_CAUSE_LOSE_RACE);
-		return;
-	}
-
-	ftdm_channel_command(tech_pvt->ftdmchan, FTDM_COMMAND_DISABLE_DTMF_DETECT, NULL);
-	ftdm_log(FTDM_LOG_INFO, "DTMF detection Disabled in channel %d:%d\n", ftdm_channel_get_id(tech_pvt->ftdmchan), ftdm_channel_get_span_id(tech_pvt->ftdmchan));
-}
-
 SWITCH_STANDARD_APP(disable_ec_function)
 {
 	private_t *tech_pvt;
@@ -4824,8 +4784,6 @@ SWITCH_MODULE_LOAD_FUNCTION(mod_freetdm_load)
 	}
 
 	SWITCH_ADD_APP(app_interface, "disable_ec", "Disable Echo Canceller", "Disable Echo Canceller", disable_ec_function, "", SAF_NONE);
-	SWITCH_ADD_APP(app_interface, "disable_dtmf", "Disable DTMF Detection", "Disable DTMF Detection", disable_dtmf_function, "", SAF_NONE);
-	SWITCH_ADD_APP(app_interface, "enable_dtmf", "Enable DTMF Detection", "Enable DTMF Detection", enable_dtmf_function, "", SAF_NONE);
 #if 0
 	ctdm_init(*module_interface);
 #endif
