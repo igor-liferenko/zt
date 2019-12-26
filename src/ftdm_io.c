@@ -2964,19 +2964,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 			}
 		}
 		break;
-	case FTDM_COMMAND_DISABLE_DTMF_DETECT:
-		{
-			if (FTDM_IS_VOICE_CHANNEL(ftdmchan)) {
-				if (FTDM_CHANNEL_SW_DTMF_ALLOWED(ftdmchan)) {
-					teletone_dtmf_detect_init (&ftdmchan->dtmf_detect, ftdmchan->rate);
-					ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
-					ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF);
-					ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Disabled software DTMF detector\n");
-					GOTO_STATUS(done, FTDM_SUCCESS);
-				}
-			}
-		}
-		break;
 	case FTDM_COMMAND_SET_PRE_BUFFER_SIZE:
 		{
 			int val = FTDM_COMMAND_OBJ_INT;
