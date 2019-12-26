@@ -3285,10 +3285,8 @@ static switch_status_t load_config(void)
 			char *dial_regex = NULL;
 			char *hold_music = NULL;
 			char *fail_dial_regex = NULL;
-			const char *enable_callerid = "true";
 			const char *answer_polarity = "false";
 			const char *hangup_polarity = "false";
-			const char *polarity_callerid = "false";
 			int polarity_delay = 600;
 			int dialtone_timeout = 5000;
 
@@ -3361,16 +3359,12 @@ static switch_status_t load_config(void)
 					}
 				} else if (!strcasecmp(var, "dial-regex")) {
 					dial_regex = val;
-				} else if (!strcasecmp(var, "enable-callerid")) {
-					enable_callerid = val;
 				} else if (!strcasecmp(var, "answer-polarity-reverse")) {
 					answer_polarity = val;
 				} else if (!strcasecmp(var, "hangup-polarity-reverse")) {
 					hangup_polarity = val;
 				} else if (!strcasecmp(var, "polarity-delay")) {
 					polarity_delay = atoi(val);
-				} else if (!strcasecmp(var, "polarity-callerid")) {
-					polarity_callerid = val;
 				} else if (!strcasecmp(var, "fail-dial-regex")) {
 					fail_dial_regex = val;
 				} else if (!strcasecmp(var, "hold-music")) {
@@ -3428,10 +3422,8 @@ static switch_status_t load_config(void)
 								   "digit_timeout", &to,
 								   "max_dialstr", &max,
 								   "hotline", hotline ? hotline : "",
-								   "enable_callerid", enable_callerid,
 								   "answer_polarity_reverse", answer_polarity,
 								   "hangup_polarity_reverse", hangup_polarity,
-								   "polarity_callerid", polarity_callerid,
 								   "polarity_delay", &polarity_delay,
 								   "wait_dialtone_timeout", &dialtone_timeout,
 								   FTDM_TAG_END) != FTDM_SUCCESS) {
