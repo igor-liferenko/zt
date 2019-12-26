@@ -1,3 +1,1 @@
-dahdi and zaptel ioctl defines are incompatible somewhere ("stack smashing detected"), so do not hurry to switch to '#include <dahdi/user.h>'
-
-if something will not work, try to use tones.conf
+after recompile, restart FS (seems "stack smashing detected" crash was due to this)
