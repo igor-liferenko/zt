@@ -493,8 +493,6 @@ struct ftdm_group {
 	struct ftdm_group *next;
 };
 
-FT_DECLARE_DATA extern ftdm_crash_policy_t g_ftdm_crash_policy;
-
 FT_DECLARE(int8_t) ftdm_bitstream_get_bit(ftdm_bitstream_t *bsp);
 FT_DECLARE(void) ftdm_bitstream_init(ftdm_bitstream_t *bsp, uint8_t *data, uint32_t datalen, ftdm_endian_t endian, uint8_t ss);
 
@@ -632,9 +630,7 @@ FT_DECLARE(ftdm_status_t) ftdm_get_channel_from_string(const char *string_id, ft
 #define ftdm_assert(assertion, msg) \
 	if (!(assertion)) { \
 		ftdm_log(FTDM_LOG_CRIT, "%s", msg); \
-		if (g_ftdm_crash_policy & FTDM_CRASH_ON_ASSERT) { \
-			ftdm_abort();  \
-		} \
+		ftdm_abort();  \
 	}
 
 /*!
@@ -643,11 +639,7 @@ FT_DECLARE(ftdm_status_t) ftdm_get_channel_from_string(const char *string_id, ft
 #define ftdm_assert_return(assertion, retval, msg) \
 	if (!(assertion)) { \
 		ftdm_log(FTDM_LOG_CRIT, "%s", msg); \
-		if (g_ftdm_crash_policy & FTDM_CRASH_ON_ASSERT) { \
-			ftdm_abort();  \
-		} else { \
-			return retval; \
-		} \
+		ftdm_abort();  \
 	}
 
 /*!

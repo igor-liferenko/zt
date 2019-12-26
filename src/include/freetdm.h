@@ -514,13 +514,6 @@ struct ftdm_usrmsg {
 	ftdm_raw_data_t raw;
 };
 
-/*! \brief Crash policy 
- *  Useful for debugging only, default policy is never, if you wish to crash on asserts then use ftdm_global_set_crash_policy */
-typedef enum {
-	FTDM_CRASH_NEVER = 0,
-	FTDM_CRASH_ON_ASSERT
-} ftdm_crash_policy_t;
-
 /*! \brief Signaling configuration parameter for the stacks (variable=value pair) */
 typedef struct ftdm_conf_parameter {
 	const char *var;
@@ -1690,9 +1683,6 @@ FT_DECLARE(ftdm_status_t) ftdm_global_destroy(void);
 
 /*! \brief Set memory handler for the library */
 FT_DECLARE(ftdm_status_t) ftdm_global_set_memory_handler(ftdm_memory_handler_t *handler);
-
-/*! \brief Set the crash policy for the library */
-FT_DECLARE(void) ftdm_global_set_crash_policy(ftdm_crash_policy_t policy);
 
 /*! \brief Set the logger handler for the library */
 FT_DECLARE(void) ftdm_global_set_logger(ftdm_logger_t logger);

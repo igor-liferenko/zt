@@ -441,8 +441,6 @@ FT_DECLARE_DATA ftdm_memory_handler_t g_ftdm_mem_handler =
 	/*.free =*/ ftdm_std_free
 };
 
-FT_DECLARE_DATA ftdm_crash_policy_t g_ftdm_crash_policy = FTDM_CRASH_NEVER;
-
 static ftdm_status_t ftdm_set_caller_data(ftdm_span_t *span, ftdm_caller_data_t *caller_data)
 {
 	if (!caller_data) {
@@ -505,11 +503,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_set_caller_data(ftdm_channel_t *ftdmchan,
 }
 
 FT_DECLARE_DATA ftdm_logger_t ftdm_log = null_logger;
-
-FT_DECLARE(void) ftdm_global_set_crash_policy(ftdm_crash_policy_t policy)
-{
-	g_ftdm_crash_policy |= policy;
-}
 
 FT_DECLARE(ftdm_status_t) ftdm_global_set_memory_handler(ftdm_memory_handler_t *handler)
 {

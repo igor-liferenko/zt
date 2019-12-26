@@ -92,7 +92,6 @@ static struct {
 	analog_option_t analog_options;
 	switch_hash_t *ss7_configs;
 	int sip_headers;
-	uint8_t crash_on_assert;
 	uint8_t fail_on_error;
 	uint8_t config_error;
 } globals;
@@ -3117,8 +3116,6 @@ static switch_status_t load_config(void)
 				globals.debug = atoi(val);
 			} else if (!strcasecmp(var, "hold-music")) {
 				switch_set_string(globals.hold_music, val);
-			} else if (!strcasecmp(var, "crash-on-assert")) {
-				globals.crash_on_assert = (uint8_t)switch_true(val);
 			} else if (!strcasecmp(var, "fail-on-error")) {
 				globals.fail_on_error = (uint8_t)switch_true(val);
 			} else if (!strcasecmp(var, "sip-headers")) {
@@ -3849,11 +3846,6 @@ static switch_status_t load_config(void)
 				continue;
 			}
 		}
-	}
-
-	if (globals.crash_on_assert) {
-		ftdm_log(FTDM_LOG_WARNING, "Crash on assert enabled\n");
-		ftdm_global_set_crash_policy(FTDM_CRASH_ON_ASSERT);
 	}
 
 	switch_xml_free(xml);
