@@ -499,37 +499,6 @@ typedef void (*bytehandler_func_t)(void *, int);
 typedef void (*bithandler_func_t)(void *, int);
 
 typedef enum {
-  FSK_STATE_CHANSEIZE = 0,
-  FSK_STATE_CARRIERSIG,
-  FSK_STATE_DATA
-} fsk_state_t;
-
-typedef struct dsp_fsk_attr_s {
-  int sample_rate;
-  bithandler_func_t bithandler;
-  void *bithandler_arg;
-  bytehandler_func_t bytehandler;
-  void *bytehandler_arg;
-} dsp_fsk_attr_t;
-
-typedef struct {
-  fsk_state_t state;
-  dsp_fsk_attr_t attr;
-  double *correlates[4];
-  int corrsize;
-  double *buffer;
-  int ringstart;
-  double cellpos;
-  double celladj;
-  int previous_bit;
-  int current_bit;
-  int last_bit;
-  int downsampling_count;
-  int current_downsample;
-  int conscutive_state_bits;
-} dsp_fsk_handle_t;
-
-typedef enum {
   FTDM_ENDIAN_BIG = 1,
   FTDM_ENDIAN_LITTLE = -1
 } ftdm_endian_t;
@@ -726,11 +695,6 @@ ftdm_status_t(*ftdm_stream_handle_write_function_t) (ftdm_stream_handle_t *
 
 typedef void *ftdm_dso_lib_t;
 
-typedef struct ftdm_fsk_data_state ftdm_fsk_data_state_t;
-typedef ftdm_status_t(*ftdm_fsk_write_sample_t) (int16_t * buf,
-                                                 size_t buflen,
-                                                 void *user_data);
-
 typedef ftdm_status_t(*ftdm_span_start_t) (ftdm_span_t * span);
 typedef ftdm_status_t(*ftdm_span_stop_t) (ftdm_span_t * span);
 typedef ftdm_status_t(*ftdm_span_destroy_t) (ftdm_span_t * span);
@@ -910,18 +874,6 @@ struct ftdm_stream_handle {
   size_t alloc_chunk;
 };
 
-struct ftdm_fsk_data_state {
-  dsp_fsk_handle_t *fsk1200_handle;
-  uint8_t init;
-  uint8_t *buf;
-  size_t bufsize;
-  size_t blen;
-  size_t bpos;
-  size_t dlen;
-  size_t ppos;
-  int checksum;
-};
-
 typedef enum {
   FTDM_TYPE_NONE,
   FTDM_TYPE_SPAN = 0xFF,
@@ -987,7 +939,6 @@ struct ftdm_channel {
   ftdm_buffer_t *dtmf_buffer;
   ftdm_buffer_t *pre_buffer;
   ftdm_buffer_t *digit_buffer;
-  ftdm_buffer_t *fsk_buffer;
   ftdm_mutex_t *pre_buffer_mutex;
   char *dtmf_hangup_buf;
   teletone_generation_session_t tone_session;
@@ -1001,8 +952,6 @@ struct ftdm_channel {
   char chan_name[128];
   char chan_number[32];
   int fds[2];
-  ftdm_fsk_data_state_t fsk;
-  uint8_t fsk_buf[80];
   uint32_t ring_count;
   int polarity;
 

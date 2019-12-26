@@ -273,58 +273,9 @@ static int teletone_handler(teletone_generation_session_t *ts, teletone_tone_map
 	return 0;
 }
 
-/**
- * \brief Sends caller id on an analog channel (FSK coded)
- * \param ftdmchan Channel to send caller id on
- */
-static void send_caller_id(ftdm_channel_t *ftdmchan)
-{
-	ftdm_fsk_data_state_t fsk_data;
-	uint8_t databuf[1024] = "";
-	char time_str[9];
-	struct tm tm;
-	time_t now;
-	ftdm_mdmf_type_t mt = MDMF_INVALID;
-
-	time(&now);
-#ifdef WIN32
-	_tzset();
-	_localtime64_s(&tm, &now);
-#else
-	localtime_r(&now, &tm);
-#endif
-	strftime(time_str, sizeof(time_str), "%m%d%H%M", &tm);
-
-	ftdm_fsk_data_init(&fsk_data, databuf, sizeof(databuf));
-	ftdm_fsk_data_add_mdmf(&fsk_data, MDMF_DATETIME, (uint8_t *) time_str, 8);
-					
-	if (ftdm_strlen_zero(ftdmchan->caller_data.cid_num.digits)) {
-		mt = MDMF_NO_NUM;
-		ftdm_set_string(ftdmchan->caller_data.cid_num.digits, "O");
-	} else if (!strcasecmp(ftdmchan->caller_data.cid_num.digits, "P") || !strcasecmp(ftdmchan->caller_data.cid_num.digits, "O")) {
-		mt = MDMF_NO_NUM;
-	} else {
-		mt = MDMF_PHONE_NUM;
-	}
-	ftdm_fsk_data_add_mdmf(&fsk_data, mt, (uint8_t *) ftdmchan->caller_data.cid_num.digits, (uint8_t)strlen(ftdmchan->caller_data.cid_num.digits));
-
-	if (ftdm_strlen_zero(ftdmchan->caller_data.cid_name)) {
-		mt = MDMF_NO_NAME;
-		ftdm_set_string(ftdmchan->caller_data.cid_name, "O");
-	} else if (!strcasecmp(ftdmchan->caller_data.cid_name, "P") || !strcasecmp(ftdmchan->caller_data.cid_name, "O")) {
-		mt = MDMF_NO_NAME;
-	} else {
-		mt = MDMF_PHONE_NAME;
-	}
-	ftdm_fsk_data_add_mdmf(&fsk_data, mt, (uint8_t *) ftdmchan->caller_data.cid_name, (uint8_t)strlen(ftdmchan->caller_data.cid_name));
-					
-	ftdm_fsk_data_add_checksum(&fsk_data);
-	ftdm_channel_send_fsk_data(ftdmchan, &fsk_data, -14);
-}
-
 static void analog_dial(ftdm_channel_t *ftdmchan, uint32_t *state_counter, uint32_t *dial_timeout)
 {
-	ftdm_log_chan_msg(ftdmchan, FTDM_LOG_ERROR, "Can this function be ever called?\n"); // No digits to send, moving to UP!
+	ftdm_log_chan_msg(ftdmchan, FTDM_LOG_EMERG, "Can this function be ever called?\n"); // No digits to send, moving to UP!
 	ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_UP);
 }
 
@@ -424,7 +375,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 				{
 					if (state_counter > 60000) {
 						ftdm_set_state_locked(ftdmchan, FTDM_CHANNEL_STATE_DOWN);
-					} else if (!ftdmchan->fsk_buffer || !ftdm_buffer_inuse(ftdmchan->fsk_buffer)) {
+					} else {
 						ftdm_sleep(interval);
 						continue;
 					}
@@ -524,11 +475,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 					ftdm_channel_clear_needed_tones(ftdmchan);
 					ftdm_channel_flush_dtmf(ftdmchan);
 						
-					if (ftdmchan->fsk_buffer && ftdm_buffer_inuse(ftdmchan->fsk_buffer)) {
-						ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Cancel FSK transmit due to early answer.\n");
-						ftdm_buffer_zero(ftdmchan->fsk_buffer);
-					}
-
 					if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_RINGING)) {
 						ftdm_channel_command(ftdmchan, FTDM_COMMAND_GENERATE_RING_OFF, NULL);
 					}
@@ -612,7 +558,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 				{
 					ftdm_sigmsg_t sig;
 
-					send_caller_id(ftdmchan);
 					ftdm_channel_command(ftdmchan, FTDM_COMMAND_GENERATE_RING_ON, NULL);
 
 					memset(&sig, 0, sizeof(sig));
@@ -713,7 +658,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 			analog_dial(ftdmchan, &state_counter, &dial_timeout);
 		}
 
-		if ((ftdmchan->dtmf_buffer && ftdm_buffer_inuse(ftdmchan->dtmf_buffer)) || (ftdmchan->fsk_buffer && ftdm_buffer_inuse(ftdmchan->fsk_buffer))) {
+		if ((ftdmchan->dtmf_buffer && ftdm_buffer_inuse(ftdmchan->dtmf_buffer))) {
 			//rlen = len;
 			//memset(frame, 0, len);
 			//ftdm_channel_write(ftdmchan, frame, sizeof(frame), &rlen);

@@ -325,37 +325,6 @@ struct ftdm_bitstream {
 	uint8_t ssv;
 };
 
-struct ftdm_fsk_data_state {
-	dsp_fsk_handle_t *fsk1200_handle;
-	uint8_t init;
-	uint8_t *buf;
-	size_t bufsize;
-	ftdm_size_t blen;
-	ftdm_size_t bpos;
-	ftdm_size_t dlen;
-	ftdm_size_t ppos;
-	int checksum;
-};
-
-struct ftdm_fsk_modulator {
-	teletone_dds_state_t dds;
-	ftdm_bitstream_t bs;
-	uint32_t carrier_bits_start;
-	uint32_t carrier_bits_stop;
-	uint32_t chan_sieze_bits;
-	uint32_t bit_factor;
-	uint32_t bit_accum;
-	uint32_t sample_counter;
-	int32_t samples_per_bit;
-	int32_t est_bytes;
-	fsk_modem_types_t modem_type;
-	ftdm_fsk_data_state_t *fsk_data;
-	ftdm_fsk_write_sample_t write_sample_callback;
-	void *user_data;
-	int16_t sample_buffer[64];
-};
-
-
 typedef enum {
 	FTDM_TYPE_NONE,
 	FTDM_TYPE_SPAN = 0xFF,
@@ -427,7 +396,6 @@ struct ftdm_channel {
 	ftdm_buffer_t *dtmf_buffer;
 	ftdm_buffer_t *pre_buffer;
 	ftdm_buffer_t *digit_buffer;
-	ftdm_buffer_t *fsk_buffer;
 	ftdm_mutex_t *pre_buffer_mutex;
 	char *dtmf_hangup_buf;
 	teletone_generation_session_t tone_session;
@@ -441,8 +409,6 @@ struct ftdm_channel {
 	char chan_name[128];
 	char chan_number[32];
 	int fds[2];
-	ftdm_fsk_data_state_t fsk;
-	uint8_t fsk_buf[80];
 	uint32_t ring_count;
 	int polarity;
 	/* Private I/O data. Do not touch unless you are an I/O module */
@@ -530,32 +496,8 @@ struct ftdm_group {
 
 FT_DECLARE_DATA extern ftdm_crash_policy_t g_ftdm_crash_policy;
 
-FT_DECLARE(ftdm_size_t) ftdm_fsk_modulator_generate_bit(ftdm_fsk_modulator_t *fsk_trans, int8_t bit, int16_t *buf, ftdm_size_t buflen);
-FT_DECLARE(int32_t) ftdm_fsk_modulator_generate_carrier_bits(ftdm_fsk_modulator_t *fsk_trans, uint32_t bits);
-FT_DECLARE(void) ftdm_fsk_modulator_generate_chan_sieze(ftdm_fsk_modulator_t *fsk_trans);
-FT_DECLARE(void) ftdm_fsk_modulator_send_data(ftdm_fsk_modulator_t *fsk_trans);
-#define ftdm_fsk_modulator_send_all(_it) ftdm_fsk_modulator_generate_chan_sieze(_it); \
-	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_start); \
-	ftdm_fsk_modulator_send_data(_it); \
-	ftdm_fsk_modulator_generate_carrier_bits(_it, _it->carrier_bits_stop)
-
-FT_DECLARE(ftdm_status_t) ftdm_fsk_modulator_init(ftdm_fsk_modulator_t *fsk_trans,
-									fsk_modem_types_t modem_type,
-									uint32_t sample_rate,
-									ftdm_fsk_data_state_t *fsk_data,
-									float db_level,
-									uint32_t carrier_bits_start,
-									uint32_t carrier_bits_stop,
-									uint32_t chan_sieze_bits,
-									ftdm_fsk_write_sample_t write_sample_callback,
-									void *user_data);
 FT_DECLARE(int8_t) ftdm_bitstream_get_bit(ftdm_bitstream_t *bsp);
 FT_DECLARE(void) ftdm_bitstream_init(ftdm_bitstream_t *bsp, uint8_t *data, uint32_t datalen, ftdm_endian_t endian, uint8_t ss);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_init(ftdm_fsk_data_state_t *state, uint8_t *data, uint32_t datalen);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_mdmf(ftdm_fsk_data_state_t *state, ftdm_mdmf_type_t type, const uint8_t *data, uint32_t datalen);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_checksum(ftdm_fsk_data_state_t *state);
-FT_DECLARE(ftdm_status_t) ftdm_fsk_data_add_sdmf(ftdm_fsk_data_state_t *state, const char *date, char *number);
-FT_DECLARE(ftdm_status_t) ftdm_channel_send_fsk_data(ftdm_channel_t *ftdmchan, ftdm_fsk_data_state_t *fsk_data, float db_level);
 
 FT_DECLARE(ftdm_status_t) ftdm_span_load_tones(ftdm_span_t *span, const char *mapname);
 

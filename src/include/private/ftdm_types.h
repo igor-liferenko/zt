@@ -41,7 +41,6 @@
 
 #include "freetdm.h"
 
-#include "fsk.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -305,15 +304,11 @@ typedef struct ftdm_module {
 	char path[256];
 } ftdm_module_t;
 
-typedef struct ftdm_fsk_data_state ftdm_fsk_data_state_t;
-typedef int (*ftdm_fsk_data_decoder_t)(ftdm_fsk_data_state_t *state);
-typedef ftdm_status_t (*ftdm_fsk_write_sample_t)(int16_t *buf, ftdm_size_t buflen, void *user_data);
 typedef struct hashtable ftdm_hash_t;
 typedef struct hashtable_iterator ftdm_hash_iterator_t;
 typedef struct key ftdm_hash_key_t;
 typedef struct value ftdm_hash_val_t;
 typedef struct ftdm_bitstream ftdm_bitstream_t;
-typedef struct ftdm_fsk_modulator ftdm_fsk_modulator_t;
 typedef ftdm_status_t (*ftdm_span_start_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_span_stop_t)(ftdm_span_t *span);
 typedef ftdm_status_t (*ftdm_span_destroy_t)(ftdm_span_t *span);

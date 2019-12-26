@@ -27,16 +27,12 @@ ftmod_zt.la
 ftmod_zt_la-ftmod_zt.lo
 ftmod_zt_la-ftmod_zt.o
 libfreetdm.la
-libfreetdm_la-fsk.lo
-libfreetdm_la-fsk.o
 libfreetdm_la-ftdm_backtrace.lo
 libfreetdm_la-ftdm_backtrace.o
 libfreetdm_la-ftdm_buffer.lo
 libfreetdm_la-ftdm_buffer.o
 libfreetdm_la-ftdm_call_utils.lo
 libfreetdm_la-ftdm_call_utils.o
-libfreetdm_la-ftdm_callerid.lo
-libfreetdm_la-ftdm_callerid.o
 libfreetdm_la-ftdm_config.lo
 libfreetdm_la-ftdm_config.o
 libfreetdm_la-ftdm_cpu_monitor.lo
