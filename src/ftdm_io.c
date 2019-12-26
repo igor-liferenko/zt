@@ -2952,26 +2952,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 		FTDM_COMMAND_OBJ_INT = ftdmchan->effective_codec;
 		GOTO_STATUS(done, FTDM_SUCCESS);
 		break;
-	case FTDM_COMMAND_ENABLE_PROGRESS_DETECT:
-		{
-				/* if they don't have thier own, use ours */
-				ftdm_channel_clear_detected_tones(ftdmchan);
-				ftdm_channel_clear_needed_tones(ftdmchan);
-				teletone_multi_tone_init(&ftdmchan->span->tone_finder[FTDM_TONEMAP_DIAL], &ftdmchan->span->tone_detect_map[FTDM_TONEMAP_DIAL]);
-				teletone_multi_tone_init(&ftdmchan->span->tone_finder[FTDM_TONEMAP_RING], &ftdmchan->span->tone_detect_map[FTDM_TONEMAP_RING]);
-				teletone_multi_tone_init(&ftdmchan->span->tone_finder[FTDM_TONEMAP_BUSY], &ftdmchan->span->tone_detect_map[FTDM_TONEMAP_BUSY]);
-				ftdm_set_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-		}
-		break;
-	case FTDM_COMMAND_DISABLE_PROGRESS_DETECT:
-		{
-				ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
-				ftdm_channel_clear_detected_tones(ftdmchan);
-				ftdm_channel_clear_needed_tones(ftdmchan);
-				GOTO_STATUS(done, FTDM_SUCCESS);
-		}
-		break;
 	case FTDM_COMMAND_ENABLE_DTMF_DETECT:
 		{
 			/* if they don't have thier own, use ours */
