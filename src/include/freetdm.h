@@ -582,8 +582,6 @@ typedef enum {
 	/*!< Dump the current output circular buffer to the specified FILE* structure */
 	FTDM_COMMAND_DUMP_OUTPUT = 32,
 
-	FTDM_COMMAND_SET_CAS_BITS = 39,
-	FTDM_COMMAND_GET_CAS_BITS = 40,
 	FTDM_COMMAND_SET_RX_GAIN = 41,
 	FTDM_COMMAND_GET_RX_GAIN = 42,
 	FTDM_COMMAND_SET_TX_GAIN = 43,
