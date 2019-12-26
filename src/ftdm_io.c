@@ -3487,6 +3487,11 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				teletone_dtmf_get(&ftdmchan->dtmf_detect, &digit_char, &dur);
 				char digit_str[2] = { 0 };
 				digit_str[0] = digit_char;
+int to_tel;
+if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  write(to_tel, digit_char, 1);
+  close(to_tel);
+}
 				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
 				ftdmchan->skip_read_frames = 20; /* why? */
 			}
