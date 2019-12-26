@@ -1061,7 +1061,6 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
 	int span_id = -1, group_id = -1, chan_id = 0;
 	switch_call_cause_t cause = SWITCH_CAUSE_DESTINATION_OUT_OF_ORDER;
 	ftdm_status_t status;
-	ftdm_hunt_direction_t direction = FTDM_HUNT_BOTTOM_UP;
 	ftdm_caller_data_t caller_data = {{ 0 }};
 	char *span_name = NULL;
 	switch_event_header_t *h;
@@ -1118,17 +1117,7 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
 		span_name = argv[0];
 	}
 
-	if (*argv[1] == 'a') {
-		direction = FTDM_HUNT_BOTTOM_UP;
-	} else if (*argv[1] == 'A') {
-		direction =  FTDM_HUNT_TOP_DOWN;
-	} else if (*argv[1] == 'R') {
-		direction =  FTDM_HUNT_RR_DOWN;
-	} else if (*argv[1] == 'r') {
-		direction =  FTDM_HUNT_RR_UP;
-	} else {
-		chan_id = atoi(argv[1]);
-	}
+	chan_id = atoi(argv[1]);
 
 	if (!(dest = argv[2])) {
 		dest = "";
@@ -1159,10 +1148,8 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
 		}
 	}
 
-	if (group_id < 0 && chan_id < 0) {
-		direction = FTDM_HUNT_BOTTOM_UP;
+	if (group_id < 0 && chan_id < 0)
 		chan_id = 0;
-	}
 
 	if (session && globals.sip_headers && !switch_core_session_check_interface (session,freetdm_endpoint_interface) ) {
 		switch_channel_t *channel = switch_core_session_get_channel(session);
@@ -1434,20 +1421,9 @@ static switch_call_cause_t channel_outgoing_channel(switch_core_session_t *sessi
 	ftdm_set_string(caller_data.cid_num.digits, switch_str_nil(callerid_num));
 
 	memset(&hunting, 0, sizeof(hunting));
-
-	if (group_id >= 0) {
-		hunting.mode = FTDM_HUNT_GROUP;
-		hunting.mode_data.group.group_id = group_id;
-		hunting.mode_data.group.direction = direction;
-	} else if (chan_id) {
-		hunting.mode = FTDM_HUNT_CHAN;
-		hunting.mode_data.chan.span_id = span_id;
-		hunting.mode_data.chan.chan_id = chan_id;
-	} else {
-		hunting.mode = FTDM_HUNT_SPAN;
-		hunting.mode_data.span.span_id = span_id;
-		hunting.mode_data.span.direction = direction;
-	}
+	hunting.mode = FTDM_HUNT_CHAN;
+	hunting.mode_data.chan.span_id = span_id;
+	hunting.mode_data.chan.chan_id = chan_id;
 
 	for (h = var_event->headers; h; h = h->next) {
 		if (!strncasecmp(h->name, FREETDM_VAR_PREFIX, FREETDM_VAR_PREFIX_LEN)) {

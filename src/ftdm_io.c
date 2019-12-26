@@ -1390,7 +1390,7 @@ static __inline__ int chan_voice_is_avail(ftdm_channel_t *check)
 }
 
 static __inline__ int request_voice_channel(ftdm_channel_t *check, ftdm_channel_t **ftdmchan, 
-		ftdm_caller_data_t *caller_data, ftdm_hunt_direction_t direction)
+		ftdm_caller_data_t *caller_data)
 {
 	ftdm_status_t status;
 	if (chan_voice_is_avail(check)) {
@@ -1408,7 +1408,7 @@ static __inline__ int request_voice_channel(ftdm_channel_t *check, ftdm_channel_
 				ftdm_mutex_unlock(check->mutex);
 				ftdm_set_caller_data(check->span, caller_data);
 				status = check->span->channel_request(check->span, check->chan_id, 
-					direction, caller_data, ftdmchan);
+					caller_data, ftdmchan);
 				if (status == FTDM_SUCCESS) {
 					return 1;
 				}
@@ -1477,17 +1477,13 @@ static ftdm_status_t __inline__ get_best_rated(ftdm_channel_t **fchan, ftdm_chan
 	return FTDM_SUCCESS;
 }
 
-static uint32_t __inline__ rr_next(uint32_t last, uint32_t min, uint32_t max, ftdm_hunt_direction_t direction)
+static uint32_t __inline__ rr_next(uint32_t last, uint32_t min, uint32_t max)
 {
 	uint32_t next = min;
 
 	ftdm_log(FTDM_LOG_DEBUG, "last = %d, min = %d, max = %d\n", last, min, max);
+	next = (last <= min) ? max : --last;
 
-	if (direction == FTDM_HUNT_RR_UP) {
-		next = (last >= max) ? min : ++last;
-	} else {
-		next = (last <= min) ? max : --last;
-	}
 	return next;
 }
 
@@ -1503,7 +1499,7 @@ FT_DECLARE(int) ftdm_channel_get_availability(ftdm_channel_t *ftdmchan)
 	return availability;
 }
 
-static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_direction_t direction, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
+static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
 {
 	ftdm_status_t status = FTDM_FAIL;
 	ftdm_channel_t *check = NULL;
@@ -1512,7 +1508,6 @@ static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_di
 	int best_rate = 0;
 	uint32_t i = 0;
 	uint32_t count = 0;
-	uint32_t first_channel = 0;
 
 	if (group_id) {
 		ftdm_group_find(group_id, &group);
@@ -1532,15 +1527,7 @@ static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_di
 		return FTDM_FAIL;
 	}
 
-	
-	if (direction == FTDM_HUNT_BOTTOM_UP) {
-		i = 0;
-	} else if (direction == FTDM_HUNT_RR_DOWN || direction == FTDM_HUNT_RR_UP) {
-		i = rr_next(group->last_used_index, 0, group->chan_count - 1, direction);
-		first_channel = i;
-	} else {
-		i = group->chan_count-1;
-	}
+	i = group->chan_count-1;
 
 	ftdm_mutex_lock(group->mutex);
 	for (;;) {
@@ -1550,35 +1537,16 @@ static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_di
 			break;
 		}
 
-		if (request_voice_channel(check, ftdmchan, caller_data, direction)) {
+		if (request_voice_channel(check, ftdmchan, caller_data)) {
 			status = FTDM_SUCCESS;
-			if (direction == FTDM_HUNT_RR_UP || direction == FTDM_HUNT_RR_DOWN) {
-				group->last_used_index = i;
-			}
 			break;
 		}
 
 		calculate_best_rate(check, &best_rated, &best_rate);
 
-		if (direction == FTDM_HUNT_BOTTOM_UP) {
-			if (i >= (group->chan_count - 1)) {
-				break;
-			}
-			i++;
-		} else if (direction == FTDM_HUNT_RR_DOWN || direction == FTDM_HUNT_RR_UP) {
-			if (check == best_rated) {
-				group->last_used_index = i;
-			}
-			i = rr_next(i, 0, group->chan_count - 1, direction);
-			if (first_channel == i) {
-				break;
-			}
-		} else {
-			if (i == 0) {
-				break;
-			}
-			i--;
-		}
+		if (i == 0)
+			break;
+		i--;
 	}
 
 	if (status == FTDM_FAIL) {
@@ -1589,10 +1557,10 @@ static ftdm_status_t _ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_di
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_channel_open_by_group(uint32_t group_id, ftdm_hunt_direction_t direction, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
+FT_DECLARE(ftdm_status_t) ftdm_channel_open_by_group(uint32_t group_id, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
 {
 	ftdm_status_t status;
-	status = _ftdm_channel_open_by_group(group_id, direction, caller_data, ftdmchan);
+	status = _ftdm_channel_open_by_group(group_id, caller_data, ftdmchan);
 	if (status == FTDM_SUCCESS) {
 		ftdm_channel_t *fchan = *ftdmchan;
 		ftdm_channel_unlock(fchan);
@@ -1622,7 +1590,7 @@ FT_DECLARE(ftdm_status_t) ftdm_span_channel_use_count(ftdm_span_t *span, uint32_
 }
 
 /* Hunt a channel by span, if successful the channel is returned locked */
-static ftdm_status_t _ftdm_channel_open_by_span(uint32_t span_id, ftdm_hunt_direction_t direction, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
+static ftdm_status_t _ftdm_channel_open_by_span(uint32_t span_id, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
 {
 	ftdm_status_t status = FTDM_FAIL;
 	ftdm_channel_t *check = NULL;
@@ -1631,7 +1599,6 @@ static ftdm_status_t _ftdm_channel_open_by_span(uint32_t span_id, ftdm_hunt_dire
 	int best_rate = 0;
 	uint32_t i = 0;
 	uint32_t count = 0;
-	uint32_t first_channel = 0;
 
 	*ftdmchan = NULL;
 
@@ -1656,60 +1623,31 @@ static ftdm_status_t _ftdm_channel_open_by_span(uint32_t span_id, ftdm_hunt_dire
 
 	if (span->channel_request && !ftdm_test_flag(span, FTDM_SPAN_SUGGEST_CHAN_ID)) {
 		ftdm_set_caller_data(span, caller_data);
-		return span->channel_request(span, 0, direction, caller_data, ftdmchan);
+		return span->channel_request(span, 0, caller_data, ftdmchan);
 	}
 		
 	ftdm_mutex_lock(span->mutex);
 	
-	if (direction == FTDM_HUNT_BOTTOM_UP) {
-		i = 1;
-	} else if (direction == FTDM_HUNT_RR_DOWN || direction == FTDM_HUNT_RR_UP) {
-		i = rr_next(span->last_used_index, 1, span->chan_count, direction);
-		first_channel = i;
-	} else {
-		i = span->chan_count;
-	}	
+	i = span->chan_count;
 		
 	for(;;) {
 
-		if (direction == FTDM_HUNT_BOTTOM_UP) {
-			if (i > span->chan_count) {
-				break;
-			}
-		} else {
-			if (i == 0) {
-				break;
-			}
-		}
+		if (i == 0)
+			break;
 			
 		if (!(check = span->channels[i])) {
 			status = FTDM_FAIL;
 			break;
 		}
 
-		if (request_voice_channel(check, ftdmchan, caller_data, direction)) {
+		if (request_voice_channel(check, ftdmchan, caller_data)) {
 			status = FTDM_SUCCESS;
-			if (direction == FTDM_HUNT_RR_UP || direction == FTDM_HUNT_RR_DOWN) {
-				span->last_used_index = i;
-			}
 			break;
 		}
 			
 		calculate_best_rate(check, &best_rated, &best_rate);
 
-		if (direction == FTDM_HUNT_BOTTOM_UP) {
-			i++;
-		} else if (direction == FTDM_HUNT_RR_DOWN || direction == FTDM_HUNT_RR_UP) {
-			if (check == best_rated) {
-				span->last_used_index = i;
-			}
-			i = rr_next(i, 1, span->chan_count, direction);
-			if (first_channel == i) {
-				break;
-			}
-		} else {
-			i--;
-		}
+		i--;
 	}
 
 	if (status == FTDM_FAIL) {
@@ -1721,10 +1659,10 @@ static ftdm_status_t _ftdm_channel_open_by_span(uint32_t span_id, ftdm_hunt_dire
 	return status;
 }
 
-FT_DECLARE(ftdm_status_t) ftdm_channel_open_by_span(uint32_t span_id, ftdm_hunt_direction_t direction, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
+FT_DECLARE(ftdm_status_t) ftdm_channel_open_by_span(uint32_t span_id, ftdm_caller_data_t *caller_data, ftdm_channel_t **ftdmchan)
 {
 	ftdm_status_t status;
-	status = _ftdm_channel_open_by_span(span_id, direction, caller_data, ftdmchan);
+	status = _ftdm_channel_open_by_span(span_id, caller_data, ftdmchan);
 	if (status == FTDM_SUCCESS) {
 		ftdm_channel_t *fchan = *ftdmchan;
 		ftdm_channel_unlock(fchan);
@@ -2589,20 +2527,8 @@ FT_DECLARE(ftdm_status_t) _ftdm_call_place(const char *file, const char *func, i
 	ftdm_channel_t *fchan = NULL;
 
 	ftdm_assert_return(caller_data, FTDM_EINVAL, "Invalid caller data\n");
-	ftdm_assert_return(hunting, FTDM_EINVAL, "Invalid hunting scheme\n");
 
-	if (hunting->mode == FTDM_HUNT_SPAN) {
-		status = _ftdm_channel_open_by_span(hunting->mode_data.span.span_id, 
-				hunting->mode_data.span.direction, caller_data, &fchan);
-	} else if (hunting->mode == FTDM_HUNT_GROUP) {
-		status = _ftdm_channel_open_by_group(hunting->mode_data.group.group_id, 
-				hunting->mode_data.group.direction, caller_data, &fchan);
-	} else if (hunting->mode == FTDM_HUNT_CHAN) {
-		status = _ftdm_channel_open(hunting->mode_data.chan.span_id, hunting->mode_data.chan.chan_id, &fchan, 0);
-	} else {
-		ftdm_log(FTDM_LOG_ERROR, "Cannot make outbound call with invalid hunting mode %d\n", hunting->mode);
-		return FTDM_EINVAL;
-	}
+	status = _ftdm_channel_open(hunting->mode_data.chan.span_id, hunting->mode_data.chan.chan_id, &fchan, 0);
 
 	if (status != FTDM_SUCCESS) {
 		return FTDM_EBUSY;

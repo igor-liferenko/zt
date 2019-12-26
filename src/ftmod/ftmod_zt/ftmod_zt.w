@@ -74,20 +74,6 @@ ftdm_status_t _ftdm_mutex_unlock(const char *file, int line, const char *func, f
 typedef uint64_t ftdm_time_t;
 ftdm_time_t ftdm_current_time_in_ms(void);
 
-typedef enum {
-  FTDM_HUNT_TOP_DOWN,
-  FTDM_HUNT_BOTTOM_UP,
-  FTDM_HUNT_RR_DOWN,
-  FTDM_HUNT_RR_UP,
-} ftdm_hunt_direction_t;
-
-typedef enum {
-  FTDM_BOTTOM_UP,
-  FTDM_TOP_DOWN,
-  FTDM_RR_UP,
-  FTDM_RR_DOWN,
-} ftdm_direction_t;
-
 typedef void (*ftdm_logger_t)(const char *file, const char *func, int line,
                               int level, const char *fmt, ...)
     __attribute__ ( (format(printf, 5, 6)));
@@ -374,22 +360,15 @@ struct ftdm_memory_handler {
   ftdm_free_func_t free;
 };
 
-typedef ftdm_status_t(*fio_channel_request_t) (ftdm_span_t * span,
+typedef ftdm_status_t(*fio_channel_request_t) (ftdm_span_t *span,
                                                uint32_t chan_id,
-                                               ftdm_hunt_direction_t
-                                               direction,
-                                               ftdm_caller_data_t *
-                                               caller_data,
-                                               ftdm_channel_t ** ftdmchan);
-typedef ftdm_status_t(*fio_channel_outgoing_call_t) (ftdm_channel_t *
-                                                     ftdmchan);
+                                               ftdm_caller_data_t *caller_data,
+                                               ftdm_channel_t **ftdmchan);
+typedef ftdm_status_t(*fio_channel_outgoing_call_t) (ftdm_channel_t *ftdmchan);
 typedef ftdm_status_t(*fio_channel_indicate_t) (ftdm_channel_t * ftdmchan,
-                                                ftdm_channel_indication_t
-                                                indication);
-typedef ftdm_status_t(*fio_channel_set_sig_status_t) (ftdm_channel_t *
-                                                      ftdmchan,
-                                                      ftdm_signaling_status_t
-                                                      status);
+                                                ftdm_channel_indication_t indication);
+typedef ftdm_status_t(*fio_channel_set_sig_status_t) (ftdm_channel_t *ftdmchan,
+                                                      ftdm_signaling_status_t status);
 typedef ftdm_status_t(*fio_channel_get_sig_status_t) (ftdm_channel_t *
                                                       ftdmchan,
                                                       ftdm_signaling_status_t
@@ -668,13 +647,7 @@ typedef enum {
   ZSM_ACCEPTABLE
 } ftdm_state_map_type_t;
 
-typedef enum {
-  ZSD_INBOUND,
-  ZSD_OUTBOUND,
-} ftdm_state_direction_t;
-
 struct ftdm_state_map_node {
-  ftdm_state_direction_t direction;
   ftdm_state_map_type_t type;
   ftdm_channel_state_t check_states[FTDM_CHANNEL_STATE_INVALID + 2];
   ftdm_channel_state_t states[FTDM_CHANNEL_STATE_INVALID + 2];
