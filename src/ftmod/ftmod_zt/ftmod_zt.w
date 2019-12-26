@@ -936,7 +936,6 @@ struct ftdm_channel {
   char last_error[256];
   fio_event_cb_t event_callback;
   uint32_t skip_read_frames;
-  ftdm_buffer_t *dtmf_buffer;
   ftdm_buffer_t *pre_buffer;
   ftdm_buffer_t *digit_buffer;
   ftdm_mutex_t *pre_buffer_mutex;

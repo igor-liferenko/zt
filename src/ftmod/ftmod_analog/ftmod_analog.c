@@ -658,13 +658,6 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 			analog_dial(ftdmchan, &state_counter, &dial_timeout);
 		}
 
-		if ((ftdmchan->dtmf_buffer && ftdm_buffer_inuse(ftdmchan->dtmf_buffer))) {
-			//rlen = len;
-			//memset(frame, 0, len);
-			//ftdm_channel_write(ftdmchan, frame, sizeof(frame), &rlen);
-			continue;
-		}
-		
 		if (!indicate) {
 			continue;
 		}
