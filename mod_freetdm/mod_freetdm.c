@@ -4705,56 +4705,6 @@ end:
 	return SWITCH_STATUS_SUCCESS;
 }
 
-FTDM_CLI_DECLARE(ftdm_cmd_dtmf)
-{
-	unsigned i = 0;
-	uint32_t chan_id = 0;
-	unsigned schan_count = 0;
-	ftdm_span_t *span = NULL;
-	ftdm_command_t fcmd = FTDM_COMMAND_ENABLE_DTMF_DETECT;
-	ftdm_channel_t *fchan;
-
-	if (argc < 3) {
-		print_usage(stream, cli);
-		goto end;
-	}
-
-	if (switch_true(argv[1])) {
-		fcmd = FTDM_COMMAND_ENABLE_DTMF_DETECT;
-	} else {
-		fcmd = FTDM_COMMAND_DISABLE_DTMF_DETECT;
-	}
-
-	ftdm_span_find_by_name(argv[2], &span);
-	if (!span) {
-		stream->write_function(stream, "-ERR failed to find span %s\n", argv[2]);
-		goto end;
-	}
-
-	schan_count = ftdm_span_get_chan_count(span);
-	if (argc > 3) {
-		chan_id = atoi(argv[3]);
-		if (chan_id > schan_count) {
-			stream->write_function(stream, "-ERR invalid channel\n");
-			goto end;
-		}
-	}
-
-	if (chan_id) {
-		fchan = ftdm_span_get_channel(span, chan_id);
-		ftdm_channel_command(fchan, fcmd, NULL);
-	} else {
-		for (i = 1; i <= schan_count; i++) {
-			fchan = ftdm_span_get_channel(span, i);
-			ftdm_channel_command(fchan, fcmd, NULL);
-		}
-	}
-
-	stream->write_function(stream, "+OK DTMF detection was %s\n", fcmd == FTDM_COMMAND_ENABLE_DTMF_DETECT ? "enabled" : "disabled");
-end:
-	return SWITCH_STATUS_SUCCESS;
-}
-
 FTDM_CLI_DECLARE(ftdm_cmd_queuesize)
 {
 	unsigned int i = 0;
@@ -4884,7 +4834,6 @@ static ftdm_cli_entry_t ftdm_cli_options[] =
 	{ "trace", "<path> <span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_trace, NULL },
 	{ "notrace", "<span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_notrace, NULL },
 	{ "gains", "<rxgain> <txgain> <span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_gains, NULL },
-	{ "dtmf", "on|off <span_id|span_name> [<chan_id>]", "::[on:off", NULL, ftdm_cmd_dtmf, NULL },
 	{ "queuesize", "<rxsize> <txsize> <span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_queuesize, NULL },
 	{ "ioread", "<span_id|span_name> <chan_id> [num_times] [interval]", "", NULL, ftdm_cmd_ioread, NULL },
 
