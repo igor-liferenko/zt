@@ -1116,6 +1116,15 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
       return 0;
     }
 
+    int echo_cancel_level = 16; /* number of samples of echo cancellation (0--256); 0 = disabled */
+      /* The problem is that if ec is disabled, keys are not always recognized.
+         Test this parameter separately from freeswitch when you factor-out teletone from freetdm
+         and see oslec page - there was tool to analyze ec graphically. */
+    if (ioctl(sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1) {
+      ftdm_log(FTDM_LOG_EMERG, "DAHDI_ECHOCANCEL failed\n");
+      return 0;
+    }
+
     ftdm_channel_t *ftdmchan;
     if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
@@ -1134,13 +1143,6 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 
 static ftdm_status_t zt_open(ftdm_channel_t * ftdmchan)
 {
-  int echo_cancel_level = 16; /* number of samples of echo cancellation (0--256); 0 = disabled */
-    /* The problem is that if ec is disabled, keys are not always recognized.
-       Test this parameter separately from freeswitch when you factor-out teletone from freetdm
-       and see oslec page - there was tool to analyze ec graphically. */
-  if (ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &echo_cancel_level) == -1)
-    ftdm_log(FTDM_LOG_EMERG, "DAHDI_ECHOCANCEL failed\n");
-  
   return FTDM_SUCCESS;
 }
 
