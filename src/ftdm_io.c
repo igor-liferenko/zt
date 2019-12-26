@@ -3069,26 +3069,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 			GOTO_STATUS(done, FTDM_SUCCESS);
 		}
 		break;
-	case FTDM_COMMAND_GET_IOSTATS:
-		{
-			if (!obj) {
-				GOTO_STATUS(done, FTDM_EINVAL);
-			}
-			memcpy(obj, &ftdmchan->iostats, sizeof(ftdmchan->iostats));
-			GOTO_STATUS(done, FTDM_SUCCESS);
-		}
-		break;
-	case FTDM_COMMAND_SWITCH_IOSTATS:
-		{
-			ftdm_bool_t enable = *(ftdm_bool_t *)obj;
-			if (enable) {
-				ftdm_channel_set_feature(ftdmchan, FTDM_CHANNEL_FEATURE_IO_STATS);
-			} else {
-				ftdm_channel_clear_feature(ftdmchan, FTDM_CHANNEL_FEATURE_IO_STATS);
-			}
-			GOTO_STATUS(done, FTDM_SUCCESS);
-		}
-		break;
 	default:
 		break;
 	}
@@ -4375,10 +4355,6 @@ FT_DECLARE(ftdm_status_t) ftdm_configure_span_channels(ftdm_span_t *span, ftdm_c
 	}
 
 	for (chan_index = currindex + 1; chan_index <= span->chan_count; chan_index++) {
-		if (chan_config->iostats) {
-			ftdm_channel_set_feature(span->channels[chan_index], FTDM_CHANNEL_FEATURE_IO_STATS);
-		}
-
 		if (!FTDM_IS_VOICE_CHANNEL(span->channels[chan_index])) {
 			continue;
 		}

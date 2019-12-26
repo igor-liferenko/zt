@@ -4808,76 +4808,6 @@ end:
 	return SWITCH_STATUS_SUCCESS;
 }
 
-static void exec_io_command(const char *cmd, switch_stream_handle_t *stream, ftdm_channel_t *fchan)
-{
-	int enable = 0;
-	ftdm_channel_iostats_t stats;
-
-	if (!strcasecmp("enable", cmd)) {
-		enable = 1;
-		ftdm_channel_command(fchan, FTDM_COMMAND_SWITCH_IOSTATS, &enable);
-	} else if (!strcasecmp("disable", cmd)) {
-		enable = 0;
-		ftdm_channel_command(fchan, FTDM_COMMAND_SWITCH_IOSTATS, &enable);
-	} else if (!strcasecmp("flush", cmd)) {
-		ftdm_channel_command(fchan, FTDM_COMMAND_FLUSH_IOSTATS, NULL);
-	} else {
-		ftdm_channel_command(fchan, FTDM_COMMAND_GET_IOSTATS, &stats);
-		stream->write_function(stream, "-- IO statistics for channel %d:%d --\n",
-				ftdm_channel_get_span_id(fchan), ftdm_channel_get_id(fchan));
-		stream->write_function(stream, "Rx errors: %u\n", stats.rx.errors);
-		stream->write_function(stream, "Rx queue size: %u\n", stats.rx.queue_size);
-		stream->write_function(stream, "Rx queue len: %u\n", stats.rx.queue_len);
-		stream->write_function(stream, "Rx count: %lu\n", stats.rx.packets);
-
-		stream->write_function(stream, "Tx errors: %u\n", stats.tx.errors);
-		stream->write_function(stream, "Tx queue size: %u\n", stats.tx.queue_size);
-		stream->write_function(stream, "Tx queue len: %u\n", stats.tx.queue_len);
-		stream->write_function(stream, "Tx count: %lu\n", stats.tx.packets);
-		stream->write_function(stream, "Tx idle: %u\n", stats.tx.idle_packets);
-	}
-}
-
-FTDM_CLI_DECLARE(ftdm_cmd_iostats)
-{
-	uint32_t chan_id = 0;
-	ftdm_channel_t *chan;
-	ftdm_iterator_t *iter = NULL;
-	ftdm_iterator_t *curr = NULL;
-	ftdm_span_t *span = NULL;
-
-	if (argc < 3) {
-		print_usage(stream, cli);
-		goto end;
-	}
-
-	ftdm_span_find_by_name(argv[2], &span);
-	if (!span) {
-		stream->write_function(stream, "-ERR failed to find span %s\n", argv[2]);
-		goto end;
-	}
-
-	if (argc > 3) {
-		chan_id = atoi(argv[3]);
-		if (chan_id > ftdm_span_get_chan_count(span)) {
-			stream->write_function(stream, "-ERR invalid channel\n");
-			goto end;
-		}
-		chan = ftdm_span_get_channel(span, chan_id);
-		exec_io_command(argv[1], stream, chan);
-	} else {
-		iter = ftdm_span_get_chan_iterator(span, NULL);
-		for (curr  = iter; curr; curr = ftdm_iterator_next(curr)) {
-			chan = ftdm_iterator_current(curr);
-			exec_io_command(argv[1], stream, chan);
-		}
-		ftdm_iterator_free(iter);
-	}
-	stream->write_function(stream, "+OK\n");
-end:
-	return SWITCH_STATUS_SUCCESS;
-}
-
 SWITCH_STANDARD_API(ftdm_api_exec_usage)
 {
 	char *mycmd = NULL, *argv[10] = { 0 };
@@ -4956,7 +4886,6 @@ static ftdm_cli_entry_t ftdm_cli_options[] =
 	{ "gains", "<rxgain> <txgain> <span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_gains, NULL },
 	{ "dtmf", "on|off <span_id|span_name> [<chan_id>]", "::[on:off", NULL, ftdm_cmd_dtmf, NULL },
 	{ "queuesize", "<rxsize> <txsize> <span_id|span_name> [<chan_id>]", "", NULL, ftdm_cmd_queuesize, NULL },
-	{ "iostats", "enable|disable|flush|print <span_id|span_name> <chan_id>", "::[enable:disable:flush:print", NULL, ftdm_cmd_iostats, NULL },
 	{ "ioread", "<span_id|span_name> <chan_id> [num_times] [interval]", "", NULL, ftdm_cmd_ioread, NULL },
 
 	/* Stand-alone commands (not part of the generic ftdm API */

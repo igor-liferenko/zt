@@ -181,8 +181,6 @@ typedef enum {
 /*! \brief Channel supported features */
 typedef enum {
 	FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5), /*!< Channel can detect inband progress (read-only) */
-	FTDM_CHANNEL_FEATURE_IO_STATS = (1<<9), /*!< Channel supports IO statistics (HDLC channels only) */
-	FTDM_CHANNEL_FEATURE_MF_GENERATE = (1<<10), /*!< Channel can generate R2 MF tones (read-only) */
 } ftdm_channel_feature_t;
 
 #define FTDM_CHANNEL_IO_EVENT (1 << 0)

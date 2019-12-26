@@ -193,7 +193,6 @@ typedef struct ftdm_channel_config {
   uint32_t dtmfdetect_ms;
   uint32_t dtmf_time_on;
   uint32_t dtmf_time_off;
-  uint8_t iostats;
 } ftdm_channel_config_t;
 
 typedef enum {
@@ -315,8 +314,6 @@ typedef enum {
   FTDM_COMMAND_FLUSH_RX_BUFFERS = 46,
   FTDM_COMMAND_FLUSH_BUFFERS = 47,
 
-  FTDM_COMMAND_FLUSH_IOSTATS = 48,
-
   FTDM_COMMAND_SET_PRE_BUFFER_SIZE = 49,
   FTDM_COMMAND_SET_LINK_STATUS = 50,
   FTDM_COMMAND_GET_LINK_STATUS = 51,
@@ -327,10 +324,6 @@ typedef enum {
   FTDM_COMMAND_SET_POLARITY = 56,
   FTDM_COMMAND_START_MF_PLAYBACK = 57,
   FTDM_COMMAND_STOP_MF_PLAYBACK = 58,
-
-  FTDM_COMMAND_GET_IOSTATS = 59,
-
-  FTDM_COMMAND_SWITCH_IOSTATS = 60,
 
   FTDM_COMMAND_ENABLE_DTMF_REMOVAL = 61,
   FTDM_COMMAND_DISABLE_DTMF_REMOVAL = 62,
@@ -443,25 +436,6 @@ typedef enum {
   FTDM_ALARM_GENERAL = (1 << 30)
 } ftdm_alarm_flag_t;
 
-typedef struct {
-  struct {
-    uint64_t packets;
-    uint32_t errors;
-    uint16_t flags;
-    uint8_t queue_size;
-    uint8_t queue_len;
-  } rx;
-
-  struct {
-    uint64_t idle_packets;
-    uint64_t packets;
-    uint32_t errors;
-    uint16_t flags;
-    uint8_t queue_size;
-    uint8_t queue_len;
-  } tx;
-} ftdm_channel_iostats_t;
-
 ftdm_status_t ftdm_span_add_channel(ftdm_span_t * span, int sockfd, ftdm_channel_t ** chan);
 
 extern ftdm_logger_t ftdm_log;
@@ -567,8 +541,6 @@ typedef enum {
 
 typedef enum {
   FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5),
-  FTDM_CHANNEL_FEATURE_IO_STATS = (1 << 9),
-  FTDM_CHANNEL_FEATURE_MF_GENERATE = (1 << 10),
 } ftdm_channel_feature_t;
 
 #define FTDM_CHANNEL_IO_EVENT (1 << 0)
@@ -935,7 +907,6 @@ struct ftdm_channel {
   int availability_rate;
   void *user_private;
   ftdm_timer_id_t hangup_timer;
-  ftdm_channel_iostats_t iostats;
   ftdm_dtmf_debug_t dtmfdbg;
   ftdm_dtmf_detect_t dtmfdetect;
   ftdm_io_dump_t rxdump;

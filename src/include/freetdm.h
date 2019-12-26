@@ -419,7 +419,6 @@ typedef struct ftdm_channel_config {
 	uint32_t dtmfdetect_ms;
 	uint32_t dtmf_time_on;
 	uint32_t dtmf_time_off;
-	uint8_t iostats;
 } ftdm_channel_config_t;
 
 /*!
@@ -579,9 +578,6 @@ typedef enum {
 	FTDM_COMMAND_FLUSH_RX_BUFFERS = 46,
 	FTDM_COMMAND_FLUSH_BUFFERS = 47,
 
-	/*!< Flush IO statistics */
-	FTDM_COMMAND_FLUSH_IOSTATS = 48,
-
 	FTDM_COMMAND_SET_PRE_BUFFER_SIZE = 49,
 	FTDM_COMMAND_SET_LINK_STATUS = 50,
 	FTDM_COMMAND_GET_LINK_STATUS = 51,
@@ -592,11 +588,6 @@ typedef enum {
 	FTDM_COMMAND_SET_POLARITY = 56,
 	FTDM_COMMAND_START_MF_PLAYBACK = 57,
 	FTDM_COMMAND_STOP_MF_PLAYBACK = 58,
-
-	/*!< Get a copy of the current IO stats */
-	FTDM_COMMAND_GET_IOSTATS = 59,
-	/*!< Enable/disable IO stats in the channel */
-	FTDM_COMMAND_SWITCH_IOSTATS =  60,
 
 	/*!< Enable/disable DTMF removal */
 	FTDM_COMMAND_ENABLE_DTMF_REMOVAL = 61,
@@ -781,37 +772,6 @@ typedef enum {
 	FTDM_MF_DIRECTION_FORWARD =  (1 << 8),
 	FTDM_MF_DIRECTION_BACKWARD = (1 << 9)
 } ftdm_mf_direction_flag_t;
-
-/*! \brief IO Error statistics */
-typedef enum {
-	FTDM_IOSTATS_ERROR_CRC		= (1 << 0),
-	FTDM_IOSTATS_ERROR_FRAME	= (1 << 1),
-	FTDM_IOSTATS_ERROR_ABORT 	= (1 << 2),
-	FTDM_IOSTATS_ERROR_FIFO 	= (1 << 3),
-	FTDM_IOSTATS_ERROR_DMA		= (1 << 4),
-	FTDM_IOSTATS_ERROR_QUEUE_THRES	= (1 << 5), /* Queue reached high threshold */
-	FTDM_IOSTATS_ERROR_QUEUE_FULL	= (1 << 6), /* Queue is full */
-} ftdm_iostats_error_type_t;
-
-/*! \brief IO statistics */
-typedef struct {
-	struct {
-		uint64_t packets;
-		uint32_t errors;
-		uint16_t flags;
-		uint8_t	 queue_size;	/*!< max queue size configured */
-		uint8_t	 queue_len;	/*!< Current number of elements in queue */
-	} rx;
-
-	struct {
-		uint64_t idle_packets;
-		uint64_t packets;
-		uint32_t errors;
-		uint16_t flags;
-		uint8_t	 queue_size;	/*!< max queue size configured */
-		uint8_t	 queue_len;	/*!< Current number of elements in queue */
-	} tx;
-} ftdm_channel_iostats_t;
 
 /*! \brief Override the default queue handler */
 FT_DECLARE(ftdm_status_t) ftdm_global_set_queue_handler(ftdm_queue_handler_t *handler);

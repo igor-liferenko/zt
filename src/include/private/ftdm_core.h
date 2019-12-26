@@ -426,7 +426,6 @@ struct ftdm_channel {
 	int availability_rate;
 	void *user_private;
 	ftdm_timer_id_t hangup_timer;
-	ftdm_channel_iostats_t iostats;
 	ftdm_dtmf_debug_t dtmfdbg;
 	ftdm_dtmf_detect_t dtmfdetect;
 	ftdm_io_dump_t rxdump;
