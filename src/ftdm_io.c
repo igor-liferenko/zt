@@ -1812,12 +1812,8 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_open_chan(ftdm_channel_t *ftdmchan)
 		goto done;
 	}
 
-	status = ftdmchan->fio->open(ftdmchan);
-	if (status == FTDM_SUCCESS) {
-		ftdm_set_flag(ftdmchan, FTDM_CHANNEL_OPEN | FTDM_CHANNEL_INUSE);
-	} else {
-		ftdm_log_chan(ftdmchan, FTDM_LOG_WARNING, "IO open failed: %d\n", status);
-	}
+	status = FTDM_SUCCESS;
+	ftdm_set_flag(ftdmchan, FTDM_CHANNEL_OPEN | FTDM_CHANNEL_INUSE);
 
 done:
 	
@@ -1929,13 +1925,9 @@ static ftdm_status_t _ftdm_channel_open(uint32_t span_id, uint32_t chan_id, ftdm
 
 openchan:
 	if (!ftdm_test_flag(check, FTDM_CHANNEL_OPEN)) {
-		status = check->fio->open(check);
-		if (status == FTDM_SUCCESS) {
-			ftdm_set_flag(check, FTDM_CHANNEL_OPEN);
-		}
-	} else {
-		status = FTDM_SUCCESS;
+		ftdm_set_flag(check, FTDM_CHANNEL_OPEN);
 	}
+        status = FTDM_SUCCESS;
 	ftdm_set_flag(check, FTDM_CHANNEL_INUSE);
 	ftdm_set_flag(check, FTDM_CHANNEL_OUTBOUND);
 	*ftdmchan = check;
@@ -2899,8 +2891,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_close(ftdm_channel_t **ftdmchan)
 		if (!ftdm_test_flag(check, FTDM_CHANNEL_OPEN)) {
 			ftdm_log_chan_msg(check, FTDM_LOG_WARNING, "Channel not opened, proceeding anyway\n");
 		}
-		status = check->fio->close(check);
-		ftdm_assert(status == FTDM_SUCCESS, "Failed to close channel!\n");
+		status = FTDM_SUCCESS;
 		ftdm_channel_done(check);
 		*ftdmchan = NULL;
 		check->ring_count = 0;

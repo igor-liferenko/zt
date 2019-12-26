@@ -776,8 +776,6 @@ typedef ftdm_status_t (*fio_span_stop_t) FIO_SPAN_STOP_ARGS ;
 struct ftdm_io_interface {
 	const char *name; /*!< I/O module name */
 	fio_configure_span_t configure_span; /*!< Configure span I/O */
-	fio_open_t open; /*!< Open I/O channel */
-	fio_close_t close; /*!< Close I/O channel */
 	fio_channel_destroy_t channel_destroy; /*!< Destroy I/O channel */
 	fio_span_destroy_t span_destroy; /*!< Destroy span I/O */
 	fio_get_alarms_t get_alarms; /*!< Get hardware alarms */
