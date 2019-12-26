@@ -4,7 +4,7 @@ BASE=../../..
 FT_DIR=..
 VERBOSE=1
 FTLA=$(FT_DIR)/libfreetdm.la
-LOCAL_OBJS=tdm.o
+LOCAL_OBJS=
 LOCAL_CFLAGS=-I$(FT_DIR)/src/include -I$(FT_DIR)/src/isdn/include $(FT_CFLAGS)
 LOCAL_LDFLAGS=-L$(FT_DIR) -lfreetdm 
 include modmake.rules
