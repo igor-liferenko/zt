@@ -325,10 +325,6 @@ typedef enum {
 
   FTDM_COMMAND_DUMP_OUTPUT = 32,
 
-  FTDM_COMMAND_ENABLE_ECHOCANCEL = 35,
-  FTDM_COMMAND_DISABLE_ECHOCANCEL = 36,
-  FTDM_COMMAND_ENABLE_ECHOTRAIN = 37,
-  FTDM_COMMAND_DISABLE_ECHOTRAIN = 38,
   FTDM_COMMAND_SET_CAS_BITS = 39,
   FTDM_COMMAND_GET_CAS_BITS = 40,
   FTDM_COMMAND_SET_RX_GAIN = 41,
@@ -634,8 +630,6 @@ typedef enum {
 typedef enum {
   FTDM_CHANNEL_FEATURE_CODECS = (1 << 2),
   FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5),
-  FTDM_CHANNEL_FEATURE_HWEC = (1 << 7),
-  FTDM_CHANNEL_FEATURE_HWEC_DISABLED_ON_IDLE = (1 << 8),
   FTDM_CHANNEL_FEATURE_IO_STATS = (1 << 9),
   FTDM_CHANNEL_FEATURE_MF_GENERATE = (1 << 10),
 } ftdm_channel_feature_t;
@@ -1160,19 +1154,6 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
   int err = 0;
 
   switch (command) {
-  case FTDM_COMMAND_ENABLE_ECHOCANCEL:
-    {
-      int level = *((int *) obj);
-      err = ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &level);
-      *((int *) obj) = level;
-    }
-  case FTDM_COMMAND_DISABLE_ECHOCANCEL:
-    {
-      int level = 0;
-      err = ioctl(ftdmchan->sockfd, DAHDI_ECHOCANCEL, &level);
-      *((int *) obj) = level;
-    }
-    break;
   case FTDM_COMMAND_OFFHOOK:
     {
       int command = DAHDI_OFFHOOK;

@@ -5208,7 +5208,6 @@ SWITCH_STANDARD_APP(disable_dtmf_function)
 SWITCH_STANDARD_APP(disable_ec_function)
 {
 	private_t *tech_pvt;
-	int x = 0;
 
 	if (!switch_core_session_check_interface(session, freetdm_endpoint_interface)) {
 		ftdm_log(FTDM_LOG_ERROR, "This application is only for FreeTDM channels.\n");
@@ -5222,9 +5221,7 @@ SWITCH_STANDARD_APP(disable_ec_function)
 		return;
 	}
 
-	ftdm_channel_command(tech_pvt->ftdmchan, FTDM_COMMAND_DISABLE_ECHOCANCEL, &x);
-	ftdm_channel_command(tech_pvt->ftdmchan, FTDM_COMMAND_DISABLE_ECHOTRAIN, &x);
-	ftdm_log(FTDM_LOG_INFO, "Echo Canceller Disabled\n");
+        ftdm_log(FTDM_LOG_EMERG, "disable_ec_function() called! Restore handling FTDM_COMMAND_DISABLE_ECHOCANCEL!\n");
 }
 
 

@@ -442,15 +442,7 @@ FT_DECLARE(void) ftdm_set_echocancel_call_begin(ftdm_channel_t *chan)
 
 FT_DECLARE(void) ftdm_set_echocancel_call_end(ftdm_channel_t *chan)
 {
-	if (ftdm_channel_test_feature(chan, FTDM_CHANNEL_FEATURE_HWEC)) {
-		if (ftdm_channel_test_feature(chan, FTDM_CHANNEL_FEATURE_HWEC_DISABLED_ON_IDLE)) {
-			ftdm_log_chan(chan, FTDM_LOG_DEBUG, "Disabling ec on call end in channel state %s\n", ftdm_channel_state2str(chan->state));
-			ftdm_channel_command(chan, FTDM_COMMAND_DISABLE_ECHOCANCEL, NULL);
-		} else {
-			ftdm_log_chan(chan, FTDM_LOG_DEBUG, "Enabling ec back on call end in channel state %s\n", ftdm_channel_state2str(chan->state));
-			ftdm_channel_command(chan, FTDM_COMMAND_ENABLE_ECHOCANCEL, NULL);
-		}
-	}
+  return;
 }
 
 FT_DECLARE_DATA ftdm_memory_handler_t g_ftdm_mem_handler = 
@@ -3221,15 +3213,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 
 		}
 		break;
-	case FTDM_COMMAND_DISABLE_ECHOCANCEL:
-		{
-			ftdm_mutex_lock(ftdmchan->pre_buffer_mutex);
-			ftdm_buffer_destroy(&ftdmchan->pre_buffer);
-			ftdmchan->pre_buffer_size = 0;
-			ftdm_mutex_unlock(ftdmchan->pre_buffer_mutex);
-		}
-		break;
-
 	case FTDM_COMMAND_SET_RX_GAIN:
 		{
 			if (!FTDM_IS_VOICE_CHANNEL(ftdmchan)) {
