@@ -2954,7 +2954,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 		break;
 	case FTDM_COMMAND_ENABLE_PROGRESS_DETECT:
 		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_PROGRESS)) {
 				/* if they don't have thier own, use ours */
 				ftdm_channel_clear_detected_tones(ftdmchan);
 				ftdm_channel_clear_needed_tones(ftdmchan);
@@ -2963,17 +2962,14 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 				teletone_multi_tone_init(&ftdmchan->span->tone_finder[FTDM_TONEMAP_BUSY], &ftdmchan->span->tone_detect_map[FTDM_TONEMAP_BUSY]);
 				ftdm_set_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
 				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
 		}
 		break;
 	case FTDM_COMMAND_DISABLE_PROGRESS_DETECT:
 		{
-			if (!ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_PROGRESS)) {
 				ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
 				ftdm_channel_clear_detected_tones(ftdmchan);
 				ftdm_channel_clear_needed_tones(ftdmchan);
 				GOTO_STATUS(done, FTDM_SUCCESS);
-			}
 		}
 		break;
 	case FTDM_COMMAND_ENABLE_DTMF_DETECT:
@@ -3521,7 +3517,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 			slen = len;
 		}
 
-		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT) && !ftdm_channel_test_feature(ftdmchan, FTDM_CHANNEL_FEATURE_PROGRESS)) {
+		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT)) {
 			uint32_t i;
 
 			for (i = 1; i < FTDM_TONEMAP_INVALID; i++) {

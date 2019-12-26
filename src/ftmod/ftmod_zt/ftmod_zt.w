@@ -539,10 +539,6 @@ typedef enum {
   FTDM_SPAN_MAX_FLAG = (1 << 15),
 } ftdm_span_flag_t;
 
-typedef enum {
-  FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5),
-} ftdm_channel_feature_t;
-
 #define FTDM_CHANNEL_IO_EVENT (1 << 0)
 
 #define FTDM_CHANNEL_OFFHOOK (1ULL << 14)
@@ -854,7 +850,6 @@ struct ftdm_channel {
   uint32_t sflags;
   uint8_t io_flags;
   ftdm_alarm_flag_t alarm_flags;
-  ftdm_channel_feature_t features;
   int effective_codec;
   int native_codec;
   uint32_t effective_interval;

@@ -178,11 +178,6 @@ typedef enum {
 	FTDM_SPAN_MAX_FLAG = (1 << 15),
 } ftdm_span_flag_t;
 
-/*! \brief Channel supported features */
-typedef enum {
-	FTDM_CHANNEL_FEATURE_PROGRESS = (1 << 5), /*!< Channel can detect inband progress (read-only) */
-} ftdm_channel_feature_t;
-
 #define FTDM_CHANNEL_IO_EVENT (1 << 0)
 #define FTDM_CHANNEL_IO_READ (1 << 1)
 #define FTDM_CHANNEL_IO_WRITE (1 << 2)
