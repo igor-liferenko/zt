@@ -187,7 +187,6 @@ typedef enum {
 #define FTDM_CHANNEL_READY         (1ULL << 1)
 #define FTDM_CHANNEL_OPEN          (1ULL << 2)
 #define FTDM_CHANNEL_DTMF_DETECT   (1ULL << 3)
-#define FTDM_CHANNEL_SUPRESS_DTMF  (1ULL << 4)
 #define FTDM_CHANNEL_BUFFER        (1ULL << 6)
 #define FTDM_CHANNEL_INTHREAD      (1ULL << 8)
 #define FTDM_CHANNEL_WINK          (1ULL << 9)

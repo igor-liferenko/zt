@@ -73,7 +73,6 @@ static val_str_t channel_flag_strs[] =  {
 	{ "ready",  FTDM_CHANNEL_READY},
 	{ "open",  FTDM_CHANNEL_OPEN},
 	{ "dtmf-detect",  FTDM_CHANNEL_DTMF_DETECT},
-	{ "suppress-dtmf",  FTDM_CHANNEL_SUPRESS_DTMF},
 	{ "buffer",  FTDM_CHANNEL_BUFFER},
 	{ "in-thread",  FTDM_CHANNEL_INTHREAD},
 	{ "wink",  FTDM_CHANNEL_WINK},
@@ -2646,7 +2645,6 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OPEN);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
-	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_INUSE);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OUTBOUND);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_WINK);
@@ -2957,7 +2955,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_command(ftdm_channel_t *ftdmchan, ftdm_co
 				if (FTDM_CHANNEL_SW_DTMF_ALLOWED(ftdmchan)) {
 					teletone_dtmf_detect_init (&ftdmchan->dtmf_detect, ftdmchan->rate);
 					ftdm_set_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
-					ftdm_set_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF);
 					ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Enabled software DTMF detector\n");
 					GOTO_STATUS(done, FTDM_SUCCESS);
 				}
@@ -3491,9 +3488,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				char digit_str[2] = { 0 };
 				digit_str[0] = digit_char;
 				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
-				if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_SUPRESS_DTMF)) {
-					ftdmchan->skip_read_frames = 20;
-				}
+				ftdmchan->skip_read_frames = 20; /* why? */
 			}
 		}
 	}
