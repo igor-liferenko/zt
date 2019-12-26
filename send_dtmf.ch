@@ -1,5 +1,5 @@
 It seems DAHDI_DIAL is not an alternative to freetdm's dtmf generation feature, because
-it seems rec.raw is not heard after it.
+writing to cgannel fails after it.
 
 @x
 #include <dahdi/user.h>
