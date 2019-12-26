@@ -83,7 +83,6 @@ static val_str_t channel_flag_strs[] =  {
 	{ "in-use",  FTDM_CHANNEL_INUSE},
 	{ "off-hook",  FTDM_CHANNEL_OFFHOOK},
 	{ "ringing",  FTDM_CHANNEL_RINGING},
-	{ "progress-detect",  FTDM_CHANNEL_PROGRESS_DETECT},
 	{ "outbound",  FTDM_CHANNEL_OUTBOUND},
 	{ "suspended",  FTDM_CHANNEL_SUSPENDED},
 	{ "3-way",  FTDM_CHANNEL_3WAY},
@@ -2656,7 +2655,6 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_HOLD);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OFFHOOK);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_RINGING);
-	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_3WAY);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_PROGRESS);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_MEDIA);
@@ -3461,8 +3459,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 		goto done;
 	}
 
-	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT) ||
-		ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT)) {
+	if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT)) {
 
 		uint8_t sln_buf[1024] = {0};
 		int16_t *sln;
@@ -3495,21 +3492,6 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 			}
 			sln = (int16_t *) sln_buf;
 			slen = len;
-		}
-
-		if (ftdm_test_flag(ftdmchan, FTDM_CHANNEL_PROGRESS_DETECT)) {
-			uint32_t i;
-
-			for (i = 1; i < FTDM_TONEMAP_INVALID; i++) {
-				if (ftdmchan->span->tone_finder[i].tone_count) {
-					if (ftdmchan->needed_tones[i] && teletone_multi_tone_detect(&ftdmchan->span->tone_finder[i], sln, (int)slen)) {
-						if (++ftdmchan->detected_tones[i]) {
-							ftdmchan->needed_tones[i] = 0;
-							ftdmchan->detected_tones[0]++;
-						}
-					}
-				}
-			}
 		}
 
 		if (FTDM_CHANNEL_SW_DTMF_ALLOWED(ftdmchan) && ftdm_test_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT)) {

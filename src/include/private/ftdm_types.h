@@ -197,7 +197,6 @@ typedef enum {
 #define FTDM_CHANNEL_INUSE         (1ULL << 13)
 #define FTDM_CHANNEL_OFFHOOK       (1ULL << 14)
 #define FTDM_CHANNEL_RINGING       (1ULL << 15)
-#define FTDM_CHANNEL_PROGRESS_DETECT (1ULL << 16)
 #define FTDM_CHANNEL_OUTBOUND        (1ULL << 18)
 #define FTDM_CHANNEL_SUSPENDED       (1ULL << 19)
 #define FTDM_CHANNEL_3WAY            (1ULL << 20)
