@@ -1,5 +1,6 @@
 It seems DAHDI_DIAL is not an alternative to freetdm's dtmf generation feature, because
-writing to cgannel fails after it.
+writing to channel fails after it (TODO: see which errno is returned and if 500,
+retrieve the event and see what it is)
 
 @x
 #include <dahdi/user.h>
