@@ -9,4 +9,5 @@ right after dtmf was sensed.
 
   int x = DAHDI_TONE_DIALTONE;
   if (ioctl(channel, DAHDI_SENDTONE, &x) == -1) return 102;
+  sleep(10);
 @z
