@@ -13,6 +13,7 @@ Write is done each 128 milliseconds (default block size is 1024 bytes, 2048 in l
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <errno.h>
 
 int main(void)
 {
@@ -33,11 +34,20 @@ int main(void)
   struct tm *tms;
   while (1) {
     if (read(media, buf, BLOCK_SIZE) != BLOCK_SIZE) return 0;
-    if (write(channel, buf, BLOCK_SIZE) != BLOCK_SIZE) return 5;
+    if (write(channel, buf, BLOCK_SIZE) != BLOCK_SIZE) break;
     if (gettimeofday(&tval, NULL) == -1) return 6;
     if ((tms = localtime(&tval.tv_sec)) == NULL) return 7;
     printf("%d:%02d:%02d.%03ld.%03ld\n",
              tms->tm_hour, tms->tm_min, tms->tm_sec, tval.tv_usec / 1000,
              tval.tv_usec % 1000);
   }
+  if (errno == ELAST) {
+    @<Get event@>@;
+  }
+  else return 9;
 }
+
+@ @<Get event@>=
+int event = 0;
+if (ioctl(channel, DAHDI_GETEVENT, &event) == -1) return 8;
+printf("event: %s\n",event==2?"A":(event==1?"B":(event==3?"FLASH":"unknown")));
