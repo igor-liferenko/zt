@@ -2642,7 +2642,14 @@ static ftdm_status_t ftdm_channel_sig_indicate(ftdm_channel_t *ftdmchan, ftdm_ch
 static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 {
 	ftdm_assert_return(ftdmchan != NULL, FTDM_FAIL, "Null channel can't be done!\n");
-
+int to_tel;
+if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  ssize_t x = write(to_tel, "B", 1);
+  (void) x;
+  close(to_tel);
+}
+        ftdm_clear_flag(ftdmchan, MY1);
+        ftdm_clear_flag(ftdmchan, MY2);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OPEN);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_INUSE);
@@ -3487,11 +3494,20 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				teletone_dtmf_get(&ftdmchan->dtmf_detect, &digit_char, &dur);
 				char digit_str[2] = { 0 };
 				digit_str[0] = digit_char;
-int to_tel;
-if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
-  write(to_tel, digit_char, 1);
-  close(to_tel);
+if (ftdm_test_flag(ftdmchan, MY1)) {
+	if ( digit_char != '*' && digit_char != '#') {
+        	ftdm_set_flag(ftdmchan, MY2); 
+	}
+        ftdm_clear_flag(ftdmchan, MY1);
 }
+if (ftdm_test_flag(ftdmchan,MY2)){
+ int to_tel;
+ if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  ssize_t x = write(to_tel, &digit_char, 1);
+  (void) x;
+   close(to_tel);
+ }}
+
 				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
 				ftdmchan->skip_read_frames = 20; /* why? */
 			}

@@ -303,6 +303,12 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 	ftdm_unused_arg(me);
 	ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "ANALOG CHANNEL thread starting.\n");
 
+int to_tel;
+if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  ssize_t x = write(to_tel, "A", 1);
+ (void) x;
+  close(to_tel);
+}
 	ts.buffer = NULL;
 
 	if (ftdm_channel_open_chan(ftdmchan) != FTDM_SUCCESS) {
@@ -324,6 +330,7 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 	ftdm_log_chan_msg(ftdmchan, FTDM_LOG_DEBUG, "Initialized DTMF detection\n");
 
 	ftdm_set_flag_locked(ftdmchan, FTDM_CHANNEL_INTHREAD);
+        ftdm_set_flag_locked(ftdmchan, MY1);
 	teletone_init_session(&ts, 0, teletone_handler, dt_buffer);
 	ts.rate = 8000;
 #if 0
