@@ -3494,10 +3494,26 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				teletone_dtmf_get(&ftdmchan->dtmf_detect, &digit_char, &dur);
 				char digit_str[2] = { 0 };
 				digit_str[0] = digit_char;
-if (ftdm_test_flag(ftdmchan, MY1)) {
+if (ftdm_test_flag(ftdmchan, MY1)) { /* only on the first keypress */
 	if ( digit_char != '*' && digit_char != '#') {
-        	ftdm_set_flag(ftdmchan, MY2); 
+        	ftdm_set_flag(ftdmchan, MY2); /* set flag to write keypresses to fifo */
 	}
+        else if (digit_char == '*') {
+          int to_tel;
+          if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+            ssize_t x = write(to_tel, "C", 1);
+            (void) x;
+            close(to_tel);
+          }
+        }
+        else if (digit_char == '#') {
+          int to_tel;
+          if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+            ssize_t x = write(to_tel, "D", 1);
+            (void) x;
+            close(to_tel);
+          }
+        }
         ftdm_clear_flag(ftdmchan, MY1);
 }
 if (ftdm_test_flag(ftdmchan,MY2)){
