@@ -2637,19 +2637,21 @@ static ftdm_status_t ftdm_channel_sig_indicate(ftdm_channel_t *ftdmchan, ftdm_ch
 	return status;
 }
 
-
 /* this function must be called with the channel lock */
 static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 {
 	ftdm_assert_return(ftdmchan != NULL, FTDM_FAIL, "Null channel can't be done!\n");
-int to_tel;
-if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
-  ssize_t x = write(to_tel, "B", 1);
-  (void) x;
-  close(to_tel);
-}
+
+	/* FIXME: do this not here, but where hangup is done whel `pkill tel-agi' is done */
+	int to_tel;
+	if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+	  ssize_t x = write(to_tel, "B", 1);
+	  (void) x;
+	  close(to_tel);
+	}
         ftdm_clear_flag(ftdmchan, FIRST_KEY);
         ftdm_clear_flag(ftdmchan, SEND_KEY);
+
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OPEN);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_INUSE);
