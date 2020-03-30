@@ -1,0 +1,1 @@
+fsd; make && make install && cd mod_freetdm/ && make install && cd .. && fsu && fs
