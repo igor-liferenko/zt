@@ -2642,16 +2642,6 @@ static ftdm_status_t ftdm_channel_done(ftdm_channel_t *ftdmchan)
 {
 	ftdm_assert_return(ftdmchan != NULL, FTDM_FAIL, "Null channel can't be done!\n");
 
-	/* FIXME: do this not here, but where hangup is done whel `pkill tel-agi' is done */
-	int to_tel;
-	if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
-	  ssize_t x = write(to_tel, "B", 1);
-	  (void) x;
-	  close(to_tel);
-	}
-        ftdm_clear_flag(ftdmchan, FIRST_KEY);
-        ftdm_clear_flag(ftdmchan, SEND_KEY);
-
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_OPEN);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_DTMF_DETECT);
 	ftdm_clear_flag(ftdmchan, FTDM_CHANNEL_INUSE);
@@ -2751,7 +2741,22 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_close(ftdm_channel_t **ftdmchan)
 		ftdm_mutex_lock(check->mutex);
 		if (!ftdm_test_flag(check, FTDM_CHANNEL_OPEN)) {
 			ftdm_log_chan_msg(check, FTDM_LOG_WARNING, "Channel not opened, proceeding anyway\n");
+
+			int to_tel;
+			if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+			  if(0== write(to_tel, "E", 1));
+			  close(to_tel);
+			}
 		}
+                else {
+			int to_tel;
+			if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+			  if(0== write(to_tel, "B", 1));
+			  close(to_tel);
+			}
+		}
+	        ftdm_clear_flag(check, FIRST_KEY);
+       		ftdm_clear_flag(check, SEND_KEY);
 		status = FTDM_SUCCESS;
 		ftdm_channel_done(check);
 		*ftdmchan = NULL;
