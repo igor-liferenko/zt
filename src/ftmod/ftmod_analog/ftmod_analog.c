@@ -305,10 +305,12 @@ static void *ftdm_analog_channel_run(ftdm_thread_t *me, void *obj)
 
 	int to_tel;
 	if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
-  		ssize_t x = write(to_tel, "A", 1);
-		(void) x;
-		close(to_tel);
+  	  if(0== write(to_tel, "A", 1));
+	  close(to_tel);
 	}
+        else {
+          /* TODO: send busy signal */
+        }
 
 	ts.buffer = NULL;
 
