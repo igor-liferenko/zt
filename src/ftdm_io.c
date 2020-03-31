@@ -2739,6 +2739,10 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_close(ftdm_channel_t **ftdmchan)
 
 	if (ftdm_test_flag(check, FTDM_CHANNEL_CONFIGURED)) {
 		ftdm_mutex_lock(check->mutex);
+
+
+/* TODO: do that "B" will not be written if channel is terminated via `pkill tel' */
+
 		if (!ftdm_test_flag(check, FTDM_CHANNEL_OPEN)) {
 			ftdm_log_chan_msg(check, FTDM_LOG_WARNING, "Channel not opened, proceeding anyway\n");
 
