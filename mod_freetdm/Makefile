@@ -16,7 +16,6 @@ $(FTLA): .update
 
 local_install:
 	cd $(FT_DIR) && $(MAKE) install
-	[ -f $(DESTDIR)/etc/autoload_configs/freetdm.conf.xml ] || cp -f $(FT_DIR)/conf/freetdm.conf.xml  $(DESTDIR)/etc/autoload_configs
 
 local_clean:
 	cd $(FT_DIR) && $(MAKE) clean

@@ -1,7 +1,7 @@
 
 
-switch_builddir=/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster
-switch_srcdir=/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster
+switch_builddir=/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster
+switch_srcdir=/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster
 
 build=x86_64-pc-linux-gnu
 host=x86_64-pc-linux-gnu
@@ -24,7 +24,7 @@ CXX=g++
 AWK=mawk
 SHELL=/bin/bash
 INSTALL=/usr/bin/install -c
-GETLIB=cd /freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/libs && /bin/bash /freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/build/getlib.sh
+GETLIB=cd /usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/libs && /bin/bash /usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/build/getlib.sh
 LIBTOOL=$(SHELL) $(switch_builddir)/libtool
 AR=x86_64-linux-gnu-ar
 LTINSTALL=$(LIBTOOL) --quiet --mode=install $(INSTALL) 
@@ -48,8 +48,8 @@ CFLAGS=-g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4
 CXXFLAGS=-g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4
 LDFLAGS=-luuid -lm -Wl,-z,relro $(OUR_LDFLAGS)
 
-ALL_CFLAGS   = $(LOCAL_CFLAGS) $(MOD_CFLAGS) -I/usr/include/uuid -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/libteletone/src -fPIC -ffast-math -Werror -Wno-unused-result -Wno-misleading-indentation -fvisibility=hidden -DSWITCH_API_VISIBILITY=1 -DCJSON_API_VISIBILITY=1 -DHAVE_VISIBILITY=1 -g -ggdb -DENABLE_ZRTP -DHAVE_OPENSSL -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4  -Wall -std=c99 -pedantic -Wdeclaration-after-statement -D_GNU_SOURCE $(OUR_CFLAGS)
-ALL_CXXFLAGS = $(LOCAL_CFLAGS) $(MOD_CFLAGS) -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/freeswitch/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/libteletone/src -fPIC -ffast-math -fvisibility=hidden -DSWITCH_API_VISIBILITY=1 -DCJSON_API_VISIBILITY=1 -DHAVE_VISIBILITY=1 -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4 -D_GNU_SOURCE $(OUR_CFLAGS)
+ALL_CFLAGS   = $(LOCAL_CFLAGS) $(MOD_CFLAGS) -I/usr/include/uuid -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/libteletone/src -fPIC -ffast-math -Werror -Wno-unused-result -Wno-misleading-indentation -fvisibility=hidden -DSWITCH_API_VISIBILITY=1 -DCJSON_API_VISIBILITY=1 -DHAVE_VISIBILITY=1 -g -ggdb -DENABLE_ZRTP -DHAVE_OPENSSL -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4  -Wall -std=c99 -pedantic -Wdeclaration-after-statement -D_GNU_SOURCE $(OUR_CFLAGS)
+ALL_CXXFLAGS = $(LOCAL_CFLAGS) $(MOD_CFLAGS) -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/src/include -I/usr/src/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/libteletone/src -fPIC -ffast-math -fvisibility=hidden -DSWITCH_API_VISIBILITY=1 -DCJSON_API_VISIBILITY=1 -DHAVE_VISIBILITY=1 -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4 -D_GNU_SOURCE $(OUR_CFLAGS)
 
 DEFAULT_VARS:= CFLAGS="$(CFLAGS)" CPPFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" CC="$(CC)" CXX="$(CXX)"
 DEFAULT_ARGS:= --build=$(build) --host=$(host) --target=$(target) \
