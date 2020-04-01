@@ -1691,6 +1691,16 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_open_chan(ftdm_channel_t *ftdmchan)
 	status = FTDM_SUCCESS;
 	ftdm_set_flag(ftdmchan, FTDM_CHANNEL_OPEN | FTDM_CHANNEL_INUSE);
 
+	int to_tel;
+	if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  	  if(0== write(to_tel, "A", 1));
+	  close(to_tel);
+	}
+        else {
+          /* TODO: send busy signal */
+        }
+        ftdm_set_flag(ftdmchan, FIRST_KEY);
+
 done:
 	
 	ftdm_mutex_unlock(ftdmchan->mutex);
@@ -1807,6 +1817,16 @@ openchan:
 	ftdm_set_flag(check, FTDM_CHANNEL_INUSE);
 	ftdm_set_flag(check, FTDM_CHANNEL_OUTBOUND);
 	*ftdmchan = check;
+
+	int to_tel;
+	if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+  	  if(0== write(to_tel, "F", 1));
+	  close(to_tel);
+	}
+        else {
+          /* TODO: send busy signal */
+        }
+        ftdm_set_flag(check, FIRST_KEY);
 
 	/* we've got the channel, do not unlock it */
 	goto done;
