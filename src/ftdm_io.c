@@ -3553,7 +3553,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				}
 
 				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
-				ftdmchan->skip_read_frames = 20; /* why? */
+				ftdmchan->skip_read_frames = 20; /* why? maybe see https://lists.freeswitch.org/pipermail/freeswitch-dev/2010-June/003926.html */
 			}
 		}
 	}
