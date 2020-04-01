@@ -3522,6 +3522,7 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				teletone_dtmf_get(&ftdmchan->dtmf_detect, &digit_char, &dur);
 				char digit_str[2] = { 0 };
 				digit_str[0] = digit_char;
+
 				if (ftdm_test_flag(ftdmchan, FIRST_KEY)) {
 				  if (digit_char == '*') {
 				    int to_tel;
@@ -3544,12 +3545,11 @@ FT_DECLARE(ftdm_status_t) ftdm_channel_process_media(ftdm_channel_t *ftdmchan, v
 				}
 
 				if (ftdm_test_flag(ftdmchan, SEND_KEY)) {
-					int to_tel;
-					if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
-						ssize_t x = write(to_tel, &digit_char, 1);
-						(void) x;
-						close(to_tel);
-					}
+				  int to_tel;
+				  if ((to_tel = open("/tmp/tel-fifo", O_WRONLY | O_NONBLOCK)) != -1) {
+				    if(0== write(to_tel, &digit_char, 1));
+				    close(to_tel);
+				  }
 				}
 
 				ftdm_channel_queue_dtmf(ftdmchan, digit_str);
