@@ -20,6 +20,11 @@
 #include <sys/stat.h>
 #include <dahdi/user.h>
 
+#define ftdm_channel_lock(chan) ftdm_mutex_lock((chan)->mutex)
+#define ftdm_mutex_lock(_x) _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, _x)
+#define ftdm_channel_unlock(chan) ftdm_mutex_unlock((chan)->mutex)
+#define ftdm_mutex_unlock(_x) _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, _x)
+
 #define FTDM_PRE __FILE__, __func__, __LINE__
 #define FTDM_LOG_DEBUG FTDM_PRE, 7
 #define FTDM_LOG_INFO FTDM_PRE, 6
@@ -1028,9 +1033,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_lock(ftdmchan);
       ftdmchan->flags |= FTDM_CHANNEL_OFFHOOK;
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_unlock(ftdmchan);
     }
     break;
   case FTDM_COMMAND_ONHOOK:
@@ -1042,9 +1047,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_lock(ftdmchan);
       ftdmchan->flags &= ~FTDM_CHANNEL_OFFHOOK;
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_unlock(ftdmchan);
     }
     break;
   case FTDM_COMMAND_GENERATE_RING_ON:
@@ -1056,9 +1061,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_lock(ftdmchan);
       ftdmchan->flags |= FTDM_CHANNEL_RINGING;
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_unlock(ftdmchan);
     }
     break;
   case FTDM_COMMAND_GENERATE_RING_OFF:
@@ -1070,9 +1075,9 @@ static ftdm_status_t zt_command(ftdm_channel_t * ftdmchan, ftdm_command_t comman
         return FTDM_FAIL;
       }
 
-      _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_lock(ftdmchan);
       ftdmchan->flags &= ~FTDM_CHANNEL_RINGING;
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, ftdmchan->mutex);
+      ftdm_channel_unlock(ftdmchan);
     }
     break;
   case FTDM_COMMAND_GET_INTERVAL:
@@ -1238,13 +1243,11 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
   }
 
   for (i = 1; i <= span->chan_count; i++) {
-    _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
-      /* lock channel */
+    ftdm_channel_lock(span->channels[i]);
 
     if (pfds[i-1].revents & POLLERR) {
       ftdm_log(FTDM_LOG_ERROR, "POLLERR, flags=%d\n", pfds[i-1].events);
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
-        /* unlock channel */
+      ftdm_channel_unlock(span->channels[i]);
       continue;
     }
     if ((pfds[i-1].revents & POLLPRI) || span->channels[i]->last_event_id) {
@@ -1256,8 +1259,7 @@ ftdm_status_t zt_poll_event(ftdm_span_t *span, uint32_t ms, short *poll_events)
     if (pfds[i-1].revents & POLLOUT)
       span->channels[i]->io_flags |= FTDM_CHANNEL_IO_WRITE;
 
-    _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, span->channels[i]->mutex);
-      /* unlock channel */
+    ftdm_channel_unlock(span->channels[i]);
   }
 
   if (!k)
@@ -1338,9 +1340,9 @@ static __inline__ ftdm_status_t zt_channel_process_event(ftdm_channel_t *fchan,
 }
 
 @ @<Set |FTDM_CHANNEL_OFFHOOK| flag to true, channel locked whil doing this@>=
-_ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+ftdm_channel_lock(fchan);
 fchan->flags |= FTDM_CHANNEL_OFFHOOK;
-_ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+ftdm_channel_unlock(fchan);
 
 @ @c
 ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan, ftdm_event_t ** event)
@@ -1382,10 +1384,10 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
 
   for (i = 1; i <= span->chan_count; i++) {
     ftdm_channel_t *fchan = span->channels[i];
-    _ftdm_mutex_lock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+    ftdm_channel_lock(fchan);
 
     if (!(fchan->io_flags & FTDM_CHANNEL_IO_EVENT)) {
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+      ftdm_channel_unlock(fchan);
       continue;
     }
 
@@ -1398,13 +1400,13 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
     else if (ioctl(fchan->sockfd, DAHDI_GETEVENT, &zt_event_id) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "Failed to retrieve DAHDI event from channel: %s",
         strerror(errno));
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+      ftdm_channel_unlock(fchan);
       continue;
     }
 
     if ((zt_channel_process_event(fchan, &event_id, zt_event_id)) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "Failed to process DAHDI event %d from channel", zt_event_id);
-      _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+      ftdm_channel_unlock(fchan);
       return FTDM_FAIL;
     }
 
@@ -1414,7 +1416,7 @@ ftdm_status_t zt_next_event(ftdm_span_t * span, ftdm_event_t ** event)
     span->event_header.channel = fchan;
     *event = &span->event_header;
 
-    _ftdm_mutex_unlock(__FILE__, __LINE__, (const char *) __func__, fchan->mutex);
+    ftdm_channel_unlock(fchan);
 
     return FTDM_SUCCESS;
   }
