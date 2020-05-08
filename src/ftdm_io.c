@@ -4384,7 +4384,7 @@ static ftdm_status_t load_config(void)
 	        ftdm_channel_config_t chan_config;
         	memset(&chan_config, 0, sizeof(chan_config));
 	        sprintf(chan_config.group_name, "__default");
-        	chan_config.debugdtmf = FTDM_TRUE;
+        	chan_config.debugdtmf = FTDM_FALSE;
 		// ftdm_set_string(globals.dtmfdebug_directory, "...");
 		if (ftdm_configure_span_channels(span, &chan_config) != FTDM_SUCCESS)
 			return FTDM_FAIL;
