@@ -1003,20 +1003,6 @@ static ftdm_status_t zt_configure_span(ftdm_span_t *span)
       return 0;
     }
 
-    struct dahdi_params ztp;
-    memset(&ztp, 0, sizeof ztp); /* is it necessary? */
-    if (ioctl(sockfd, DAHDI_GET_PARAMS, &ztp) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_GET_PARAMS failed");
-      close(sockfd);
-      continue;
-    }
-    ztp.rxflashtime = 250;
-    if (ioctl(sockfd, DAHDI_SET_PARAMS, &ztp) == -1) {
-      ftdm_log(FTDM_LOG_ERROR, "DAHDI_SET_PARAMS failed");
-      close(sockfd);
-      continue;
-    }
-
     ftdm_channel_t *ftdmchan;
     if (ftdm_span_add_channel(span, sockfd, &ftdmchan) != FTDM_SUCCESS) {
       ftdm_log(FTDM_LOG_ERROR, "failed to add channel to span\n");
