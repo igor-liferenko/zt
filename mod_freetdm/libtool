@@ -7129,7 +7129,7 @@ func_mode_link ()
     compiler_flags=
     linker_flags=
     dllsearchpath=
-    lib_search_path=`pwd`
+    lib_search_path=/usr
     inst_prefix_dir=
     new_inherited_linker_flags=
 
