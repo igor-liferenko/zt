@@ -51,3 +51,6 @@ dahdi-tone: dahdi-tone.c
 
 dahdi-chan: dahdi-chan.c
 	gcc -o /bin/dahdi-chan dahdi-chan.c
+
+ctangle:
+	gcc -w common.c ctangle.c -o ctangle
