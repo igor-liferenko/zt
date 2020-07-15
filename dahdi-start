@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 modprobe dahdi
+chgrp dialout /dev/dahdi/*
 dahdi-tone
 modprobe wctdm24xxp
+chmod g+rw /dev/dahdi/chan/001/*
+chgrp dialout /dev/dahdi/chan/001/*
 dahdi-chan
