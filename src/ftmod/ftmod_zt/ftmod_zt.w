@@ -976,7 +976,11 @@ ftdm_status_t zt_channel_next_event(ftdm_channel_t * ftdmchan,
 @c
 static ftdm_status_t zt_configure_span(ftdm_span_t *span)
 {
+#ifdef WORK
+  for (int channel = 2; channel <= 2; channel++) {
+#else
   for (int channel = 2; channel <= 4; channel++) {
+#endif
     int sockfd;
     if ((sockfd = open("/dev/dahdi/channel", O_RDWR)) == -1) {
       ftdm_log(FTDM_LOG_ERROR, "failed to open /dev/dahdi/channel\n");
