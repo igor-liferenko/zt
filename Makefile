@@ -29,21 +29,18 @@ clean:
 	git clean -X -d -f .
 
 install:
-	/bin/bash ./libtool --silent --tag=CC   --mode=compile gcc -DPACKAGE_NAME=\"freetdm\" -DPACKAGE_TARNAME=\"freetdm\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"freetdm\ 0.1\" -DPACKAGE_BUGREPORT=\"bugs@freeswitch.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"freetdm\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DDEBUG=/\*\*/ -DHAVE_LIBDL=1 -DHAVE_LIBPTHREAD=1 -DHAVE_LIBM=1 -DHAVE_NETDB_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_GETHOSTBYNAME_R=1 -I. -I./src/include -I.   -D_FORTIFY_SOURCE=2 -I/usr/src/freeswitch-new-compilation/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/freetdm/src/include -I/usr/src/freeswitch-new-compilation/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/freetdm/src/include/private -DFTDM_CONFIG_DIR=\"/etc\" -DFTDM_MOD_DIR=\"/usr/lib/freeswitch/mod\" -ffast-math -Wall -Werror -Wunused-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -O0 -g -ggdb -DPACKAGE_NAME=\"freetdm\" -DPACKAGE_TARNAME=\"freetdm\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"freetdm\ 0.1\" -DPACKAGE_BUGREPORT=\"bugs@freeswitch.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"freetdm\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DDEBUG=/\*\*/ -DHAVE_LIBDL=1 -DHAVE_LIBPTHREAD=1 -DHAVE_LIBM=1 -DHAVE_NETDB_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_GETHOSTBYNAME_R=1  -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4 -DHAVE_ZLIB -c -o ftmod_zt_la-ftmod_zt.lo `test -f 'src/ftmod/ftmod_zt/ftmod_zt.c' || echo './'`src/ftmod/ftmod_zt/ftmod_zt.c
-	/bin/bash ./libtool --silent --tag=CC   --mode=link gcc -I/usr/src/freeswitch-new-compilation/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/freetdm/src/include -I/usr/src/freeswitch-new-compilation/freeswitch-1.10.1~release~12~f9990221e6~buster/libs/freetdm/src/include/private -DFTDM_CONFIG_DIR=\"/etc\" -DFTDM_MOD_DIR=\"/usr/lib/freeswitch/mod\" -ffast-math -Wall -Werror -Wunused-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -O0 -g -ggdb -DPACKAGE_NAME=\"freetdm\" -DPACKAGE_TARNAME=\"freetdm\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"freetdm\ 0.1\" -DPACKAGE_BUGREPORT=\"bugs@freeswitch.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"freetdm\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DDEBUG=/\*\*/ -DHAVE_LIBDL=1 -DHAVE_LIBPTHREAD=1 -DHAVE_LIBM=1 -DHAVE_NETDB_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_GETHOSTBYNAME_R=1  -g3 -O2 -fPIC -fstack-protector --param=ssp-buffer-size=4 -DHAVE_ZLIB -shared -module -avoid-version -Wl,-z,relro -o ftmod_zt.la -rpath /usr/lib/freeswitch/mod ftmod_zt_la-ftmod_zt.lo libfreetdm.la -lm -lpthread -ldl 
-	/usr/bin/mkdir -p '/usr/lib'
-	/bin/bash ./libtool   --mode=install /usr/bin/install -c   libfreetdm.la '/usr/lib'
-	/bin/bash build/install-sh -d /usr
-	/bin/bash build/install-sh -d /etc
-	/usr/bin/mkdir -p '/usr/include'
-	/usr/bin/install -c -m 644 src/include/freetdm.h src/include/ftdm_declare.h src/include/ftdm_threadmutex.h src/include/ftdm_os.h src/include/ftdm_call_utils.h src/include/ftdm_dso.h '/usr/include'
-	/usr/bin/mkdir -p '/usr/lib/freeswitch/mod'
-	/bin/bash ./libtool   --mode=install /usr/bin/install -c   ftmod_zt.la ftmod_analog.la '/usr/lib/freeswitch/mod'
-	/usr/bin/mkdir -p '/usr/lib/pkgconfig'
-	/usr/bin/install -c -m 644 freetdm.pc '/usr/lib/pkgconfig'
-
-scp:
-	@rsync -aR `git status|sed -n 's/^\tmodified:   //p'` l:zt/
+	if ! grep -q sid /etc/debian_version; then \
+	/usr/bin/mkdir -p '/usr/lib'; \
+	/bin/bash ./libtool   --mode=install /usr/bin/install -c   libfreetdm.la '/usr/lib'; \
+	/bin/bash build/install-sh -d /usr; \
+	/bin/bash build/install-sh -d /etc; \
+	/usr/bin/mkdir -p '/usr/include'; \
+	/usr/bin/install -c -m 644 src/include/freetdm.h src/include/ftdm_declare.h src/include/ftdm_threadmutex.h src/include/ftdm_os.h src/include/ftdm_call_utils.h src/include/ftdm_dso.h '/usr/include'; \
+	/usr/bin/mkdir -p '/usr/lib/freeswitch/mod'; \
+	/bin/bash ./libtool   --mode=install /usr/bin/install -c   ftmod_zt.la ftmod_analog.la '/usr/lib/freeswitch/mod'; \
+	/usr/bin/mkdir -p '/usr/lib/pkgconfig'; \
+	/usr/bin/install -c -m 644 freetdm.pc '/usr/lib/pkgconfig'; \
+	fi
 
 dahdi-tone: dahdi-tone.c
 	gcc -o /bin/dahdi-tone dahdi-tone.c -lm
